@@ -1,15 +1,22 @@
 """
-MC QLoRA fine-tuning + post-training full-eval script for Phi-3.5-mini-Instruct (3.8B).
+MC QLoRA fine-tuning + post-training full-eval script for Mistral-7B-Instruct-v0.3.
 
 Sibling of train_and_full_eval_mc.py (Qwen2.5-1.5B-Instruct).  The pipeline is
 deliberately kept identical so that the four-model comparison (Qwen2.5-1.5B /
-Llama-3.2-3B / Phi-3.5-mini / Llama-3.1-8B) only differs in the base model.
+SmolLM3-3B / Phi-3.5-mini / Mistral-7B-Instruct-v0.3) only differs in the
+base model.
 
-Phi-3/3.5 specific differences vs. the Qwen baseline:
-  * Attention uses a fused qkv projection: the LoRA target modules are
-    ["qkv_proj", "o_proj"] (instead of the four separate q/k/v/o on Qwen/Llama).
-  * trust_remote_code=True is set defensively to support older transformers
-    versions that still rely on the Hub-side modelling code.
+Mistral-7B-Instruct-v0.3 is used as the non-gated ~upper-bound slot in place
+of Llama-3.1-8B-Instruct (which requires a Meta licence).  Apache 2.0; the
+HF page has a "click-through agreement" that is auto-approved instantly.
+
+7B-specific vs. the Qwen baseline:
+  * max_length reduced to 256 (from 384) so the model + activations + KV
+    cache comfortably fit on a single 8GB GPU (e.g. RTX 4060 Laptop).
+    This is the only 7B-specific memory tweak; all other hyper-parameters
+    (LoRA, lr, epochs, schedule, eval protocol) are unchanged.
+  * gradient_accumulation_steps raised to 16 to keep a similar effective
+    batch size under the tighter memory budget.
 """
 
 import re
@@ -335,26 +342,28 @@ def run_generation_metrics(
 
 
 # =========================
-# Config (Phi-3.5-mini-Instruct, 3.8B)
+# Config (Mistral-7B-Instruct-v0.3)
 # =========================
 @dataclass
 class CFG:
     # ---- Model ----
-    model_name: str = "microsoft/Phi-3.5-mini-instruct"
+    # Non-gated (click-through agreement, auto-approved instantly).
+    model_name: str = "mistralai/Mistral-7B-Instruct-v0.3"
 
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
-    output_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
+    output_dir: str = "sft_mistral7b_qlora_safe_resume2"
 
-    max_length: int = 384
+    # Shrunk from 384 to fit 7B QLoRA on 8GB VRAM.
+    max_length: int = 256
     lr: float = 2e-4
     epochs: float = 2.0
 
-    # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 24GB.
     per_device_train_batch_size: int = 1
     per_device_eval_batch_size: int = 1
-    gradient_accumulation_steps: int = 8
+    # Raised to 16 to keep a similar effective batch under tighter memory.
+    gradient_accumulation_steps: int = 16
 
     warmup_ratio: float = 0.03
     weight_decay: float = 0.01
@@ -408,20 +417,16 @@ def build_training_args(cfg: CFG, use_bf16: bool) -> TrainingArguments:
 
 
 # =========================
-# Model (Phi-3.5-mini)
+# Model (Mistral-7B-Instruct-v0.3)
 # =========================
 def make_model_and_tokenizer(cfg: CFG):
     log("loading tokenizer...")
-    # trust_remote_code=False: the Hub-side modeling_phi3.py still references
-    # `DynamicCache.seen_tokens` which has been removed from modern
-    # transformers, which breaks model.generate() during post-training eval.
-    # transformers >= 4.45 ships a native Phi3 class that uses the modern Cache
-    # API correctly, so we force the native path here.
     tokenizer = AutoTokenizer.from_pretrained(
         cfg.model_name,
         use_fast=True,
         trust_remote_code=False,
     )
+    # Mistral tokenizer has no pad_token; reuse eos.
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
@@ -445,7 +450,6 @@ def make_model_and_tokenizer(cfg: CFG):
             quantization_config=bnb_config,
             device_map="auto",
             low_cpu_mem_usage=True,
-            trust_remote_code=False,
         )
         model = prepare_model_for_kbit_training(model)
     else:
@@ -453,18 +457,15 @@ def make_model_and_tokenizer(cfg: CFG):
             cfg.model_name,
             torch_dtype=torch.bfloat16 if use_bf16 else torch.float16,
             low_cpu_mem_usage=True,
-            trust_remote_code=False,
         )
         if torch.cuda.is_available():
             model.to("cuda")
 
-    # Phi-3/3.5 self-attn uses fused qkv_proj + o_proj (no separate q/k/v_proj).
-    # We therefore target qkv_proj and o_proj to stay analogous to the Qwen
-    # attention-only LoRA configuration used in the baseline.
+    # Mistral self-attn uses q_proj / k_proj / v_proj / o_proj — same as Qwen/Llama.
     lora_config = LoraConfig(
         r=8,
         lora_alpha=16,
-        target_modules=["qkv_proj", "o_proj"],
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
@@ -577,7 +578,7 @@ def main():
         f"F1={final_eval['answer_f1']:.4f}"
     )
 
-    result_path = "mc_train_and_large_eval_results_phi3p5_mini.txt"
+    result_path = "mc_train_and_large_eval_results_mistral7b.txt"
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(f"model = {cfg.model_name}\n")
         f.write(f"output_dir = {cfg.output_dir}\n")
