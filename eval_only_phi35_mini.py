@@ -19,12 +19,20 @@ Important:
 """
 
 # ---------------------------------------------------------------
-# DynamicCache.seen_tokens back-compat shim — must be installed
-# BEFORE any model loading / generation happens.
+# DynamicCache back-compat shims — must be installed BEFORE any
+# model loading / generation happens.  The Hub-side modeling_phi3.py
+# for Phi-3.5-mini still calls a couple of old DynamicCache APIs
+# that have been removed in modern transformers:
+#   * past_key_values.seen_tokens       (used to be an attribute)
+#   * past_key_values.get_max_length()  (removed / renamed)
+# We restore both so the Hub Phi3 code keeps working without
+# having to re-train.
 # ---------------------------------------------------------------
 import transformers  # noqa: F401  (ensure transformers is imported first)
 try:
     from transformers.cache_utils import DynamicCache
+
+    # seen_tokens -> alias over get_seq_length()
     if not hasattr(DynamicCache, "seen_tokens"):
         def _seen_tokens(self):
             try:
@@ -32,6 +40,20 @@ try:
             except Exception:
                 return 0
         DynamicCache.seen_tokens = property(_seen_tokens)
+
+    # get_max_length() -> return None (means "no explicit max cache length"),
+    # which is how the Hub Phi3 prepare_inputs_for_generation handles it:
+    # the max_cache_length branch is skipped when None.
+    if not hasattr(DynamicCache, "get_max_length"):
+        def _get_max_length(self):
+            return None
+        DynamicCache.get_max_length = _get_max_length
+
+    # Some versions of the Hub modelling code also reach for this:
+    if not hasattr(DynamicCache, "get_max_cache_shape"):
+        def _get_max_cache_shape(self):
+            return None
+        DynamicCache.get_max_cache_shape = _get_max_cache_shape
 except Exception as _e:
     # If transformers' internals change, the shim is best-effort.
     print(f"[warn] DynamicCache shim skipped: {_e}", flush=True)
