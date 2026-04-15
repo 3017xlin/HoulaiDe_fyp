@@ -1,25 +1,46 @@
 """
 Eval-only recovery script for Phi-3.5-mini-Instruct.
 
-Use this when the post-training eval inside train_and_full_eval_mc_phi35_mini.py
-crashes with:
-    AttributeError: 'DynamicCache' object has no attribute 'seen_tokens'
-This happens because the Phi-3.5 modelling code shipped on the Hub (loaded via
-trust_remote_code=True) still references the old `seen_tokens` attribute that
-has been removed from transformers' modern DynamicCache.
+This script loads the *already-trained* LoRA adapter from disk on top of the
+Phi-3.5 base model, and re-runs the exact post-training evaluation from
+train_and_full_eval_mc_phi35_mini.py (train-1000 + eval-1263 sample
+generation metrics).  Training is NOT repeated.
 
-This script avoids the issue by loading the base model through the native
-transformers Phi3 implementation (trust_remote_code=False), which uses the
-modern Cache API correctly, and then loads the *already-trained* LoRA adapter
-from disk on top. Training is NOT repeated.
-
-Run:
-    python eval_only_phi35_mini.py
+Important:
+  * The original training was run with trust_remote_code=True, i.e. using
+    the Hub-side modelling_phi3.py from the Phi-3.5 repo.  To guarantee the
+    saved LoRA adapter applies to *exactly the same* module structure at
+    eval time, we also load with trust_remote_code=True here.
+  * The Hub-side modelling_phi3.py still references `DynamicCache.seen_tokens`,
+    which was removed from modern transformers.  We restore it as a property
+    alias over `get_seq_length()` before importing anything that touches
+    generation, so Hub-side Phi3 code keeps working without having to
+    re-train.
 """
+
+# ---------------------------------------------------------------
+# DynamicCache.seen_tokens back-compat shim — must be installed
+# BEFORE any model loading / generation happens.
+# ---------------------------------------------------------------
+import transformers  # noqa: F401  (ensure transformers is imported first)
+try:
+    from transformers.cache_utils import DynamicCache
+    if not hasattr(DynamicCache, "seen_tokens"):
+        def _seen_tokens(self):
+            try:
+                return self.get_seq_length()
+            except Exception:
+                return 0
+        DynamicCache.seen_tokens = property(_seen_tokens)
+except Exception as _e:
+    # If transformers' internals change, the shim is best-effort.
+    print(f"[warn] DynamicCache shim skipped: {_e}", flush=True)
+
 
 import re
 import time
 import random
+import os
 from dataclasses import dataclass
 from typing import Dict, List
 from collections import Counter
@@ -37,7 +58,6 @@ from peft import PeftModel
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
-USE_QLORA = True
 USE_CHAT_TEMPLATE = True
 
 ANSWER_TAG_RE = re.compile(r"<answer>\s*([ABCD])\s*</answer>", re.I | re.S)
@@ -49,7 +69,7 @@ def log(msg: str):
 
 
 # =========================
-# Robust MC answer extraction (identical to training script)
+# Answer extraction / F1
 # =========================
 def extract_mc_answer(text: str) -> str:
     text = str(text).strip()
@@ -110,7 +130,7 @@ def f1_word(pred: str, gold: str) -> float:
 
 
 # =========================
-# Dataset preparation (identical to training script)
+# Dataset preparation
 # =========================
 def ensure_prompt_answer_columns(ds, name: str):
     cols = set(ds.column_names)
@@ -195,7 +215,7 @@ def build_chat_prompt(tokenizer, user_prompt: str) -> str:
 
 
 # =========================
-# Eval helpers (identical to training script)
+# Eval loop
 # =========================
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
     if k <= 0 or k >= n:
@@ -295,12 +315,40 @@ class CFG:
     eval_use_all: bool = True
 
 
+def _list_adapter_dir(path: str):
+    if not os.path.isdir(path):
+        raise FileNotFoundError(
+            f"Adapter directory not found: {path}\n"
+            f"Did training finish and save the adapter?  Expected to contain "
+            f"adapter_config.json and adapter_model.safetensors (or .bin)."
+        )
+    files = sorted(os.listdir(path))
+    log(f"adapter_dir contents ({path}):")
+    for f in files:
+        full = os.path.join(path, f)
+        size = os.path.getsize(full) if os.path.isfile(full) else 0
+        log(f"  {f}  ({size} bytes)")
+    # basic sanity check
+    need_any_weight = any(f.startswith("adapter_model.") for f in files)
+    need_config = "adapter_config.json" in files
+    if not need_config:
+        raise FileNotFoundError(
+            f"adapter_config.json missing under {path} -- adapter was not saved correctly."
+        )
+    if not need_any_weight:
+        raise FileNotFoundError(
+            f"No adapter_model.* weight file under {path} -- adapter was not saved correctly."
+        )
+
+
 def load_model_and_tokenizer(cfg: CFG):
-    log("loading tokenizer (trust_remote_code=False, native Phi3 path)...")
+    _list_adapter_dir(cfg.adapter_dir)
+
+    log("loading tokenizer with trust_remote_code=True (match training)...")
     tokenizer = AutoTokenizer.from_pretrained(
         cfg.model_name,
         use_fast=True,
-        trust_remote_code=False,
+        trust_remote_code=True,
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -310,7 +358,7 @@ def load_model_and_tokenizer(cfg: CFG):
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
     log(f"bf16_supported={use_bf16} (will use {'bf16' if use_bf16 else 'fp16'})")
 
-    log("loading base model with 4-bit NF4 quantization (native Phi3)...")
+    log("loading base model (4-bit NF4, trust_remote_code=True, matches training)...")
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -322,14 +370,19 @@ def load_model_and_tokenizer(cfg: CFG):
         quantization_config=bnb_config,
         device_map="auto",
         low_cpu_mem_usage=True,
-        trust_remote_code=False,
+        trust_remote_code=True,
     )
     log(f"base model loaded; device={next(base.parameters()).device}")
 
     log(f"loading LoRA adapter from {cfg.adapter_dir} ...")
     model = PeftModel.from_pretrained(base, cfg.adapter_dir)
     model.eval()
-    log("LoRA adapter loaded; ready for evaluation")
+
+    # Diagnostic: confirm the adapter is actually attached.
+    log("peft_config keys:")
+    for k, v in model.peft_config.items():
+        log(f"  {k}: target_modules={v.target_modules}, r={v.r}, alpha={v.lora_alpha}")
+    model.print_trainable_parameters()
 
     return model, tokenizer
 
@@ -338,7 +391,8 @@ def main():
     cfg = CFG()
 
     log("start")
-    log(f"torch={torch.__version__} | cuda_available={torch.cuda.is_available()}")
+    log(f"torch={torch.__version__} | transformers={transformers.__version__} | "
+        f"cuda_available={torch.cuda.is_available()}")
     if torch.cuda.is_available():
         log(f"gpu={torch.cuda.get_device_name(0)}")
 
