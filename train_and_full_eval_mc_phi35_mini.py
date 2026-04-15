@@ -15,10 +15,11 @@ Phi-3/3.5 specific differences vs. the Qwen baseline:
     "reason then answer" prompt literally and needs enough budget to emit
     <answer>X</answer>; 12 tokens is too small and produces 0 accuracy.
 
-This file has a "smoke-test" mode gated by `train_subsample_size` below.
-Set it to a small integer (default: 500) for a ~10-minute end-to-end run
-to verify the pipeline before committing to the full ~8h training.  Set
-it to None to train on the full 23,999-sample set.
+This file is in "production" mode: it trains on the full 23,999-sample set,
+runs for 2 epochs, and evaluates the full eval split after training.
+A "smoke-test" mode is still available via `train_subsample_size`: set it to
+a small integer (e.g. 500) for a ~10-minute end-to-end pipeline check; set
+it to None (the default) to train on the full 23,999-sample set.
 """
 
 # ---------------------------------------------------------------
@@ -395,14 +396,17 @@ class CFG:
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
-    # NOTE: distinct output_dir so the SMOKE run does NOT overwrite any
-    # previous full-training adapter in sft_phi3p5_mini_qlora_safe_resume2.
-    output_dir: str = "sft_phi3p5_mini_qlora_SMOKE"
+    # Production adapter directory.  If a smoke test is required, switch
+    # train_subsample_size below to a small integer and optionally change
+    # this to e.g. "sft_phi3p5_mini_qlora_SMOKE" so smoke runs don't overwrite
+    # the production adapter.
+    output_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
 
     max_length: int = 384
     lr: float = 2e-4
-    # 1 epoch for smoke test; set back to 2.0 for the production run.
-    epochs: float = 1.0
+    # 2 epochs for the production run (same as the Qwen/Llama baselines).
+    # Drop to 1.0 only when combined with train_subsample_size for a smoke test.
+    epochs: float = 2.0
 
     # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 8-24GB.
     per_device_train_batch_size: int = 1
@@ -420,18 +424,18 @@ class CFG:
     max_new_tokens: int = 64
     eval_seed: int = 1234
 
-    # --------- SMOKE TEST knobs ---------
+    # --------- SMOKE TEST knobs (off by default) ---------
     # train_subsample_size: integer -> randomly take that many training
-    # examples.  None -> train on the full 23,999-sample set.  For a
-    # ~10 minute pipeline smoke test on an RTX 4060 Laptop, 500 works well.
-    train_subsample_size: Optional[int] = 500
+    # examples.  None -> train on the full 23,999-sample set.  Set to e.g.
+    # 500 for a ~10 minute pipeline smoke test on an RTX 4060 Laptop.
+    train_subsample_size: Optional[int] = None
     train_subsample_seed: int = 42
 
-    # Small post-training eval for the smoke test: 100 samples on train side
-    # and 100 on eval side.  For a full run, set train_eval_samples=1000 and
-    # eval_use_all=True to evaluate the entire 1263-sample eval set.
-    train_eval_samples: int = 100
-    eval_use_all: bool = False
+    # Production eval: 1000 samples on the (23,999-sample) train side,
+    # entire 1263-sample eval side.  For a smoke test lower train_eval_samples
+    # and set eval_use_all=False.
+    train_eval_samples: int = 1000
+    eval_use_all: bool = True
 
 
 # =========================
@@ -575,7 +579,7 @@ def main():
                      .select(range(cfg.train_subsample_size))
         )
         log(
-            f"[SMOKE] subsampled train_raw: {n_before} -> {len(train_raw)} "
+            f"[SUBSAMPLE] subsampled train_raw: {n_before} -> {len(train_raw)} "
             f"(seed={cfg.train_subsample_seed})"
         )
     else:
