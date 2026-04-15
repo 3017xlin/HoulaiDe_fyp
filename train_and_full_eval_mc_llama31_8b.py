@@ -15,7 +15,59 @@ Note:
   * meta-llama/Llama-3.1-8B-Instruct is a gated model. Accept the license on
     the Hugging Face Hub and set HF_TOKEN (or run `huggingface-cli login`)
     before launching.
+
+Debugging lessons propagated from the Phi-3.5 post-training-eval crash:
+  * DynamicCache back-compat shim is installed defensively at import time
+    in case any generation path ever reaches for the removed
+    seen_tokens / get_max_length / get_max_cache_shape / get_usable_length
+    methods.  Llama-3.1 uses the native transformers Llama class so the
+    shim is normally inert, but it is cheap insurance.
+  * max_new_tokens bumped from 12 to 64.  Chat-tuned models tend to emit a
+    short rationale before the <answer>X</answer> tag and 12 tokens gets
+    them truncated before the answer ever appears (that is what gave the
+    Phi-3.5 post-training eval 0.00 accuracy).
 """
+
+# ---------------------------------------------------------------
+# DynamicCache back-compat shims — installed defensively before any
+# model loading / generation happens.  Llama uses the native transformers
+# class so these shims are normally inert, but they are kept in case
+# anything in the generation stack ever reaches for the removed
+# DynamicCache methods on transformers 5.5+.
+# ---------------------------------------------------------------
+import transformers  # noqa: F401
+try:
+    from transformers.cache_utils import DynamicCache
+
+    if not hasattr(DynamicCache, "seen_tokens"):
+        def _seen_tokens(self):
+            try:
+                return self.get_seq_length()
+            except Exception:
+                return 0
+        DynamicCache.seen_tokens = property(_seen_tokens)
+
+    if not hasattr(DynamicCache, "get_max_length"):
+        DynamicCache.get_max_length = lambda self: None
+
+    if not hasattr(DynamicCache, "get_max_cache_shape"):
+        DynamicCache.get_max_cache_shape = lambda self: None
+
+    if not hasattr(DynamicCache, "get_usable_length"):
+        def _get_usable_length(self, new_seq_length, layer_idx=0):
+            try:
+                return self.get_seq_length(layer_idx)
+            except TypeError:
+                try:
+                    return self.get_seq_length()
+                except Exception:
+                    return 0
+            except Exception:
+                return 0
+        DynamicCache.get_usable_length = _get_usable_length
+except Exception as _e:
+    print(f"[warn] DynamicCache shim skipped: {_e}", flush=True)
+
 
 import re
 import time
@@ -369,7 +421,11 @@ class CFG:
     logging_steps: int = 10
     save_steps: int = 500
 
-    max_new_tokens: int = 12
+    # max_new_tokens bumped 12 -> 64: chat-tuned models (Phi-3.5 especially,
+    # but Llama-3.1-8B-Instruct follows the same "reason then answer" prompt
+    # literally) need enough budget to emit <answer>X</answer> after a short
+    # rationale.  12 tokens is too small and produced 0.00 accuracy on Phi.
+    max_new_tokens: int = 64
     eval_seed: int = 1234
 
     train_eval_samples: int = 1000

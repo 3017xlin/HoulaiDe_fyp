@@ -8,9 +8,60 @@ Llama-3.2-3B / Phi-3.5-mini / Llama-3.1-8B) only differs in the base model.
 Phi-3/3.5 specific differences vs. the Qwen baseline:
   * Attention uses a fused qkv projection: the LoRA target modules are
     ["qkv_proj", "o_proj"] (instead of the four separate q/k/v/o on Qwen/Llama).
-  * trust_remote_code=True is set defensively to support older transformers
-    versions that still rely on the Hub-side modelling code.
+  * We load the base model with trust_remote_code=False so that transformers'
+    *native* Phi3 class is used.  The Hub-side modeling_phi3.py (commit 2fe1924)
+    is incompatible with modern transformers and crashes in generate().
+  * max_new_tokens is 64 (not 12) at eval time.  Phi-3.5 follows the
+    "reason then answer" prompt literally and needs enough budget to emit
+    <answer>X</answer>; 12 tokens is too small and produces 0 accuracy.
+
+This file is in "production" mode: it trains on the full 23,999-sample set,
+runs for 2 epochs, and evaluates the full eval split after training.
+A "smoke-test" mode is still available via `train_subsample_size`: set it to
+a small integer (e.g. 500) for a ~10-minute end-to-end pipeline check; set
+it to None (the default) to train on the full 23,999-sample set.
 """
+
+# ---------------------------------------------------------------
+# DynamicCache back-compat shims — installed defensively before any
+# model loading / generation happens.  We use the native Phi3 class
+# (trust_remote_code=False), so these shims are normally inert, but
+# they are kept in case anything in the generation stack ever reaches
+# for the removed DynamicCache methods on transformers 5.5+.
+# ---------------------------------------------------------------
+import transformers  # noqa: F401
+try:
+    from transformers.cache_utils import DynamicCache
+
+    if not hasattr(DynamicCache, "seen_tokens"):
+        def _seen_tokens(self):
+            try:
+                return self.get_seq_length()
+            except Exception:
+                return 0
+        DynamicCache.seen_tokens = property(_seen_tokens)
+
+    if not hasattr(DynamicCache, "get_max_length"):
+        DynamicCache.get_max_length = lambda self: None
+
+    if not hasattr(DynamicCache, "get_max_cache_shape"):
+        DynamicCache.get_max_cache_shape = lambda self: None
+
+    if not hasattr(DynamicCache, "get_usable_length"):
+        def _get_usable_length(self, new_seq_length, layer_idx=0):
+            try:
+                return self.get_seq_length(layer_idx)
+            except TypeError:
+                try:
+                    return self.get_seq_length()
+                except Exception:
+                    return 0
+            except Exception:
+                return 0
+        DynamicCache.get_usable_length = _get_usable_length
+except Exception as _e:
+    print(f"[warn] DynamicCache shim skipped: {_e}", flush=True)
+
 
 import re
 import time
@@ -345,25 +396,44 @@ class CFG:
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
+    # Production adapter directory.  If a smoke test is required, switch
+    # train_subsample_size below to a small integer and optionally change
+    # this to e.g. "sft_phi3p5_mini_qlora_SMOKE" so smoke runs don't overwrite
+    # the production adapter.
     output_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
 
     max_length: int = 384
     lr: float = 2e-4
+    # 2 epochs for the production run (same as the Qwen/Llama baselines).
+    # Drop to 1.0 only when combined with train_subsample_size for a smoke test.
     epochs: float = 2.0
 
-    # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 24GB.
+    # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 8-24GB.
     per_device_train_batch_size: int = 1
     per_device_eval_batch_size: int = 1
     gradient_accumulation_steps: int = 8
 
     warmup_ratio: float = 0.03
     weight_decay: float = 0.01
-    logging_steps: int = 10
-    save_steps: int = 500
+    logging_steps: int = 5
+    save_steps: int = 500  # won't trigger with the small smoke-test run; fine.
 
-    max_new_tokens: int = 12
+    # max_new_tokens bumped 12 -> 64: Phi-3.5 follows the
+    # "reason then answer" prompt literally and needs enough budget to emit
+    # <answer>X</answer>.  Keep this at >=32 for any Phi-style model.
+    max_new_tokens: int = 64
     eval_seed: int = 1234
 
+    # --------- SMOKE TEST knobs (off by default) ---------
+    # train_subsample_size: integer -> randomly take that many training
+    # examples.  None -> train on the full 23,999-sample set.  Set to e.g.
+    # 500 for a ~10 minute pipeline smoke test on an RTX 4060 Laptop.
+    train_subsample_size: Optional[int] = None
+    train_subsample_seed: int = 42
+
+    # Production eval: 1000 samples on the (23,999-sample) train side,
+    # entire 1263-sample eval side.  For a smoke test lower train_eval_samples
+    # and set eval_use_all=False.
     train_eval_samples: int = 1000
     eval_use_all: bool = True
 
@@ -501,6 +571,20 @@ def main():
     eval_raw = ensure_prompt_answer_columns(eval_raw, "eval_raw")
     log(f"datasets loaded: train={len(train_raw)}, eval={len(eval_raw)}")
 
+    # ---- Optional training-set subsampling for smoke tests ----
+    if cfg.train_subsample_size is not None and 0 < cfg.train_subsample_size < len(train_raw):
+        n_before = len(train_raw)
+        train_raw = (
+            train_raw.shuffle(seed=cfg.train_subsample_seed)
+                     .select(range(cfg.train_subsample_size))
+        )
+        log(
+            f"[SUBSAMPLE] subsampled train_raw: {n_before} -> {len(train_raw)} "
+            f"(seed={cfg.train_subsample_seed})"
+        )
+    else:
+        log("training on full train_raw (no subsampling)")
+
     model, tokenizer, use_bf16 = make_model_and_tokenizer(cfg)
 
     def map_fn(ex):
@@ -577,7 +661,12 @@ def main():
         f"F1={final_eval['answer_f1']:.4f}"
     )
 
-    result_path = "mc_train_and_large_eval_results_phi3p5_mini.txt"
+    # Distinct result file for smoke-test runs so they don't overwrite
+    # the production result file.
+    if cfg.train_subsample_size is not None:
+        result_path = "mc_train_and_large_eval_results_phi3p5_mini_SMOKE.txt"
+    else:
+        result_path = "mc_train_and_large_eval_results_phi3p5_mini.txt"
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(f"model = {cfg.model_name}\n")
         f.write(f"output_dir = {cfg.output_dir}\n")
