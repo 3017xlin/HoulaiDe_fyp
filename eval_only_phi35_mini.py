@@ -1,39 +1,37 @@
 """
-MC QLoRA fine-tuning + post-training full-eval script for Phi-3.5-mini-Instruct (3.8B).
+Eval-only recovery script for Phi-3.5-mini-Instruct.
 
-Sibling of train_and_full_eval_mc.py (Qwen2.5-1.5B-Instruct).  The pipeline is
-deliberately kept identical so that the four-model comparison (Qwen2.5-1.5B /
-Llama-3.2-3B / Phi-3.5-mini / Llama-3.1-8B) only differs in the base model.
+Use this when the post-training eval inside train_and_full_eval_mc_phi35_mini.py
+crashes with:
+    AttributeError: 'DynamicCache' object has no attribute 'seen_tokens'
+This happens because the Phi-3.5 modelling code shipped on the Hub (loaded via
+trust_remote_code=True) still references the old `seen_tokens` attribute that
+has been removed from transformers' modern DynamicCache.
 
-Phi-3/3.5 specific differences vs. the Qwen baseline:
-  * Attention uses a fused qkv projection: the LoRA target modules are
-    ["qkv_proj", "o_proj"] (instead of the four separate q/k/v/o on Qwen/Llama).
-  * trust_remote_code=True is set defensively to support older transformers
-    versions that still rely on the Hub-side modelling code.
+This script avoids the issue by loading the base model through the native
+transformers Phi3 implementation (trust_remote_code=False), which uses the
+modern Cache API correctly, and then loads the *already-trained* LoRA adapter
+from disk on top. Training is NOT repeated.
+
+Run:
+    python eval_only_phi35_mini.py
 """
 
 import re
 import time
 import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 from collections import Counter
-from pathlib import Path
 
 import torch
 from datasets import load_dataset
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
-    TrainingArguments,
-    Trainer,
     BitsAndBytesConfig,
 )
-from peft import (
-    LoraConfig,
-    get_peft_model,
-    prepare_model_for_kbit_training,
-)
+from peft import PeftModel
 
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -51,22 +49,19 @@ def log(msg: str):
 
 
 # =========================
-# Robust MC answer extraction
+# Robust MC answer extraction (identical to training script)
 # =========================
 def extract_mc_answer(text: str) -> str:
     text = str(text).strip()
 
-    # 1) strict tag match
     m = ANSWER_TAG_RE.search(text)
     if m:
         return m.group(1).upper()
 
-    # 2) loose <answer> ... without closing tag
     m = re.search(r"<answer>\s*([ABCD])", text, re.I)
     if m:
         return m.group(1).upper()
 
-    # 3) common verbal patterns
     patterns = [
         r"the answer is\s*([ABCD])\b",
         r"final answer\s*[:：]?\s*([ABCD])\b",
@@ -80,7 +75,6 @@ def extract_mc_answer(text: str) -> str:
         if m:
             return m.group(1).upper()
 
-    # 4) last standalone A/B/C/D in the output
     matches = LETTER_RE.findall(text)
     if matches:
         return matches[-1].upper()
@@ -116,7 +110,7 @@ def f1_word(pred: str, gold: str) -> float:
 
 
 # =========================
-# Dataset preparation
+# Dataset preparation (identical to training script)
 # =========================
 def ensure_prompt_answer_columns(ds, name: str):
     cols = set(ds.column_names)
@@ -200,58 +194,8 @@ def build_chat_prompt(tokenizer, user_prompt: str) -> str:
     )
 
 
-def tokenize_sft(tokenizer, prompt: str, target: str, max_length: int):
-    prompt_text = build_chat_prompt(tokenizer, prompt)
-    full = prompt_text + target
-
-    tok_full = tokenizer(
-        full,
-        truncation=True,
-        max_length=max_length,
-        padding=False,
-    )
-    tok_prompt = tokenizer(
-        prompt_text,
-        truncation=True,
-        max_length=max_length,
-        padding=False,
-    )
-
-    input_ids = tok_full["input_ids"]
-    attn = tok_full["attention_mask"]
-
-    labels = input_ids.copy()
-    prompt_len = len(tok_prompt["input_ids"])
-    labels[:prompt_len] = [-100] * prompt_len
-
-    return {
-        "input_ids": input_ids,
-        "attention_mask": attn,
-        "labels": labels,
-    }
-
-
-def collate_pad(tokenizer, features: List[Dict]):
-    def pad_1d(seqs, pad_id):
-        maxlen = max(len(s) for s in seqs)
-        out = torch.full((len(seqs), maxlen), pad_id, dtype=torch.long)
-        for i, s in enumerate(seqs):
-            out[i, :len(s)] = torch.tensor(s, dtype=torch.long)
-        return out
-
-    input_ids = pad_1d([f["input_ids"] for f in features], tokenizer.pad_token_id)
-    attn = pad_1d([f["attention_mask"] for f in features], 0)
-    labels = pad_1d([f["labels"] for f in features], -100)
-
-    return {
-        "input_ids": input_ids,
-        "attention_mask": attn,
-        "labels": labels,
-    }
-
-
 # =========================
-# Eval helpers
+# Eval helpers (identical to training script)
 # =========================
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
     if k <= 0 or k >= n:
@@ -335,88 +279,24 @@ def run_generation_metrics(
 
 
 # =========================
-# Config (Phi-3.5-mini-Instruct, 3.8B)
+# Config
 # =========================
 @dataclass
 class CFG:
-    # ---- Model ----
     model_name: str = "microsoft/Phi-3.5-mini-instruct"
+    adapter_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
 
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
-    output_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
-
-    max_length: int = 384
-    lr: float = 2e-4
-    epochs: float = 2.0
-
-    # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 24GB.
-    per_device_train_batch_size: int = 1
-    per_device_eval_batch_size: int = 1
-    gradient_accumulation_steps: int = 8
-
-    warmup_ratio: float = 0.03
-    weight_decay: float = 0.01
-    logging_steps: int = 10
-    save_steps: int = 500
-
     max_new_tokens: int = 12
     eval_seed: int = 1234
-
     train_eval_samples: int = 1000
     eval_use_all: bool = True
 
 
-# =========================
-# Training args
-# =========================
-def build_training_args(cfg: CFG, use_bf16: bool) -> TrainingArguments:
-    common = dict(
-        output_dir=cfg.output_dir,
-        per_device_train_batch_size=cfg.per_device_train_batch_size,
-        per_device_eval_batch_size=cfg.per_device_eval_batch_size,
-        gradient_accumulation_steps=cfg.gradient_accumulation_steps,
-        learning_rate=cfg.lr,
-        num_train_epochs=cfg.epochs,
-        warmup_ratio=cfg.warmup_ratio,
-        weight_decay=cfg.weight_decay,
-        logging_steps=cfg.logging_steps,
-        save_steps=cfg.save_steps,
-        save_total_limit=2,
-        remove_unused_columns=False,
-        report_to=[],
-        dataloader_num_workers=0,
-        max_grad_norm=1.0,
-        bf16=use_bf16,
-        fp16=(torch.cuda.is_available() and not use_bf16),
-        gradient_checkpointing=True,
-        optim="paged_adamw_8bit" if USE_QLORA else "adamw_torch",
-        lr_scheduler_type="cosine",
-    )
-
-    try:
-        return TrainingArguments(
-            **common,
-            eval_strategy="no",
-        )
-    except TypeError:
-        return TrainingArguments(
-            **common,
-            evaluation_strategy="no",
-        )
-
-
-# =========================
-# Model (Phi-3.5-mini)
-# =========================
-def make_model_and_tokenizer(cfg: CFG):
-    log("loading tokenizer...")
-    # trust_remote_code=False: the Hub-side modeling_phi3.py still references
-    # `DynamicCache.seen_tokens` which has been removed from modern
-    # transformers, which breaks model.generate() during post-training eval.
-    # transformers >= 4.45 ships a native Phi3 class that uses the modern Cache
-    # API correctly, so we force the native path here.
+def load_model_and_tokenizer(cfg: CFG):
+    log("loading tokenizer (trust_remote_code=False, native Phi3 path)...")
     tokenizer = AutoTokenizer.from_pretrained(
         cfg.model_name,
         use_fast=True,
@@ -428,62 +308,32 @@ def make_model_and_tokenizer(cfg: CFG):
     log("tokenizer loaded")
 
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
-    log(f"bf16_supported={use_bf16} (we will use {'bf16' if use_bf16 else 'fp16'})")
+    log(f"bf16_supported={use_bf16} (will use {'bf16' if use_bf16 else 'fp16'})")
 
-    log("loading model...")
-
-    if USE_QLORA:
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16 if use_bf16 else torch.float16,
-        )
-
-        model = AutoModelForCausalLM.from_pretrained(
-            cfg.model_name,
-            quantization_config=bnb_config,
-            device_map="auto",
-            low_cpu_mem_usage=True,
-            trust_remote_code=False,
-        )
-        model = prepare_model_for_kbit_training(model)
-    else:
-        model = AutoModelForCausalLM.from_pretrained(
-            cfg.model_name,
-            torch_dtype=torch.bfloat16 if use_bf16 else torch.float16,
-            low_cpu_mem_usage=True,
-            trust_remote_code=False,
-        )
-        if torch.cuda.is_available():
-            model.to("cuda")
-
-    # Phi-3/3.5 self-attn uses fused qkv_proj + o_proj (no separate q/k/v_proj).
-    # We therefore target qkv_proj and o_proj to stay analogous to the Qwen
-    # attention-only LoRA configuration used in the baseline.
-    lora_config = LoraConfig(
-        r=8,
-        lora_alpha=16,
-        target_modules=["qkv_proj", "o_proj"],
-        lora_dropout=0.05,
-        bias="none",
-        task_type="CAUSAL_LM",
+    log("loading base model with 4-bit NF4 quantization (native Phi3)...")
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_compute_dtype=torch.bfloat16 if use_bf16 else torch.float16,
     )
+    base = AutoModelForCausalLM.from_pretrained(
+        cfg.model_name,
+        quantization_config=bnb_config,
+        device_map="auto",
+        low_cpu_mem_usage=True,
+        trust_remote_code=False,
+    )
+    log(f"base model loaded; device={next(base.parameters()).device}")
 
-    model = get_peft_model(model, lora_config)
-    model.enable_input_require_grads()
-    model.gradient_checkpointing_enable()
-    model.config.use_cache = False
+    log(f"loading LoRA adapter from {cfg.adapter_dir} ...")
+    model = PeftModel.from_pretrained(base, cfg.adapter_dir)
+    model.eval()
+    log("LoRA adapter loaded; ready for evaluation")
 
-    log(f"model device: {next(model.parameters()).device}")
-    model.print_trainable_parameters()
-
-    return model, tokenizer, use_bf16
+    return model, tokenizer
 
 
-# =========================
-# Main
-# =========================
 def main():
     cfg = CFG()
 
@@ -501,39 +351,10 @@ def main():
     eval_raw = ensure_prompt_answer_columns(eval_raw, "eval_raw")
     log(f"datasets loaded: train={len(train_raw)}, eval={len(eval_raw)}")
 
-    model, tokenizer, use_bf16 = make_model_and_tokenizer(cfg)
-
-    def map_fn(ex):
-        return tokenize_sft(tokenizer, ex["prompt"], ex["answer"], cfg.max_length)
-
-    log("tokenizing train...")
-    train_tok = train_raw.map(map_fn, remove_columns=train_raw.column_names)
-    log("tokenizing eval...")
-    eval_tok = eval_raw.map(map_fn, remove_columns=eval_raw.column_names)
-    log("tokenization done")
-
-    args = build_training_args(cfg, use_bf16=use_bf16)
-    log("TrainingArguments built")
-
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=train_tok,
-        data_collator=lambda feats: collate_pad(tokenizer, feats),
-    )
+    model, tokenizer = load_model_and_tokenizer(cfg)
 
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
-
-    log("training from scratch...")
-    trainer.train()
-
-    trainer.save_model(cfg.output_dir)
-    tokenizer.save_pretrained(cfg.output_dir)
-    log(f"[TRAINED MODEL SAVED] -> {cfg.output_dir}")
-
-    # ========= post-training large-scale eval =========
-    log("preparing large-scale evaluation...")
 
     train_eval_count = min(cfg.train_eval_samples, len(train_raw))
     eval_eval_count = len(eval_raw) if cfg.eval_use_all else min(cfg.train_eval_samples, len(eval_raw))
@@ -545,7 +366,7 @@ def main():
 
     log("evaluating final_train...")
     final_train = run_generation_metrics(
-        model=trainer.model,
+        model=model,
         tokenizer=tokenizer,
         raw_ds=train_raw,
         max_new_tokens=cfg.max_new_tokens,
@@ -556,7 +377,7 @@ def main():
 
     log("evaluating final_eval...")
     final_eval = run_generation_metrics(
-        model=trainer.model,
+        model=model,
         tokenizer=tokenizer,
         raw_ds=eval_raw,
         max_new_tokens=cfg.max_new_tokens,
@@ -580,7 +401,7 @@ def main():
     result_path = "mc_train_and_large_eval_results_phi3p5_mini.txt"
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(f"model = {cfg.model_name}\n")
-        f.write(f"output_dir = {cfg.output_dir}\n")
+        f.write(f"adapter_dir = {cfg.adapter_dir}\n")
         f.write(f"final_train total available samples = {len(train_raw)}\n")
         f.write(f"final_eval total available samples  = {len(eval_raw)}\n")
         f.write(f"final_train evaluated samples = {int(final_train['n_eval'])}\n")
