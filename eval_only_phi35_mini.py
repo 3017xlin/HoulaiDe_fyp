@@ -348,7 +348,11 @@ class CFG:
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
-    max_new_tokens: int = 12
+    # Raised from 12 -> 64 because Phi-3.5 tends to actually follow the
+    # "reason then answer" prompt literally and a 12-token cap clipped
+    # the output before <answer>X</answer> could be emitted, producing 0
+    # accuracy even when the adapter was working correctly.
+    max_new_tokens: int = 64
     eval_seed: int = 1234
     train_eval_samples: int = 1000
     eval_use_all: bool = True
@@ -383,11 +387,18 @@ def _list_adapter_dir(path: str):
 def load_model_and_tokenizer(cfg: CFG):
     _list_adapter_dir(cfg.adapter_dir)
 
-    log("loading tokenizer with trust_remote_code=True (match training)...")
+    # NOTE: training was run with trust_remote_code=True.  However, the Hub-side
+    # modeling_phi3.py (commit 2fe1924) is bitrotted and crashes on modern
+    # transformers (DynamicCache tensor-shape mismatch in self_attn forward).
+    # We therefore load the base with the *native* transformers Phi3 class
+    # (trust_remote_code=False).  The native class exposes exactly the same
+    # qkv_proj / o_proj module names and weight shapes, so the saved LoRA
+    # adapter attaches to the corresponding modules with no surgery.
+    log("loading tokenizer with trust_remote_code=False (native Phi3 path)...")
     tokenizer = AutoTokenizer.from_pretrained(
         cfg.model_name,
         use_fast=True,
-        trust_remote_code=True,
+        trust_remote_code=False,
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -397,7 +408,7 @@ def load_model_and_tokenizer(cfg: CFG):
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
     log(f"bf16_supported={use_bf16} (will use {'bf16' if use_bf16 else 'fp16'})")
 
-    log("loading base model (4-bit NF4, trust_remote_code=True, matches training)...")
+    log("loading base model (4-bit NF4, trust_remote_code=False, native Phi3)...")
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -409,7 +420,7 @@ def load_model_and_tokenizer(cfg: CFG):
         quantization_config=bnb_config,
         device_map="auto",
         low_cpu_mem_usage=True,
-        trust_remote_code=True,
+        trust_remote_code=False,
     )
     log(f"base model loaded; device={next(base.parameters()).device}")
 
@@ -421,7 +432,32 @@ def load_model_and_tokenizer(cfg: CFG):
     log("peft_config keys:")
     for k, v in model.peft_config.items():
         log(f"  {k}: target_modules={v.target_modules}, r={v.r}, alpha={v.lora_alpha}")
-    model.print_trainable_parameters()
+
+    # `print_trainable_parameters` shows 0 in eval mode because LoRA has
+    # requires_grad=False.  Count *actual* LoRA parameters by matching
+    # their names in the full parameter list so we can verify the
+    # adapter truly attached and is not silently empty.
+    lora_param_count = 0
+    lora_module_count = 0
+    sample_keys = []
+    for name, p in model.named_parameters():
+        if "lora_" in name:
+            lora_param_count += p.numel()
+            lora_module_count += 1
+            if len(sample_keys) < 4:
+                sample_keys.append((name, tuple(p.shape)))
+    log(f"actual LoRA parameter count: {lora_param_count:,} "
+        f"across {lora_module_count} LoRA sub-tensors "
+        f"(requires_grad is False in eval mode, but the weights are present)")
+    for name, shape in sample_keys:
+        log(f"  example LoRA tensor: {name}  shape={shape}")
+
+    if lora_param_count == 0:
+        raise RuntimeError(
+            "LoRA parameter count is 0 after loading the adapter -- the "
+            "saved adapter did not attach to any module on the base model. "
+            "Check that adapter_config.json target_modules match this base."
+        )
 
     return model, tokenizer
 
