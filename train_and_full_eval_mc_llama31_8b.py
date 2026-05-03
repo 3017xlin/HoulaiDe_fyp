@@ -7,7 +7,7 @@ Llama-3.2-3B / Phi-3.5-mini / Llama-3.1-8B) only differs in the base model.
 
 8B-specific differences vs. the baseline:
   * gradient_accumulation_steps bumped to 16 to keep the effective batch size
-    comparable while fitting the larger model on a single 24GB / 40GB GPU.
+    comparable while fitting the larger model on a single 24GB / 401GB GPU.
   * Everything else (LoRA config, chat template, data pipeline, eval loop)
     is identical to the Qwen baseline so comparisons stay apples-to-apples.
 

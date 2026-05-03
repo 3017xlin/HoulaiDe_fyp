@@ -7,9 +7,8 @@ from typing import Dict, List
 from collections import Counter
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
-from sentence_transformers import SentenceTransformer, CrossEncoder, util
 
 
 # =========================
@@ -79,71 +78,6 @@ def f1_word(pred: str, gold: str) -> float:
     if precision + recall == 0:
         return 0.0
     return 2 * precision * recall / (precision + recall)
-
-
-# =========================
-# Semantic similarity ablation variants (5 methods)
-# =========================
-def _empty_check(pred: str, gold: str):
-    pred, gold = str(pred).strip(), str(gold).strip()
-    if not pred and not gold:
-        return pred, gold, 1.0
-    if not pred or not gold:
-        return pred, gold, 0.0
-    return pred, gold, None
-
-
-def semsim_bienc_answer(st_model, pred, gold):
-    pred, gold, short = _empty_check(pred, gold)
-    if short is not None:
-        return short
-    emb = st_model.encode([pred, gold], convert_to_tensor=True)
-    return float(util.cos_sim(emb[0], emb[1]).item())
-
-
-def semsim_bienc_question(st_model, pred, gold, question):
-    pred, gold, short = _empty_check(pred, gold)
-    if short is not None:
-        return short
-    pred_ctx = f"{question} {pred}"
-    gold_ctx = f"{question} {gold}"
-    emb = st_model.encode([pred_ctx, gold_ctx], convert_to_tensor=True)
-    return float(util.cos_sim(emb[0], emb[1]).item())
-
-
-def semsim_crossenc_answer(cross_model, pred, gold):
-    pred, gold, short = _empty_check(pred, gold)
-    if short is not None:
-        return short
-    score = cross_model.predict([(pred, gold)])[0]
-    return float(max(0.0, min(score / 5.0, 1.0)))
-
-
-def semsim_crossenc_question(cross_model, pred, gold, question):
-    pred, gold, short = _empty_check(pred, gold)
-    if short is not None:
-        return short
-    pred_ctx = f"{question} {pred}"
-    gold_ctx = f"{question} {gold}"
-    score = cross_model.predict([(pred_ctx, gold_ctx)])[0]
-    return float(max(0.0, min(score / 5.0, 1.0)))
-
-
-def semsim_bem(bem_tok, bem_mdl, pred, gold, question):
-    pred, gold, short = _empty_check(pred, gold)
-    if short is not None:
-        return short
-    text = f"[CLS] {pred} [SEP]"
-    text_pair = f"{gold} [SEP] {question} [SEP]"
-    inputs = bem_tok(
-        text=text, text_pair=text_pair,
-        add_special_tokens=False, padding="max_length",
-        truncation=True, return_tensors="pt",
-    )
-    with torch.no_grad():
-        logits = bem_mdl(**inputs).logits
-    probs = torch.nn.functional.softmax(logits, dim=-1)
-    return float(probs[0, 1].item())
 
 
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
@@ -261,63 +195,44 @@ def load_model_and_tokenizer():
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "right"
 
-    use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
-    compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
+    dtype = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
 
-    # CRITICAL: load the base model with the SAME 4-bit NF4 quantisation
-    # that was used during QLoRA training.  Loading in full precision
-    # (the old code) creates a distribution mismatch with the adapter
-    # weights and produces 0.00 accuracy.
-    log("Loading base model with 4-bit NF4 quantisation (matching training config)...")
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_compute_dtype=compute_dtype,
-    )
-
+    log("Loading base model...")
     base_model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
-        quantization_config=bnb_config,
-        device_map="auto",
+        torch_dtype=dtype,
         low_cpu_mem_usage=True,
-        trust_remote_code=False,
     )
 
-    log(f"Loading trained LoRA adapter from {ADAPTER_PATH} ...")
+    if torch.cuda.is_available():
+        base_model.to("cuda")
+
+    log("Loading trained LoRA adapter...")
     model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
+
+    if torch.cuda.is_available():
+        model.to("cuda")
+
     model.eval()
 
     log(f"Model device: {next(model.parameters()).device}")
-    total_lora = sum(p.numel() for n, p in model.named_parameters() if "lora_" in n)
-    log(f"LoRA parameters loaded: {total_lora:,}")
     return model, tokenizer
 
 
 # =========================
 # 预测与评估
 # =========================
-SIM_KEYS = [
-    "bienc_answer", "bienc_question",
-    "crossenc_answer", "crossenc_question",
-    "bem",
-]
-
-
 @torch.no_grad()
-def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
-                   st_model, cross_model, bem_tok, bem_mdl) -> Dict:
+def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Dict:
     device = next(model.parameters()).device
 
     results = []
     acc_hits = 0
     f1s = []
-    sims = {k: [] for k in SIM_KEYS}
 
     for i, row in enumerate(rows, start=1):
         prompt = build_chat_prompt(tokenizer, row["prompt"])
         gold_answer = row["gold_answer"]
-        question = row["question"]
 
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -339,18 +254,8 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
         acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
         f1 = f1_word(pred_answer, gold_answer)
 
-        s = {
-            "bienc_answer":     semsim_bienc_answer(st_model, pred_answer, gold_answer),
-            "bienc_question":   semsim_bienc_question(st_model, pred_answer, gold_answer, question),
-            "crossenc_answer":  semsim_crossenc_answer(cross_model, pred_answer, gold_answer),
-            "crossenc_question": semsim_crossenc_question(cross_model, pred_answer, gold_answer, question),
-            "bem":              semsim_bem(bem_tok, bem_mdl, pred_answer, gold_answer, question),
-        }
-
         acc_hits += acc
         f1s.append(f1)
-        for k in SIM_KEYS:
-            sims[k].append(s[k])
 
         result = {
             "id": row["id"],
@@ -366,32 +271,24 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
             "answer_accuracy": acc,
             "answer_f1": f1,
         }
-        result.update(s)
         results.append(result)
 
-        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} "
-            f"BiA={s['bienc_answer']:.3f} BiQ={s['bienc_question']:.3f} "
-            f"CrA={s['crossenc_answer']:.3f} CrQ={s['crossenc_question']:.3f} "
-            f"BEM={s['bem']:.3f}")
-        if i <= 5 or i % 50 == 0:
-            log(f"  Q: {question[:80]}")
-            log(f"  GOLD: {gold_answer[:80]}")
-            log(f"  PRED: {pred_answer[:80]}")
-            log("-" * 80)
+        print(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f}")
+        print("QUESTION:", row["question"])
+        print("GOLD ANSWER:", gold_answer)
+        print("PRED ANSWER:", pred_answer)
+        print("-" * 80)
 
         del inputs, out, gen_ids
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    n = len(rows) if rows else 1
     metrics = {
         "n_eval": len(rows),
-        "answer_accuracy": acc_hits / n,
-        "answer_f1": sum(f1s) / n if f1s else 0.0,
+        "answer_accuracy": acc_hits / len(rows) if rows else 0.0,
+        "answer_f1": sum(f1s) / len(f1s) if f1s else 0.0,
+        "results": results,
     }
-    for k in SIM_KEYS:
-        metrics[k] = sum(sims[k]) / n if sims[k] else 0.0
-    metrics["results"] = results
     return metrics
 
 
@@ -409,11 +306,18 @@ def save_csv(rows: List[Dict], path: str):
         return
 
     fieldnames = [
-        "id", "variable", "question", "gold_answer", "pred_answer",
-        "answer_accuracy", "answer_f1",
-        "bienc_answer", "bienc_question",
-        "crossenc_answer", "crossenc_question", "bem",
-        "gold_reason", "pred_reason", "raw_generation", "scenario", "prompt",
+        "id",
+        "variable",
+        "question",
+        "gold_answer",
+        "pred_answer",
+        "answer_accuracy",
+        "answer_f1",
+        "gold_reason",
+        "pred_reason",
+        "raw_generation",
+        "scenario",
+        "prompt",
     ]
 
     with open(path, "w", encoding="utf-8", newline="") as f:
@@ -424,14 +328,10 @@ def save_csv(rows: List[Dict], path: str):
 
 def save_summary(metrics: Dict, path: str):
     summary = {
-        "model": MODEL_NAME,
-        "adapter": ADAPTER_PATH,
         "n_eval": metrics["n_eval"],
         "answer_accuracy": metrics["answer_accuracy"],
         "answer_f1": metrics["answer_f1"],
     }
-    for k in SIM_KEYS:
-        summary[k] = metrics[k]
     with open(path, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
 
@@ -456,35 +356,20 @@ def main():
 
     model, tokenizer = load_model_and_tokenizer()
 
-    log("Loading similarity models for ablation study...")
-    st_model = SentenceTransformer("all-MiniLM-L6-v2")
-    log("  bi-encoder loaded (all-MiniLM-L6-v2)")
-    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
-    log("  cross-encoder loaded (stsb-roberta-large)")
-    bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
-    bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
-    bem_mdl.eval()
-    log("  BEM loaded (kortukov/answer-equivalence-bem)")
-
-    log("Running MC-finetuned → Open QA generalisation evaluation...")
+    log("Running generalization evaluation...")
     metrics = evaluate_rows(
-        model=model, tokenizer=tokenizer, rows=rows,
+        model=model,
+        tokenizer=tokenizer,
+        rows=rows,
         max_new_tokens=MAX_NEW_TOKENS,
-        st_model=st_model, cross_model=cross_model,
-        bem_tok=bem_tok, bem_mdl=bem_mdl,
     )
 
     log("=" * 80)
-    log("[FINAL GENERALISATION METRICS — Qwen2.5-1.5B MC→OpenQA]")
-    log(f"  Samples evaluated         : {metrics['n_eval']}")
-    log(f"  Exact Match (Accuracy)    : {metrics['answer_accuracy']:.4f}")
-    log(f"  Token F1                  : {metrics['answer_f1']:.4f}")
-    log(f"  --- Semantic Similarity Ablation ---")
-    log(f"  BiEnc  (answer only)      : {metrics['bienc_answer']:.4f}")
-    log(f"  BiEnc  (+ question)       : {metrics['bienc_question']:.4f}")
-    log(f"  CrossEnc (answer only)    : {metrics['crossenc_answer']:.4f}")
-    log(f"  CrossEnc (+ question)     : {metrics['crossenc_question']:.4f}")
-    log(f"  BEM    (question-aware)   : {metrics['bem']:.4f}")
+    log("[FINAL GENERALIZATION METRICS]")
+    log(f"Samples evaluated: {metrics['n_eval']}")
+    log(f"Answer Accuracy: {metrics['answer_accuracy']:.4f}")
+    log(f"Answer F1      : {metrics['answer_f1']:.4f}")
+    log("=" * 80)
 
     jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
     csv_path = str(Path(OUTPUT_DIR) / "predictions.csv")

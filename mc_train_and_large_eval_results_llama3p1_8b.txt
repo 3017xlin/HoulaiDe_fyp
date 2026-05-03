@@ -1,0 +1,9 @@
+model = meta-llama/Llama-3.1-8B-Instruct
+output_dir = sft_llama3p1_8b_qlora_safe_resume2
+final_train total available samples = 23999
+final_eval total available samples  = 1263
+final_train evaluated samples = 1000
+final_eval evaluated samples  = 1263
+
+TRAIN: Acc=0.993000, F1=0.993000
+EVAL:  Acc=0.946160, F1=0.946160
