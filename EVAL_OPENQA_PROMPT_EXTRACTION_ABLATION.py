@@ -8,9 +8,8 @@ from typing import List, Dict, Tuple
 from collections import Counter, defaultdict
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, StoppingCriteria, StoppingCriteriaList
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, StoppingCriteria, StoppingCriteriaList, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import SentenceTransformer, util
 
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -68,17 +67,24 @@ def f1_word(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
+def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
     pred = str(pred).strip()
     gold = str(gold).strip()
-
     if not pred and not gold:
         return 1.0
     if not pred or not gold:
         return 0.0
-
-    emb = st_model.encode([pred, gold], convert_to_tensor=True)
-    return float(util.cos_sim(emb[0], emb[1]).item())
+    text = f"[CLS] {pred} [SEP]"
+    text_pair = f"{gold} [SEP] {question} [SEP]"
+    inputs = bem_tok(
+        text=text, text_pair=text_pair,
+        add_special_tokens=False, padding="max_length",
+        truncation=True, return_tensors="pt",
+    )
+    with torch.no_grad():
+        logits = bem_mdl(**inputs).logits
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+    return float(probs[0, 1].item())
 
 
 def try_json_loads(s: str):
@@ -415,7 +421,7 @@ def get_prompt_builder(mode: str):
 
 
 @torch.no_grad()
-def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, st_model, prompt_mode: str, extraction_mode: str):
+def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, bem_tok, bem_mdl, prompt_mode: str, extraction_mode: str):
     device = next(model.parameters()).device
     model.eval()
     model.config.use_cache = True
@@ -462,7 +468,7 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, st_mod
 
         em_hits += int(normalize_text(pred) == normalize_text(gold))
         f1s.append(f1_word(pred, gold))
-        sims.append(semantic_similarity_score(st_model, pred, gold))
+        sims.append(semsim_bem(bem_tok, bem_mdl, pred, gold, ex.get("question", "")))
 
         if (idx + 1) % 20 == 0 or (idx + 1) == len(examples):
             log(f"progress: {idx+1}/{len(examples)}")
@@ -471,7 +477,7 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, st_mod
         "n_eval": len(examples),
         "exact_match": em_hits / len(examples) if examples else 0.0,
         "token_f1": sum(f1s) / len(f1s) if f1s else 0.0,
-        "semantic_similarity": sum(sims) / len(sims) if sims else 0.0,
+        "BEM": sum(sims) / len(sims) if sims else 0.0,
     }
 
 
@@ -496,28 +502,39 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    log("loading base model...")
+    log("loading base model with 4-bit NF4 quantisation (matching training)...")
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_compute_dtype=torch.bfloat16 if use_bf16 else torch.float16,
+    )
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
-        torch_dtype=torch.bfloat16 if use_bf16 else (torch.float16 if torch.cuda.is_available() else torch.float32),
-        device_map="auto" if torch.cuda.is_available() else None,
+        quantization_config=bnb_config,
+        device_map="auto",
         low_cpu_mem_usage=True,
+        trust_remote_code=False,
     )
 
     ckpt_path = find_latest_checkpoint(OUTPUT_DIR)
     log(f"loading LoRA checkpoint from: {ckpt_path}")
     model = PeftModel.from_pretrained(model, ckpt_path)
 
-    log("loading sentence-transformer...")
-    st_model = SentenceTransformer("all-MiniLM-L6-v2")
+    log("loading BEM (kortukov/answer-equivalence-bem)...")
+    bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl.eval()
+    log("BEM loaded")
 
     metrics = run_eval(
         model=model,
         tokenizer=tokenizer,
         examples=eval_examples,
         max_new_tokens=MAX_NEW_TOKENS,
-        st_model=st_model,
+        bem_tok=bem_tok,
+        bem_mdl=bem_mdl,
         prompt_mode=args.prompt_mode,
         extraction_mode=args.extraction_mode,
     )
@@ -527,7 +544,7 @@ def main():
     log(f"N = {metrics['n_eval']}")
     log(f"Exact Match / Accuracy = {metrics['exact_match']:.4f}")
     log(f"Token F1 = {metrics['token_f1']:.4f}")
-    log(f"Semantic Similarity = {metrics['semantic_similarity']:.4f}")
+    log(f"BEM Similarity = {metrics['BEM']:.4f}")
 
     out_name = f"openqa_eval_{args.prompt_mode}_{args.extraction_mode}.txt"
     with open(out_name, "w", encoding="utf-8") as f:
@@ -535,7 +552,7 @@ def main():
         f.write(f"N = {metrics['n_eval']}\n")
         f.write(f"Exact Match / Accuracy = {metrics['exact_match']:.4f}\n")
         f.write(f"Token F1 = {metrics['token_f1']:.4f}\n")
-        f.write(f"Semantic Similarity = {metrics['semantic_similarity']:.4f}\n")
+        f.write(f"BEM Similarity = {metrics['BEM']:.4f}\n")
 
 
 if __name__ == "__main__":
