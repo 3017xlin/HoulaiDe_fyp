@@ -62,7 +62,7 @@ from collections import Counter
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer, CrossEncoder, util
 
 
 # =========================
@@ -127,7 +127,7 @@ def f1_word(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
+def semantic_similarity_bienc(st_model, pred: str, gold: str) -> float:
     pred = str(pred).strip()
     gold = str(gold).strip()
 
@@ -138,6 +138,23 @@ def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
 
     emb = st_model.encode([pred, gold], convert_to_tensor=True)
     return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semantic_similarity_crossenc(cross_model, pred: str, gold: str, question: str = "") -> float:
+    pred = str(pred).strip()
+    gold = str(gold).strip()
+
+    if not pred and not gold:
+        return 1.0
+    if not pred or not gold:
+        return 0.0
+
+    if question:
+        pred = f"{question} {pred}"
+        gold = f"{question} {gold}"
+
+    score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
 
 
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
@@ -287,13 +304,15 @@ def load_model_and_tokenizer():
 # Evaluation
 # =========================
 @torch.no_grad()
-def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_model) -> Dict:
+def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
+                   st_model, cross_model) -> Dict:
     device = next(model.parameters()).device
 
     results = []
     acc_hits = 0
     f1s = []
-    sims = []
+    sims_bi = []
+    sims_cross = []
 
     for i, row in enumerate(rows, start=1):
         prompt = build_chat_prompt(tokenizer, row["prompt"])
@@ -318,11 +337,14 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
 
         acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
         f1 = f1_word(pred_answer, gold_answer)
-        sim = semantic_similarity_score(st_model, pred_answer, gold_answer)
+        sim_bi = semantic_similarity_bienc(st_model, pred_answer, gold_answer)
+        sim_cross = semantic_similarity_crossenc(
+            cross_model, pred_answer, gold_answer, question=row["question"])
 
         acc_hits += acc
         f1s.append(f1)
-        sims.append(sim)
+        sims_bi.append(sim_bi)
+        sims_cross.append(sim_cross)
 
         result = {
             "id": row["id"],
@@ -337,11 +359,12 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
             "pred_answer": pred_answer,
             "answer_accuracy": acc,
             "answer_f1": f1,
-            "semantic_similarity": sim,
+            "semsim_biencoder": sim_bi,
+            "semsim_crossencoder": sim_cross,
         }
         results.append(result)
 
-        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} SemSim={sim:.4f}")
+        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} BiEnc={sim_bi:.4f} CrossEnc={sim_cross:.4f}")
         if i <= 5 or i % 50 == 0:
             log(f"  Q: {row['question'][:80]}")
             log(f"  GOLD: {gold_answer[:80]}")
@@ -356,7 +379,8 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
         "n_eval": len(rows),
         "answer_accuracy": acc_hits / len(rows) if rows else 0.0,
         "answer_f1": sum(f1s) / len(f1s) if f1s else 0.0,
-        "semantic_similarity": sum(sims) / len(sims) if sims else 0.0,
+        "semsim_biencoder": sum(sims_bi) / len(sims_bi) if sims_bi else 0.0,
+        "semsim_crossencoder": sum(sims_cross) / len(sims_cross) if sims_cross else 0.0,
         "results": results,
     }
     return metrics
@@ -376,7 +400,7 @@ def save_csv(rows: List[Dict], path: str):
         return
     fieldnames = [
         "id", "variable", "question", "gold_answer", "pred_answer",
-        "answer_accuracy", "answer_f1", "semantic_similarity",
+        "answer_accuracy", "answer_f1", "semsim_biencoder", "semsim_crossencoder",
         "gold_reason", "pred_reason", "raw_generation", "scenario", "prompt",
     ]
     with open(path, "w", encoding="utf-8", newline="") as f:
@@ -392,7 +416,8 @@ def save_summary(metrics: Dict, path: str):
         "n_eval": metrics["n_eval"],
         "answer_accuracy": metrics["answer_accuracy"],
         "answer_f1": metrics["answer_f1"],
-        "semantic_similarity": metrics["semantic_similarity"],
+        "semsim_biencoder": metrics["semsim_biencoder"],
+        "semsim_crossencoder": metrics["semsim_crossencoder"],
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
@@ -422,9 +447,11 @@ def main():
 
     model, tokenizer = load_model_and_tokenizer()
 
-    log("Loading sentence-transformer for semantic similarity...")
+    log("Loading bi-encoder (all-MiniLM-L6-v2) ...")
     st_model = SentenceTransformer("all-MiniLM-L6-v2")
-    log("SentenceTransformer loaded")
+    log("Loading cross-encoder (cross-encoder/stsb-roberta-large) ...")
+    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
+    log("Both similarity models loaded")
 
     log("Running MC-finetuned → Open QA generalisation evaluation...")
     metrics = evaluate_rows(
@@ -433,14 +460,16 @@ def main():
         rows=rows,
         max_new_tokens=MAX_NEW_TOKENS,
         st_model=st_model,
+        cross_model=cross_model,
     )
 
     log("=" * 80)
     log("[FINAL GENERALISATION METRICS — LLaMA-3.2-3B MC→OpenQA]")
-    log(f"  Samples evaluated    : {metrics['n_eval']}")
-    log(f"  Answer Accuracy      : {metrics['answer_accuracy']:.4f}")
-    log(f"  Answer F1            : {metrics['answer_f1']:.4f}")
-    log(f"  Semantic Similarity  : {metrics['semantic_similarity']:.4f}")
+    log(f"  Samples evaluated       : {metrics['n_eval']}")
+    log(f"  Answer Accuracy         : {metrics['answer_accuracy']:.4f}")
+    log(f"  Answer F1               : {metrics['answer_f1']:.4f}")
+    log(f"  SemSim (bi-encoder)     : {metrics['semsim_biencoder']:.4f}")
+    log(f"  SemSim (cross-encoder)  : {metrics['semsim_crossencoder']:.4f}")
     log("=" * 80)
 
     jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
