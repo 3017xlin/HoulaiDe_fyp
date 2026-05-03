@@ -1,0 +1,9 @@
+model = microsoft/Phi-3.5-mini-instruct
+output_dir = sft_phi3p5_mini_qlora_safe_resume2
+final_train total available samples = 23999
+final_eval total available samples  = 1263
+final_train evaluated samples = 1000
+final_eval evaluated samples  = 1263
+
+TRAIN: Acc=0.990000, F1=0.990000
+EVAL:  Acc=0.916865, F1=0.916865

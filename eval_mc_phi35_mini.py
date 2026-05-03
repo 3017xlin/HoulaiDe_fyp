@@ -1,90 +1,18 @@
-"""
-MC QLoRA fine-tuning + post-training full-eval script for Phi-3.5-mini-Instruct (3.8B).
-
-Sibling of train_and_full_eval_mc.py (Qwen2.5-1.5B-Instruct).  The pipeline is
-deliberately kept identical so that the four-model comparison (Qwen2.5-1.5B /
-Llama-3.2-3B / Phi-3.5-mini / Llama-3.1-8B) only differs in the base model.
-
-Phi-3/3.5 specific differences vs. the Qwen baseline:
-  * Attention uses a fused qkv projection: the LoRA target modules are
-    ["qkv_proj", "o_proj"] (instead of the four separate q/k/v/o on Qwen/Llama).
-  * We load the base model with trust_remote_code=False so that transformers'
-    *native* Phi3 class is used.  The Hub-side modeling_phi3.py (commit 2fe1924)
-    is incompatible with modern transformers and crashes in generate().
-  * max_new_tokens is 64 (not 12) at eval time.  Phi-3.5 follows the
-    "reason then answer" prompt literally and needs enough budget to emit
-    <answer>X</answer>; 12 tokens is too small and produces 0 accuracy.
-
-This file is in "production" mode: it trains on the full 23,999-sample set,
-runs for 2 epochs, and evaluates the full eval split after training.
-A "smoke-test" mode is still available via `train_subsample_size`: set it to
-a small integer (e.g. 500) for a ~10-minute end-to-end pipeline check; set
-it to None (the default) to train on the full 23,999-sample set.
-"""
-
-# ---------------------------------------------------------------
-# DynamicCache back-compat shims — installed defensively before any
-# model loading / generation happens.  We use the native Phi3 class
-# (trust_remote_code=False), so these shims are normally inert, but
-# they are kept in case anything in the generation stack ever reaches
-# for the removed DynamicCache methods on transformers 5.5+.
-# ---------------------------------------------------------------
-import transformers  # noqa: F401
-try:
-    from transformers.cache_utils import DynamicCache
-
-    if not hasattr(DynamicCache, "seen_tokens"):
-        def _seen_tokens(self):
-            try:
-                return self.get_seq_length()
-            except Exception:
-                return 0
-        DynamicCache.seen_tokens = property(_seen_tokens)
-
-    if not hasattr(DynamicCache, "get_max_length"):
-        DynamicCache.get_max_length = lambda self: None
-
-    if not hasattr(DynamicCache, "get_max_cache_shape"):
-        DynamicCache.get_max_cache_shape = lambda self: None
-
-    if not hasattr(DynamicCache, "get_usable_length"):
-        def _get_usable_length(self, new_seq_length, layer_idx=0):
-            try:
-                return self.get_seq_length(layer_idx)
-            except TypeError:
-                try:
-                    return self.get_seq_length()
-                except Exception:
-                    return 0
-            except Exception:
-                return 0
-        DynamicCache.get_usable_length = _get_usable_length
-except Exception as _e:
-    print(f"[warn] DynamicCache shim skipped: {_e}", flush=True)
-
-
 import re
 import time
 import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List
 from collections import Counter
-from pathlib import Path
 
 import torch
 from datasets import load_dataset
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
-    TrainingArguments,
-    Trainer,
     BitsAndBytesConfig,
 )
-from peft import (
-    LoraConfig,
-    get_peft_model,
-    prepare_model_for_kbit_training,
-)
+from peft import PeftModel
 
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -107,17 +35,14 @@ def log(msg: str):
 def extract_mc_answer(text: str) -> str:
     text = str(text).strip()
 
-    # 1) strict tag match
     m = ANSWER_TAG_RE.search(text)
     if m:
         return m.group(1).upper()
 
-    # 2) loose <answer> ... without closing tag
     m = re.search(r"<answer>\s*([ABCD])", text, re.I)
     if m:
         return m.group(1).upper()
 
-    # 3) common verbal patterns
     patterns = [
         r"the answer is\s*([ABCD])\b",
         r"final answer\s*[:：]?\s*([ABCD])\b",
@@ -131,7 +56,6 @@ def extract_mc_answer(text: str) -> str:
         if m:
             return m.group(1).upper()
 
-    # 4) last standalone A/B/C/D in the output
     matches = LETTER_RE.findall(text)
     if matches:
         return matches[-1].upper()
@@ -251,56 +175,6 @@ def build_chat_prompt(tokenizer, user_prompt: str) -> str:
     )
 
 
-def tokenize_sft(tokenizer, prompt: str, target: str, max_length: int):
-    prompt_text = build_chat_prompt(tokenizer, prompt)
-    full = prompt_text + target
-
-    tok_full = tokenizer(
-        full,
-        truncation=True,
-        max_length=max_length,
-        padding=False,
-    )
-    tok_prompt = tokenizer(
-        prompt_text,
-        truncation=True,
-        max_length=max_length,
-        padding=False,
-    )
-
-    input_ids = tok_full["input_ids"]
-    attn = tok_full["attention_mask"]
-
-    labels = input_ids.copy()
-    prompt_len = len(tok_prompt["input_ids"])
-    labels[:prompt_len] = [-100] * prompt_len
-
-    return {
-        "input_ids": input_ids,
-        "attention_mask": attn,
-        "labels": labels,
-    }
-
-
-def collate_pad(tokenizer, features: List[Dict]):
-    def pad_1d(seqs, pad_id):
-        maxlen = max(len(s) for s in seqs)
-        out = torch.full((len(seqs), maxlen), pad_id, dtype=torch.long)
-        for i, s in enumerate(seqs):
-            out[i, :len(s)] = torch.tensor(s, dtype=torch.long)
-        return out
-
-    input_ids = pad_1d([f["input_ids"] for f in features], tokenizer.pad_token_id)
-    attn = pad_1d([f["attention_mask"] for f in features], 0)
-    labels = pad_1d([f["labels"] for f in features], -100)
-
-    return {
-        "input_ids": input_ids,
-        "attention_mask": attn,
-        "labels": labels,
-    }
-
-
 # =========================
 # Eval helpers
 # =========================
@@ -343,11 +217,12 @@ def run_generation_metrics(
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
+        # 关键修复：禁用 cache，避免 Phi-3.5 DynamicCache / seen_tokens 报错
         out = model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
             do_sample=False,
-            use_cache=True,
+            use_cache=False,
             pad_token_id=tokenizer.pad_token_id,
         )
 
@@ -386,111 +261,32 @@ def run_generation_metrics(
 
 
 # =========================
-# Config (Phi-3.5-mini-Instruct, 3.8B)
+# Config
 # =========================
 @dataclass
 class CFG:
-    # ---- Model ----
     model_name: str = "microsoft/Phi-3.5-mini-instruct"
+    lora_path: str = "sft_phi3p5_mini_qlora_safe_resume2"
 
     train_csv: str = "prepared_data/train_split.csv"
     eval_csv: str = "prepared_data/eval_split.csv"
 
-    # Production adapter directory.  If a smoke test is required, switch
-    # train_subsample_size below to a small integer and optionally change
-    # this to e.g. "sft_phi3p5_mini_qlora_SMOKE" so smoke runs don't overwrite
-    # the production adapter.
-    output_dir: str = "sft_phi3p5_mini_qlora_safe_resume2"
-
-    max_length: int = 384
-    lr: float = 2e-4
-    # 2 epochs for the production run (same as the Qwen/Llama baselines).
-    # Drop to 1.0 only when combined with train_subsample_size for a smoke test.
-    epochs: float = 2.0
-
-    # 3.8B QLoRA, micro-batch 1, grad-accum 8 fits comfortably on 8-24GB.
-    per_device_train_batch_size: int = 1
-    per_device_eval_batch_size: int = 1
-    gradient_accumulation_steps: int = 8
-
-    warmup_ratio: float = 0.03
-    weight_decay: float = 0.01
-    logging_steps: int = 5
-    save_steps: int = 500  # won't trigger with the small smoke-test run; fine.
-
-    # max_new_tokens bumped 12 -> 64: Phi-3.5 follows the
-    # "reason then answer" prompt literally and needs enough budget to emit
-    # <answer>X</answer>.  Keep this at >=32 for any Phi-style model.
-    max_new_tokens: int = 64
+    max_new_tokens: int = 12
     eval_seed: int = 1234
 
-    # --------- SMOKE TEST knobs (off by default) ---------
-    # train_subsample_size: integer -> randomly take that many training
-    # examples.  None -> train on the full 23,999-sample set.  Set to e.g.
-    # 500 for a ~10 minute pipeline smoke test on an RTX 4060 Laptop.
-    train_subsample_size: Optional[int] = None
-    train_subsample_seed: int = 42
-
-    # Production eval: 1000 samples on the (23,999-sample) train side,
-    # entire 1263-sample eval side.  For a smoke test lower train_eval_samples
-    # and set eval_use_all=False.
     train_eval_samples: int = 1000
     eval_use_all: bool = True
 
 
 # =========================
-# Training args
+# Load trained model
 # =========================
-def build_training_args(cfg: CFG, use_bf16: bool) -> TrainingArguments:
-    common = dict(
-        output_dir=cfg.output_dir,
-        per_device_train_batch_size=cfg.per_device_train_batch_size,
-        per_device_eval_batch_size=cfg.per_device_eval_batch_size,
-        gradient_accumulation_steps=cfg.gradient_accumulation_steps,
-        learning_rate=cfg.lr,
-        num_train_epochs=cfg.epochs,
-        warmup_ratio=cfg.warmup_ratio,
-        weight_decay=cfg.weight_decay,
-        logging_steps=cfg.logging_steps,
-        save_steps=cfg.save_steps,
-        save_total_limit=2,
-        remove_unused_columns=False,
-        report_to=[],
-        dataloader_num_workers=0,
-        max_grad_norm=1.0,
-        bf16=use_bf16,
-        fp16=(torch.cuda.is_available() and not use_bf16),
-        gradient_checkpointing=True,
-        optim="paged_adamw_8bit" if USE_QLORA else "adamw_torch",
-        lr_scheduler_type="cosine",
-    )
-
-    try:
-        return TrainingArguments(
-            **common,
-            eval_strategy="no",
-        )
-    except TypeError:
-        return TrainingArguments(
-            **common,
-            evaluation_strategy="no",
-        )
-
-
-# =========================
-# Model (Phi-3.5-mini)
-# =========================
-def make_model_and_tokenizer(cfg: CFG):
+def load_model_and_tokenizer(cfg: CFG):
     log("loading tokenizer...")
-    # trust_remote_code=False: the Hub-side modeling_phi3.py still references
-    # `DynamicCache.seen_tokens` which has been removed from modern
-    # transformers, which breaks model.generate() during post-training eval.
-    # transformers >= 4.45 ships a native Phi3 class that uses the modern Cache
-    # API correctly, so we force the native path here.
     tokenizer = AutoTokenizer.from_pretrained(
         cfg.model_name,
         use_fast=True,
-        trust_remote_code=False,
+        trust_remote_code=True,
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -498,10 +294,9 @@ def make_model_and_tokenizer(cfg: CFG):
     log("tokenizer loaded")
 
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
-    log(f"bf16_supported={use_bf16} (we will use {'bf16' if use_bf16 else 'fp16'})")
+    log(f"bf16_supported={use_bf16}")
 
-    log("loading model...")
-
+    log("loading base model...")
     if USE_QLORA:
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -510,45 +305,30 @@ def make_model_and_tokenizer(cfg: CFG):
             bnb_4bit_compute_dtype=torch.bfloat16 if use_bf16 else torch.float16,
         )
 
-        model = AutoModelForCausalLM.from_pretrained(
+        base_model = AutoModelForCausalLM.from_pretrained(
             cfg.model_name,
             quantization_config=bnb_config,
             device_map="auto",
             low_cpu_mem_usage=True,
-            trust_remote_code=False,
+            trust_remote_code=True,
         )
-        model = prepare_model_for_kbit_training(model)
     else:
-        model = AutoModelForCausalLM.from_pretrained(
+        base_model = AutoModelForCausalLM.from_pretrained(
             cfg.model_name,
             torch_dtype=torch.bfloat16 if use_bf16 else torch.float16,
             low_cpu_mem_usage=True,
-            trust_remote_code=False,
+            trust_remote_code=True,
         )
         if torch.cuda.is_available():
-            model.to("cuda")
+            base_model.to("cuda")
 
-    # Phi-3/3.5 self-attn uses fused qkv_proj + o_proj (no separate q/k/v_proj).
-    # We therefore target qkv_proj and o_proj to stay analogous to the Qwen
-    # attention-only LoRA configuration used in the baseline.
-    lora_config = LoraConfig(
-        r=8,
-        lora_alpha=16,
-        target_modules=["qkv_proj", "o_proj"],
-        lora_dropout=0.05,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-
-    model = get_peft_model(model, lora_config)
-    model.enable_input_require_grads()
-    model.gradient_checkpointing_enable()
+    log("loading LoRA adapter...")
+    model = PeftModel.from_pretrained(base_model, cfg.lora_path)
     model.config.use_cache = False
+    model.eval()
 
     log(f"model device: {next(model.parameters()).device}")
-    model.print_trainable_parameters()
-
-    return model, tokenizer, use_bf16
+    return model, tokenizer
 
 
 # =========================
@@ -557,7 +337,7 @@ def make_model_and_tokenizer(cfg: CFG):
 def main():
     cfg = CFG()
 
-    log("start")
+    log("start eval-only")
     log(f"torch={torch.__version__} | cuda_available={torch.cuda.is_available()}")
     if torch.cuda.is_available():
         log(f"gpu={torch.cuda.get_device_name(0)}")
@@ -571,54 +351,9 @@ def main():
     eval_raw = ensure_prompt_answer_columns(eval_raw, "eval_raw")
     log(f"datasets loaded: train={len(train_raw)}, eval={len(eval_raw)}")
 
-    # ---- Optional training-set subsampling for smoke tests ----
-    if cfg.train_subsample_size is not None and 0 < cfg.train_subsample_size < len(train_raw):
-        n_before = len(train_raw)
-        train_raw = (
-            train_raw.shuffle(seed=cfg.train_subsample_seed)
-                     .select(range(cfg.train_subsample_size))
-        )
-        log(
-            f"[SUBSAMPLE] subsampled train_raw: {n_before} -> {len(train_raw)} "
-            f"(seed={cfg.train_subsample_seed})"
-        )
-    else:
-        log("training on full train_raw (no subsampling)")
+    model, tokenizer = load_model_and_tokenizer(cfg)
 
-    model, tokenizer, use_bf16 = make_model_and_tokenizer(cfg)
-
-    def map_fn(ex):
-        return tokenize_sft(tokenizer, ex["prompt"], ex["answer"], cfg.max_length)
-
-    log("tokenizing train...")
-    train_tok = train_raw.map(map_fn, remove_columns=train_raw.column_names)
-    log("tokenizing eval...")
-    eval_tok = eval_raw.map(map_fn, remove_columns=eval_raw.column_names)
-    log("tokenization done")
-
-    args = build_training_args(cfg, use_bf16=use_bf16)
-    log("TrainingArguments built")
-
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=train_tok,
-        data_collator=lambda feats: collate_pad(tokenizer, feats),
-    )
-
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-
-    log("training from scratch...")
-    trainer.train()
-
-    trainer.save_model(cfg.output_dir)
-    tokenizer.save_pretrained(cfg.output_dir)
-    log(f"[TRAINED MODEL SAVED] -> {cfg.output_dir}")
-
-    # ========= post-training large-scale eval =========
     log("preparing large-scale evaluation...")
-
     train_eval_count = min(cfg.train_eval_samples, len(train_raw))
     eval_eval_count = len(eval_raw) if cfg.eval_use_all else min(cfg.train_eval_samples, len(eval_raw))
 
@@ -629,7 +364,7 @@ def main():
 
     log("evaluating final_train...")
     final_train = run_generation_metrics(
-        model=trainer.model,
+        model=model,
         tokenizer=tokenizer,
         raw_ds=train_raw,
         max_new_tokens=cfg.max_new_tokens,
@@ -640,7 +375,7 @@ def main():
 
     log("evaluating final_eval...")
     final_eval = run_generation_metrics(
-        model=trainer.model,
+        model=model,
         tokenizer=tokenizer,
         raw_ds=eval_raw,
         max_new_tokens=cfg.max_new_tokens,
@@ -661,15 +396,10 @@ def main():
         f"F1={final_eval['answer_f1']:.4f}"
     )
 
-    # Distinct result file for smoke-test runs so they don't overwrite
-    # the production result file.
-    if cfg.train_subsample_size is not None:
-        result_path = "mc_train_and_large_eval_results_phi3p5_mini_SMOKE.txt"
-    else:
-        result_path = "mc_train_and_large_eval_results_phi3p5_mini.txt"
+    result_path = "mc_eval_only_results_phi3p5_mini.txt"
     with open(result_path, "w", encoding="utf-8") as f:
         f.write(f"model = {cfg.model_name}\n")
-        f.write(f"output_dir = {cfg.output_dir}\n")
+        f.write(f"lora_path = {cfg.lora_path}\n")
         f.write(f"final_train total available samples = {len(train_raw)}\n")
         f.write(f"final_eval total available samples  = {len(eval_raw)}\n")
         f.write(f"final_train evaluated samples = {int(final_train['n_eval'])}\n")
