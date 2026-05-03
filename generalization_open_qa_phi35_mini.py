@@ -65,9 +65,9 @@ from typing import Dict, List
 from collections import Counter
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer, CrossEncoder, util
 
 
 # =========================
@@ -132,17 +132,69 @@ def f1_word(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
-    pred = str(pred).strip()
-    gold = str(gold).strip()
-
+# =========================
+# Semantic similarity ablation variants (5 methods)
+# =========================
+def _empty_check(pred: str, gold: str):
+    pred, gold = str(pred).strip(), str(gold).strip()
     if not pred and not gold:
-        return 1.0
+        return pred, gold, 1.0
     if not pred or not gold:
-        return 0.0
+        return pred, gold, 0.0
+    return pred, gold, None
 
+
+def semsim_bienc_answer(st_model, pred, gold):
+    pred, gold, short = _empty_check(pred, gold)
+    if short is not None:
+        return short
     emb = st_model.encode([pred, gold], convert_to_tensor=True)
     return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_bienc_question(st_model, pred, gold, question):
+    pred, gold, short = _empty_check(pred, gold)
+    if short is not None:
+        return short
+    pred_ctx = f"{question} {pred}"
+    gold_ctx = f"{question} {gold}"
+    emb = st_model.encode([pred_ctx, gold_ctx], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_crossenc_answer(cross_model, pred, gold):
+    pred, gold, short = _empty_check(pred, gold)
+    if short is not None:
+        return short
+    score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+def semsim_crossenc_question(cross_model, pred, gold, question):
+    pred, gold, short = _empty_check(pred, gold)
+    if short is not None:
+        return short
+    pred_ctx = f"{question} {pred}"
+    gold_ctx = f"{question} {gold}"
+    score = cross_model.predict([(pred_ctx, gold_ctx)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+def semsim_bem(bem_tok, bem_mdl, pred, gold, question):
+    pred, gold, short = _empty_check(pred, gold)
+    if short is not None:
+        return short
+    text = f"[CLS] {pred} [SEP]"
+    text_pair = f"{gold} [SEP] {question} [SEP]"
+    inputs = bem_tok(
+        text=text, text_pair=text_pair,
+        add_special_tokens=False, padding="max_length",
+        truncation=True, return_tensors="pt",
+    )
+    with torch.no_grad():
+        logits = bem_mdl(**inputs).logits
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+    return float(probs[0, 1].item())
 
 
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
@@ -291,18 +343,27 @@ def load_model_and_tokenizer():
 # =========================
 # Evaluation
 # =========================
+SIM_KEYS = [
+    "bienc_answer", "bienc_question",
+    "crossenc_answer", "crossenc_question",
+    "bem",
+]
+
+
 @torch.no_grad()
-def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_model) -> Dict:
+def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
+                   st_model, cross_model, bem_tok, bem_mdl) -> Dict:
     device = next(model.parameters()).device
 
     results = []
     acc_hits = 0
     f1s = []
-    sims = []
+    sims = {k: [] for k in SIM_KEYS}
 
     for i, row in enumerate(rows, start=1):
         prompt = build_chat_prompt(tokenizer, row["prompt"])
         gold_answer = row["gold_answer"]
+        question = row["question"]
 
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -323,11 +384,19 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
 
         acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
         f1 = f1_word(pred_answer, gold_answer)
-        sim = semantic_similarity_score(st_model, pred_answer, gold_answer)
+
+        s = {
+            "bienc_answer":     semsim_bienc_answer(st_model, pred_answer, gold_answer),
+            "bienc_question":   semsim_bienc_question(st_model, pred_answer, gold_answer, question),
+            "crossenc_answer":  semsim_crossenc_answer(cross_model, pred_answer, gold_answer),
+            "crossenc_question": semsim_crossenc_question(cross_model, pred_answer, gold_answer, question),
+            "bem":              semsim_bem(bem_tok, bem_mdl, pred_answer, gold_answer, question),
+        }
 
         acc_hits += acc
         f1s.append(f1)
-        sims.append(sim)
+        for k in SIM_KEYS:
+            sims[k].append(s[k])
 
         result = {
             "id": row["id"],
@@ -342,13 +411,16 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
             "pred_answer": pred_answer,
             "answer_accuracy": acc,
             "answer_f1": f1,
-            "semantic_similarity": sim,
         }
+        result.update(s)
         results.append(result)
 
-        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} SemSim={sim:.4f}")
+        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} "
+            f"BiA={s['bienc_answer']:.3f} BiQ={s['bienc_question']:.3f} "
+            f"CrA={s['crossenc_answer']:.3f} CrQ={s['crossenc_question']:.3f} "
+            f"BEM={s['bem']:.3f}")
         if i <= 5 or i % 50 == 0:
-            log(f"  Q: {row['question'][:80]}")
+            log(f"  Q: {question[:80]}")
             log(f"  GOLD: {gold_answer[:80]}")
             log(f"  PRED: {pred_answer[:80]}")
             log("-" * 80)
@@ -357,13 +429,15 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
+    n = len(rows) if rows else 1
     metrics = {
         "n_eval": len(rows),
-        "answer_accuracy": acc_hits / len(rows) if rows else 0.0,
-        "answer_f1": sum(f1s) / len(f1s) if f1s else 0.0,
-        "semantic_similarity": sum(sims) / len(sims) if sims else 0.0,
-        "results": results,
+        "answer_accuracy": acc_hits / n,
+        "answer_f1": sum(f1s) / n if f1s else 0.0,
     }
+    for k in SIM_KEYS:
+        metrics[k] = sum(sims[k]) / n if sims[k] else 0.0
+    metrics["results"] = results
     return metrics
 
 
@@ -381,7 +455,9 @@ def save_csv(rows: List[Dict], path: str):
         return
     fieldnames = [
         "id", "variable", "question", "gold_answer", "pred_answer",
-        "answer_accuracy", "answer_f1", "semantic_similarity",
+        "answer_accuracy", "answer_f1",
+        "bienc_answer", "bienc_question",
+        "crossenc_answer", "crossenc_question", "bem",
         "gold_reason", "pred_reason", "raw_generation", "scenario", "prompt",
     ]
     with open(path, "w", encoding="utf-8", newline="") as f:
@@ -397,8 +473,9 @@ def save_summary(metrics: Dict, path: str):
         "n_eval": metrics["n_eval"],
         "answer_accuracy": metrics["answer_accuracy"],
         "answer_f1": metrics["answer_f1"],
-        "semantic_similarity": metrics["semantic_similarity"],
     }
+    for k in SIM_KEYS:
+        summary[k] = metrics[k]
     with open(path, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
 
@@ -427,26 +504,35 @@ def main():
 
     model, tokenizer = load_model_and_tokenizer()
 
-    log("Loading sentence-transformer for semantic similarity...")
+    log("Loading similarity models for ablation study...")
     st_model = SentenceTransformer("all-MiniLM-L6-v2")
-    log("SentenceTransformer loaded")
+    log("  bi-encoder loaded (all-MiniLM-L6-v2)")
+    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
+    log("  cross-encoder loaded (stsb-roberta-large)")
+    bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl.eval()
+    log("  BEM loaded (kortukov/answer-equivalence-bem)")
 
     log("Running MC-finetuned → Open QA generalisation evaluation...")
     metrics = evaluate_rows(
-        model=model,
-        tokenizer=tokenizer,
-        rows=rows,
+        model=model, tokenizer=tokenizer, rows=rows,
         max_new_tokens=MAX_NEW_TOKENS,
-        st_model=st_model,
+        st_model=st_model, cross_model=cross_model,
+        bem_tok=bem_tok, bem_mdl=bem_mdl,
     )
 
     log("=" * 80)
     log("[FINAL GENERALISATION METRICS — Phi-3.5-mini MC→OpenQA]")
-    log(f"  Samples evaluated    : {metrics['n_eval']}")
-    log(f"  Answer Accuracy      : {metrics['answer_accuracy']:.4f}")
-    log(f"  Answer F1            : {metrics['answer_f1']:.4f}")
-    log(f"  Semantic Similarity  : {metrics['semantic_similarity']:.4f}")
-    log("=" * 80)
+    log(f"  Samples evaluated         : {metrics['n_eval']}")
+    log(f"  Exact Match (Accuracy)    : {metrics['answer_accuracy']:.4f}")
+    log(f"  Token F1                  : {metrics['answer_f1']:.4f}")
+    log(f"  --- Semantic Similarity Ablation ---")
+    log(f"  BiEnc  (answer only)      : {metrics['bienc_answer']:.4f}")
+    log(f"  BiEnc  (+ question)       : {metrics['bienc_question']:.4f}")
+    log(f"  CrossEnc (answer only)    : {metrics['crossenc_answer']:.4f}")
+    log(f"  CrossEnc (+ question)     : {metrics['crossenc_question']:.4f}")
+    log(f"  BEM    (question-aware)   : {metrics['bem']:.4f}")
 
     jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
     csv_path = str(Path(OUTPUT_DIR) / "predictions.csv")
