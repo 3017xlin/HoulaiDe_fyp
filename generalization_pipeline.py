@@ -1,0 +1,388 @@
+import json
+import re
+import csv
+import random
+from pathlib import Path
+from typing import Dict, List
+from collections import Counter
+
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from peft import PeftModel
+
+
+# =========================
+# 配置区
+# =========================
+MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+
+# 这里填你训练好的 LoRA 输出目录，或者某个 checkpoint 目录
+ADAPTER_PATH = "sft_qwen2p5_1p5b_qlora_safe_resume2"
+
+# 新的开放式数据集
+INPUT_JSON = "../combined_QA_generation2.json"
+
+# 输出目录
+OUTPUT_DIR = "generalization_results"
+
+# 评估设置
+USE_CHAT_TEMPLATE = True
+MAX_NEW_TOKENS = 64
+MAX_SAMPLES = 0          # 0 表示全量评估
+SEED = 42
+
+
+ANSWER_RE = re.compile(r"<answer>(.*?)</answer>", re.DOTALL)
+REASON_RE = re.compile(r"<reason>(.*?)</reason>", re.DOTALL)
+
+
+# =========================
+# 工具函数
+# =========================
+def log(msg: str):
+    print(msg, flush=True)
+
+
+def extract_answer(text: str) -> str:
+    m = ANSWER_RE.search(text)
+    return m.group(1).strip() if m else text.strip()
+
+
+def extract_reason(text: str) -> str:
+    m = REASON_RE.search(text)
+    return m.group(1).strip() if m else ""
+
+
+def normalize_text(s: str) -> str:
+    s = s.strip().lower()
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def f1_word(pred: str, gold: str) -> float:
+    pred_tokens = normalize_text(pred).split()
+    gold_tokens = normalize_text(gold).split()
+
+    if not pred_tokens and not gold_tokens:
+        return 1.0
+    if not pred_tokens or not gold_tokens:
+        return 0.0
+
+    pred_counter = Counter(pred_tokens)
+    gold_counter = Counter(gold_tokens)
+    overlap = sum((pred_counter & gold_counter).values())
+
+    precision = overlap / len(pred_tokens)
+    recall = overlap / len(gold_tokens)
+
+    if precision + recall == 0:
+        return 0.0
+    return 2 * precision * recall / (precision + recall)
+
+
+def sample_indices(n: int, k: int, seed: int) -> List[int]:
+    if k <= 0 or k >= n:
+        return list(range(n))
+    rng = random.Random(seed)
+    idx = list(range(n))
+    rng.shuffle(idx)
+    return idx[:k]
+
+
+# =========================
+# 数据读取与转换
+# =========================
+def load_json_maybe_string(path: str):
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+
+    # 支持：
+    # 1) 整个文件是标准 JSON
+    # 2) 每行一个 JSON
+    # 3) 每行是一个 JSON 字符串
+    try:
+        data = json.loads(content)
+        return data
+    except json.JSONDecodeError:
+        rows = []
+        for line in content.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            obj = json.loads(line)
+            if isinstance(obj, str):
+                obj = json.loads(obj)
+            rows.append(obj)
+        return rows
+
+
+def build_open_ended_eval_rows(data) -> List[Dict]:
+    rows = []
+
+    if isinstance(data, dict):
+        data = [data]
+
+    row_id = 0
+    for ex in data:
+        scenario = str(ex.get("scenario", "")).strip()
+        qa_pairs = ex.get("qa_pairs", [])
+
+        for qa in qa_pairs:
+            question = str(qa.get("Question", "")).strip()
+            reason = str(qa.get("Reason", "")).strip()
+            answer = str(qa.get("Answer", "")).strip()
+            variable = str(qa.get("Variable", "")).strip()
+
+            prompt = (
+                f"Scenario: {scenario}\n"
+                f"Question: {question}\n\n"
+                "Please reason briefly, then give the final answer in this format:\n"
+                "<reason>...</reason>\n"
+                "<answer>...</answer>"
+            )
+
+            target = f"<reason>{reason}</reason>\n<answer>{answer}</answer>"
+
+            rows.append({
+                "id": row_id,
+                "scenario": scenario,
+                "variable": variable,
+                "question": question,
+                "gold_reason": reason,
+                "gold_answer": answer,
+                "prompt": prompt,
+                "answer": target,
+            })
+            row_id += 1
+
+    return rows
+
+
+# =========================
+# Prompt 构造
+# =========================
+def build_chat_prompt(tokenizer, user_prompt: str) -> str:
+    if not USE_CHAT_TEMPLATE:
+        return user_prompt
+
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a careful reasoning assistant. "
+                "Follow the required format exactly."
+            ),
+        },
+        {
+            "role": "user",
+            "content": user_prompt,
+        },
+    ]
+    return tokenizer.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+
+
+# =========================
+# 模型加载
+# =========================
+def load_model_and_tokenizer():
+    log("Loading tokenizer...")
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True, trust_remote_code=False)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "right"
+
+    dtype = torch.bfloat16 if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else torch.float16
+
+    log("Loading base model...")
+    base_model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        torch_dtype=dtype,
+        low_cpu_mem_usage=True,
+    )
+
+    if torch.cuda.is_available():
+        base_model.to("cuda")
+
+    log("Loading trained LoRA adapter...")
+    model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
+
+    if torch.cuda.is_available():
+        model.to("cuda")
+
+    model.eval()
+
+    log(f"Model device: {next(model.parameters()).device}")
+    return model, tokenizer
+
+
+# =========================
+# 预测与评估
+# =========================
+@torch.no_grad()
+def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Dict:
+    device = next(model.parameters()).device
+
+    results = []
+    acc_hits = 0
+    f1s = []
+
+    for i, row in enumerate(rows, start=1):
+        prompt = build_chat_prompt(tokenizer, row["prompt"])
+        gold_answer = row["gold_answer"]
+
+        inputs = tokenizer(prompt, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        out = model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            use_cache=True,
+            pad_token_id=tokenizer.pad_token_id,
+        )
+
+        gen_ids = out[0][inputs["input_ids"].shape[1]:]
+        gen_text = tokenizer.decode(gen_ids, skip_special_tokens=True)
+
+        pred_answer = extract_answer(gen_text)
+        pred_reason = extract_reason(gen_text)
+
+        acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
+        f1 = f1_word(pred_answer, gold_answer)
+
+        acc_hits += acc
+        f1s.append(f1)
+
+        result = {
+            "id": row["id"],
+            "scenario": row["scenario"],
+            "variable": row["variable"],
+            "question": row["question"],
+            "prompt": row["prompt"],
+            "gold_reason": row["gold_reason"],
+            "gold_answer": row["gold_answer"],
+            "raw_generation": gen_text,
+            "pred_reason": pred_reason,
+            "pred_answer": pred_answer,
+            "answer_accuracy": acc,
+            "answer_f1": f1,
+        }
+        results.append(result)
+
+        print(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f}")
+        print("QUESTION:", row["question"])
+        print("GOLD ANSWER:", gold_answer)
+        print("PRED ANSWER:", pred_answer)
+        print("-" * 80)
+
+        del inputs, out, gen_ids
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    metrics = {
+        "n_eval": len(rows),
+        "answer_accuracy": acc_hits / len(rows) if rows else 0.0,
+        "answer_f1": sum(f1s) / len(f1s) if f1s else 0.0,
+        "results": results,
+    }
+    return metrics
+
+
+# =========================
+# 保存结果
+# =========================
+def save_jsonl(rows: List[Dict], path: str):
+    with open(path, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+
+def save_csv(rows: List[Dict], path: str):
+    if not rows:
+        return
+
+    fieldnames = [
+        "id",
+        "variable",
+        "question",
+        "gold_answer",
+        "pred_answer",
+        "answer_accuracy",
+        "answer_f1",
+        "gold_reason",
+        "pred_reason",
+        "raw_generation",
+        "scenario",
+        "prompt",
+    ]
+
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def save_summary(metrics: Dict, path: str):
+    summary = {
+        "n_eval": metrics["n_eval"],
+        "answer_accuracy": metrics["answer_accuracy"],
+        "answer_f1": metrics["answer_f1"],
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, ensure_ascii=False, indent=2)
+
+
+# =========================
+# 主流程
+# =========================
+def main():
+    Path(OUTPUT_DIR).mkdir(exist_ok=True)
+
+    log("Loading source dataset...")
+    data = load_json_maybe_string(INPUT_JSON)
+
+    log("Converting dataset to evaluation rows...")
+    rows = build_open_ended_eval_rows(data)
+    log(f"Total rows before sampling: {len(rows)}")
+
+    if MAX_SAMPLES > 0:
+        idxs = sample_indices(len(rows), MAX_SAMPLES, SEED)
+        rows = [rows[i] for i in idxs]
+        log(f"Sampled rows: {len(rows)}")
+
+    model, tokenizer = load_model_and_tokenizer()
+
+    log("Running generalization evaluation...")
+    metrics = evaluate_rows(
+        model=model,
+        tokenizer=tokenizer,
+        rows=rows,
+        max_new_tokens=MAX_NEW_TOKENS,
+    )
+
+    log("=" * 80)
+    log("[FINAL GENERALIZATION METRICS]")
+    log(f"Samples evaluated: {metrics['n_eval']}")
+    log(f"Answer Accuracy: {metrics['answer_accuracy']:.4f}")
+    log(f"Answer F1      : {metrics['answer_f1']:.4f}")
+    log("=" * 80)
+
+    jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
+    csv_path = str(Path(OUTPUT_DIR) / "predictions.csv")
+    summary_path = str(Path(OUTPUT_DIR) / "summary.json")
+
+    save_jsonl(metrics["results"], jsonl_path)
+    save_csv(metrics["results"], csv_path)
+    save_summary(metrics, summary_path)
+
+    log(f"Saved predictions JSONL: {jsonl_path}")
+    log(f"Saved predictions CSV  : {csv_path}")
+    log(f"Saved summary JSON     : {summary_path}")
+
+
+if __name__ == "__main__":
+    main()
