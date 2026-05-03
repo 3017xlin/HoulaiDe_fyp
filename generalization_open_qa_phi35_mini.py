@@ -132,7 +132,7 @@ def f1_word(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
+def semantic_similarity_score(st_model, pred: str, gold: str, question: str = "") -> float:
     pred = str(pred).strip()
     gold = str(gold).strip()
 
@@ -140,6 +140,10 @@ def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
         return 1.0
     if not pred or not gold:
         return 0.0
+
+    if question:
+        pred = f"{question} {pred}"
+        gold = f"{question} {gold}"
 
     emb = st_model.encode([pred, gold], convert_to_tensor=True)
     return float(util.cos_sim(emb[0], emb[1]).item())
@@ -323,7 +327,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_mo
 
         acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
         f1 = f1_word(pred_answer, gold_answer)
-        sim = semantic_similarity_score(st_model, pred_answer, gold_answer)
+        sim = semantic_similarity_score(st_model, pred_answer, gold_answer, question=row["question"])
 
         acc_hits += acc
         f1s.append(f1)
