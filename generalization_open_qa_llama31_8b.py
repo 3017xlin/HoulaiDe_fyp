@@ -69,6 +69,7 @@ from collections import Counter
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
+from sentence_transformers import SentenceTransformer, util
 
 
 # =========================
@@ -131,6 +132,19 @@ def f1_word(pred: str, gold: str) -> float:
     if precision + recall == 0:
         return 0.0
     return 2 * precision * recall / (precision + recall)
+
+
+def semantic_similarity_score(st_model, pred: str, gold: str) -> float:
+    pred = str(pred).strip()
+    gold = str(gold).strip()
+
+    if not pred and not gold:
+        return 1.0
+    if not pred or not gold:
+        return 0.0
+
+    emb = st_model.encode([pred, gold], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
 
 
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
@@ -280,12 +294,13 @@ def load_model_and_tokenizer():
 # Evaluation
 # =========================
 @torch.no_grad()
-def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Dict:
+def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int, st_model) -> Dict:
     device = next(model.parameters()).device
 
     results = []
     acc_hits = 0
     f1s = []
+    sims = []
 
     for i, row in enumerate(rows, start=1):
         prompt = build_chat_prompt(tokenizer, row["prompt"])
@@ -310,9 +325,11 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Di
 
         acc = int(normalize_text(pred_answer) == normalize_text(gold_answer))
         f1 = f1_word(pred_answer, gold_answer)
+        sim = semantic_similarity_score(st_model, pred_answer, gold_answer)
 
         acc_hits += acc
         f1s.append(f1)
+        sims.append(sim)
 
         result = {
             "id": row["id"],
@@ -327,10 +344,11 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Di
             "pred_answer": pred_answer,
             "answer_accuracy": acc,
             "answer_f1": f1,
+            "semantic_similarity": sim,
         }
         results.append(result)
 
-        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f}")
+        log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} SemSim={sim:.4f}")
         if i <= 5 or i % 50 == 0:
             log(f"  Q: {row['question'][:80]}")
             log(f"  GOLD: {gold_answer[:80]}")
@@ -345,6 +363,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int) -> Di
         "n_eval": len(rows),
         "answer_accuracy": acc_hits / len(rows) if rows else 0.0,
         "answer_f1": sum(f1s) / len(f1s) if f1s else 0.0,
+        "semantic_similarity": sum(sims) / len(sims) if sims else 0.0,
         "results": results,
     }
     return metrics
@@ -364,8 +383,8 @@ def save_csv(rows: List[Dict], path: str):
         return
     fieldnames = [
         "id", "variable", "question", "gold_answer", "pred_answer",
-        "answer_accuracy", "answer_f1", "gold_reason", "pred_reason",
-        "raw_generation", "scenario", "prompt",
+        "answer_accuracy", "answer_f1", "semantic_similarity",
+        "gold_reason", "pred_reason", "raw_generation", "scenario", "prompt",
     ]
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -380,6 +399,7 @@ def save_summary(metrics: Dict, path: str):
         "n_eval": metrics["n_eval"],
         "answer_accuracy": metrics["answer_accuracy"],
         "answer_f1": metrics["answer_f1"],
+        "semantic_similarity": metrics["semantic_similarity"],
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
@@ -409,19 +429,25 @@ def main():
 
     model, tokenizer = load_model_and_tokenizer()
 
+    log("Loading sentence-transformer for semantic similarity...")
+    st_model = SentenceTransformer("all-MiniLM-L6-v2")
+    log("SentenceTransformer loaded")
+
     log("Running MC-finetuned → Open QA generalisation evaluation...")
     metrics = evaluate_rows(
         model=model,
         tokenizer=tokenizer,
         rows=rows,
         max_new_tokens=MAX_NEW_TOKENS,
+        st_model=st_model,
     )
 
     log("=" * 80)
     log("[FINAL GENERALISATION METRICS — LLaMA-3.1-8B MC→OpenQA]")
-    log(f"  Samples evaluated : {metrics['n_eval']}")
-    log(f"  Answer Accuracy   : {metrics['answer_accuracy']:.4f}")
-    log(f"  Answer F1         : {metrics['answer_f1']:.4f}")
+    log(f"  Samples evaluated    : {metrics['n_eval']}")
+    log(f"  Answer Accuracy      : {metrics['answer_accuracy']:.4f}")
+    log(f"  Answer F1            : {metrics['answer_f1']:.4f}")
+    log(f"  Semantic Similarity  : {metrics['semantic_similarity']:.4f}")
     log("=" * 80)
 
     jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
