@@ -200,20 +200,39 @@ def semsim_bem(bem_tok, bem_mdl, pred, gold, question):
 
 
 
-POLARITY_WORDS = {"yes", "no", "not", "never", "neither", "none", "nor",
+POSITIVE_POLAR = {"yes", "yeah", "definitely", "certainly", "absolutely"}
+NEGATIVE_POLAR = {"no", "not", "never", "neither", "none", "nor",
                   "didn't", "doesn't", "don't", "isn't", "wasn't",
                   "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
 
 
-def _has_polarity(text: str) -> bool:
+def _extract_polarity(text: str):
     tokens = set(normalize_text(text).split())
-    return bool(tokens & POLARITY_WORDS)
+    has_pos = bool(tokens & POSITIVE_POLAR)
+    has_neg = bool(tokens & NEGATIVE_POLAR)
+    if has_neg:
+        return "negative"
+    if has_pos:
+        return "positive"
+    return None
 
 
-def semsim_pa_bem(bem_score: float, cra_score: float, gold_answer: str) -> float:
-    if _has_polarity(gold_answer):
-        return 0.2 * bem_score + 0.8 * cra_score
-    return bem_score
+def semsim_pa_bem(bem_score: float, cra_score: float,
+                  pred_answer: str, gold_answer: str) -> float:
+    gold_pol = _extract_polarity(gold_answer)
+
+    if gold_pol is None:
+        return bem_score
+
+    pred_pol = _extract_polarity(pred_answer)
+
+    if pred_pol is not None:
+        if pred_pol == gold_pol:
+            return bem_score
+        else:
+            return 0.0
+    else:
+        return 0.5 * bem_score + 0.5 * cra_score
 
 
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
@@ -412,7 +431,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
             "crossenc_question": semsim_crossenc_question(cross_model, pred_answer, gold_answer, question),
             "bem":              semsim_bem(bem_tok, bem_mdl, pred_answer, gold_answer, question),
         }
-        s["pa_bem"] = semsim_pa_bem(s["bem"], s["crossenc_answer"], gold_answer)
+        s["pa_bem"] = semsim_pa_bem(s["bem"], s["crossenc_answer"], pred_answer, gold_answer)
 
         acc_hits += acc
         f1s.append(f1)
