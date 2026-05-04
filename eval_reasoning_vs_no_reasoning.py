@@ -7,9 +7,9 @@ from collections import Counter, defaultdict
 from typing import List, Dict, Tuple
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import CrossEncoder
 
 
 # =========================
@@ -252,9 +252,61 @@ def f1_score(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def semantic_similarity(st_model, a: str, b: str) -> float:
-    emb = st_model.encode([a, b], convert_to_tensor=True)
-    return float(util.cos_sim(emb[0], emb[1]))
+def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
+    pred = str(pred).strip()
+    gold = str(gold).strip()
+    if not pred and not gold:
+        return 1.0
+    if not pred or not gold:
+        return 0.0
+    text = f"[CLS] {pred} [SEP]"
+    text_pair = f"{gold} [SEP] {question} [SEP]"
+    inputs = bem_tok(
+        text=text, text_pair=text_pair,
+        add_special_tokens=False, padding="max_length",
+        truncation=True, return_tensors="pt",
+    )
+    with torch.no_grad():
+        logits = bem_mdl(**inputs).logits
+    probs = torch.nn.functional.softmax(logits, dim=-1)
+    return float(probs[0, 1].item())
+
+
+def semsim_cra(cross_model, pred: str, gold: str) -> float:
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+POSITIVE_POLAR = {"yes"}
+NEGATIVE_POLAR = {"no", "not", "didn't", "doesn't", "don't", "isn't", "wasn't",
+                  "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
+
+
+def _extract_polarity_gold(text):
+    before_comma = normalize(text).split(",")[0]
+    tokens = set(before_comma.split())
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def _extract_polarity_pred(text):
+    tokens = set(normalize(text).split()[:3])
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def semsim_pa_bem(bem_score, cra_score, pred_answer, gold_answer):
+    gold_pol = _extract_polarity_gold(gold_answer)
+    if gold_pol is None: return bem_score
+    pred_pol = _extract_polarity_pred(pred_answer)
+    if pred_pol is not None:
+        return bem_score if pred_pol == gold_pol else 0.0
+    return 0.5 * bem_score + 0.5 * cra_score
 
 
 # =========================
@@ -361,18 +413,27 @@ def find_latest_ckpt(directory: str) -> str:
 
 def load_model():
     log("loading tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True, trust_remote_code=False)
 
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    log("loading base model...")
     use_bf16 = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+    compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
+
+    log("loading base model with 4-bit NF4 quantisation (matching training)...")
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_compute_dtype=compute_dtype,
+    )
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
-        torch_dtype=torch.bfloat16 if use_bf16 else (torch.float16 if torch.cuda.is_available() else torch.float32),
-        device_map="auto" if torch.cuda.is_available() else None,
+        quantization_config=bnb_config,
+        device_map="auto",
         low_cpu_mem_usage=True,
+        trust_remote_code=False,
     )
 
     ckpt = find_latest_ckpt(CKPT_DIR)
@@ -388,12 +449,12 @@ def load_model():
 # Evaluation
 # =========================
 @torch.no_grad()
-def evaluate(model, tokenizer, data: List[dict], mode: str, st_model):
+def evaluate(model, tokenizer, data: List[dict], mode: str,
+             bem_tok, bem_mdl, cross_model):
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s = []
-    sims = []
+    f1s, cras, bems, pa_bems = [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -417,16 +478,23 @@ def evaluate(model, tokenizer, data: List[dict], mode: str, st_model):
 
         em += int(normalize(pred) == normalize(gold))
         f1s.append(f1_score(pred, gold))
-        sims.append(semantic_similarity(st_model, pred, gold))
+        cra = semsim_cra(cross_model, pred, gold)
+        bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
+        cras.append(cra)
+        bems.append(bem)
+        pa_bems.append(semsim_pa_bem(bem, cra, pred, gold))
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
 
+    n = len(data)
     return {
-        "EM": em / len(data),
-        "F1": sum(f1s) / len(f1s),
-        "Semantic": sum(sims) / len(sims),
-        "N": len(data),
+        "N": n,
+        "EM": em / n,
+        "F1": sum(f1s) / n,
+        "CrA": sum(cras) / n,
+        "BEM": sum(bems) / n,
+        "PA_BEM": sum(pa_bems) / n,
     }
 
 
@@ -440,14 +508,18 @@ def main():
 
     model, tokenizer = load_model()
 
-    log("loading sentence-transformer...")
-    st_model = SentenceTransformer("all-MiniLM-L6-v2")
+    log("loading similarity models...")
+    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
+    bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
+    bem_mdl.eval()
+    log("CrA + BEM loaded")
 
     log("Running mode: reasoning")
-    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", st_model)
+    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl, cross_model)
 
     log("Running mode: no_reasoning")
-    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", st_model)
+    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl, cross_model)
 
     print("\n====== FINAL RESULTS ======")
     print("\n[WITH REASONING]")
