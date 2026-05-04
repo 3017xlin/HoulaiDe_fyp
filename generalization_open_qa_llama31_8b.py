@@ -199,6 +199,23 @@ def semsim_bem(bem_tok, bem_mdl, pred, gold, question):
     return float(probs[0, 1].item())
 
 
+
+POLARITY_WORDS = {"yes", "no", "not", "never", "neither", "none", "nor",
+                  "didn't", "doesn't", "don't", "isn't", "wasn't",
+                  "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
+
+
+def _has_polarity(text: str) -> bool:
+    tokens = set(normalize_text(text).split())
+    return bool(tokens & POLARITY_WORDS)
+
+
+def semsim_pa_bem(bem_score: float, crq_score: float, gold_answer: str) -> float:
+    if _has_polarity(gold_answer):
+        return 0.3 * bem_score + 0.7 * crq_score
+    return bem_score
+
+
 def sample_indices(n: int, k: int, seed: int) -> List[int]:
     if k <= 0 or k >= n:
         return list(range(n))
@@ -349,6 +366,7 @@ SIM_KEYS = [
     "bienc_answer", "bienc_question",
     "crossenc_answer", "crossenc_question",
     "bem",
+    "pa_bem",
 ]
 
 
@@ -394,6 +412,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
             "crossenc_question": semsim_crossenc_question(cross_model, pred_answer, gold_answer, question),
             "bem":              semsim_bem(bem_tok, bem_mdl, pred_answer, gold_answer, question),
         }
+        s["pa_bem"] = semsim_pa_bem(s["bem"], s["crossenc_question"], gold_answer)
 
         acc_hits += acc
         f1s.append(f1)
@@ -420,7 +439,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
         log(f"[{i}/{len(rows)}] ACC={acc} F1={f1:.4f} "
             f"BiA={s['bienc_answer']:.3f} BiQ={s['bienc_question']:.3f} "
             f"CrA={s['crossenc_answer']:.3f} CrQ={s['crossenc_question']:.3f} "
-            f"BEM={s['bem']:.3f}")
+            f"BEM={s['bem']:.3f} PA={s['pa_bem']:.3f}")
         if i <= 5 or i % 50 == 0:
             log(f"  Q: {question[:80]}")
             log(f"  GOLD: {gold_answer[:80]}")
@@ -459,7 +478,7 @@ def save_csv(rows: List[Dict], path: str):
         "id", "variable", "question", "gold_answer", "pred_answer",
         "answer_accuracy", "answer_f1",
         "bienc_answer", "bienc_question",
-        "crossenc_answer", "crossenc_question", "bem",
+        "crossenc_answer", "crossenc_question", "bem", "pa_bem",
         "gold_reason", "pred_reason", "raw_generation", "scenario", "prompt",
     ]
     with open(path, "w", encoding="utf-8", newline="") as f:
@@ -535,6 +554,7 @@ def main():
     log(f"  CrossEnc (answer only)    : {metrics['crossenc_answer']:.4f}")
     log(f"  CrossEnc (+ question)     : {metrics['crossenc_question']:.4f}")
     log(f"  BEM    (question-aware)   : {metrics['bem']:.4f}")
+    log(f"  PA-BEM (polarity-aware)  : {metrics['pa_bem']:.4f}")
 
     jsonl_path = str(Path(OUTPUT_DIR) / "predictions.jsonl")
     csv_path = str(Path(OUTPUT_DIR) / "predictions.csv")
