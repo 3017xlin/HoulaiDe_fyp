@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, StoppingCriteria, StoppingCriteriaList, BitsAndBytesConfig
 from peft import PeftModel
+from sentence_transformers import CrossEncoder
 
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -85,6 +86,43 @@ def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
         logits = bem_mdl(**inputs).logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
     return float(probs[0, 1].item())
+
+
+def semsim_cra(cross_model, pred: str, gold: str) -> float:
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+POSITIVE_POLAR = {"yes"}
+NEGATIVE_POLAR = {"no", "not", "didn't", "doesn't", "don't", "isn't", "wasn't",
+                  "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
+
+
+def _extract_polarity_gold(text):
+    before_comma = normalize_text(text).split(",")[0]
+    tokens = set(before_comma.split())
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def _extract_polarity_pred(text):
+    tokens = set(normalize_text(text).split()[:3])
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def semsim_pa_bem(bem_score, cra_score, pred_answer, gold_answer):
+    gold_pol = _extract_polarity_gold(gold_answer)
+    if gold_pol is None: return bem_score
+    pred_pol = _extract_polarity_pred(pred_answer)
+    if pred_pol is not None:
+        return bem_score if pred_pol == gold_pol else 0.0
+    return 0.5 * bem_score + 0.5 * cra_score
 
 
 def try_json_loads(s: str):
@@ -421,7 +459,8 @@ def get_prompt_builder(mode: str):
 
 
 @torch.no_grad()
-def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, bem_tok, bem_mdl, prompt_mode: str, extraction_mode: str):
+def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
+             bem_tok, bem_mdl, cross_model, prompt_mode: str, extraction_mode: str):
     device = next(model.parameters()).device
     model.eval()
     model.config.use_cache = True
@@ -430,12 +469,12 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, bem_to
     prompt_builder = get_prompt_builder(prompt_mode)
 
     em_hits = 0
-    f1s = []
-    sims = []
+    f1s, cras, bems, pa_bems = [], [], [], []
 
     for idx, ex in enumerate(examples):
         prompt = build_chat_prompt(tokenizer, prompt_builder(ex))
-        gold = extract_answer_robust(ex["answer"])  # gold 统一用 robust 取出 gold answer
+        gold = extract_answer_robust(ex["answer"])
+        question = ex.get("question", "")
 
         inputs = tokenizer(prompt, return_tensors="pt")
         inputs = {k: v.to(device) for k, v in inputs.items()}
@@ -468,16 +507,23 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int, bem_to
 
         em_hits += int(normalize_text(pred) == normalize_text(gold))
         f1s.append(f1_word(pred, gold))
-        sims.append(semsim_bem(bem_tok, bem_mdl, pred, gold, ex.get("question", "")))
+        cra = semsim_cra(cross_model, pred, gold)
+        bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
+        cras.append(cra)
+        bems.append(bem)
+        pa_bems.append(semsim_pa_bem(bem, cra, pred, gold))
 
         if (idx + 1) % 20 == 0 or (idx + 1) == len(examples):
             log(f"progress: {idx+1}/{len(examples)}")
 
+    n = len(examples) if examples else 1
     return {
         "n_eval": len(examples),
-        "exact_match": em_hits / len(examples) if examples else 0.0,
-        "token_f1": sum(f1s) / len(f1s) if f1s else 0.0,
-        "BEM": sum(sims) / len(sims) if sims else 0.0,
+        "exact_match": em_hits / n,
+        "token_f1": sum(f1s) / n,
+        "CrA": sum(cras) / n,
+        "BEM": sum(bems) / n,
+        "PA_BEM": sum(pa_bems) / n,
     }
 
 
@@ -522,11 +568,12 @@ def main():
     log(f"loading LoRA checkpoint from: {ckpt_path}")
     model = PeftModel.from_pretrained(model, ckpt_path)
 
-    log("loading BEM (kortukov/answer-equivalence-bem)...")
+    log("loading similarity models...")
+    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl.eval()
-    log("BEM loaded")
+    log("CrA + BEM loaded")
 
     metrics = run_eval(
         model=model,
@@ -535,6 +582,7 @@ def main():
         max_new_tokens=MAX_NEW_TOKENS,
         bem_tok=bem_tok,
         bem_mdl=bem_mdl,
+        cross_model=cross_model,
         prompt_mode=args.prompt_mode,
         extraction_mode=args.extraction_mode,
     )
@@ -542,17 +590,21 @@ def main():
     title = f"[PROMPT={args.prompt_mode} | EXTRACTION={args.extraction_mode}]"
     log(title)
     log(f"N = {metrics['n_eval']}")
-    log(f"Exact Match / Accuracy = {metrics['exact_match']:.4f}")
-    log(f"Token F1 = {metrics['token_f1']:.4f}")
-    log(f"BEM Similarity = {metrics['BEM']:.4f}")
+    log(f"Exact Match  = {metrics['exact_match']:.4f}")
+    log(f"Token F1     = {metrics['token_f1']:.4f}")
+    log(f"CrA          = {metrics['CrA']:.4f}")
+    log(f"BEM          = {metrics['BEM']:.4f}")
+    log(f"PA-BEM       = {metrics['PA_BEM']:.4f}")
 
     out_name = f"openqa_eval_{args.prompt_mode}_{args.extraction_mode}.txt"
     with open(out_name, "w", encoding="utf-8") as f:
         f.write(title + "\n")
         f.write(f"N = {metrics['n_eval']}\n")
-        f.write(f"Exact Match / Accuracy = {metrics['exact_match']:.4f}\n")
+        f.write(f"Exact Match = {metrics['exact_match']:.4f}\n")
         f.write(f"Token F1 = {metrics['token_f1']:.4f}\n")
-        f.write(f"BEM Similarity = {metrics['BEM']:.4f}\n")
+        f.write(f"CrA = {metrics['CrA']:.4f}\n")
+        f.write(f"BEM = {metrics['BEM']:.4f}\n")
+        f.write(f"PA-BEM = {metrics['PA_BEM']:.4f}\n")
 
 
 if __name__ == "__main__":

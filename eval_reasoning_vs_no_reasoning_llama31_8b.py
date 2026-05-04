@@ -29,6 +29,7 @@ from typing import List, Dict, Tuple
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import PeftModel
+from sentence_transformers import CrossEncoder
 
 
 # =========================
@@ -291,6 +292,43 @@ def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
     return float(probs[0, 1].item())
 
 
+def semsim_cra(cross_model, pred: str, gold: str) -> float:
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+POSITIVE_POLAR = {"yes"}
+NEGATIVE_POLAR = {"no", "not", "didn't", "doesn't", "don't", "isn't", "wasn't",
+                  "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
+
+
+def _extract_polarity_gold(text):
+    before_comma = normalize(text).split(",")[0]
+    tokens = set(before_comma.split())
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def _extract_polarity_pred(text):
+    tokens = set(normalize(text).split()[:3])
+    if tokens & NEGATIVE_POLAR: return "negative"
+    if tokens & POSITIVE_POLAR: return "positive"
+    return None
+
+
+def semsim_pa_bem(bem_score, cra_score, pred_answer, gold_answer):
+    gold_pol = _extract_polarity_gold(gold_answer)
+    if gold_pol is None: return bem_score
+    pred_pol = _extract_polarity_pred(pred_answer)
+    if pred_pol is not None:
+        return bem_score if pred_pol == gold_pol else 0.0
+    return 0.5 * bem_score + 0.5 * cra_score
+
+
 # =========================
 # Robust extraction
 # =========================
@@ -431,12 +469,12 @@ def load_model():
 # Evaluation
 # =========================
 @torch.no_grad()
-def evaluate(model, tokenizer, data: List[dict], mode: str, bem_tok, bem_mdl):
+def evaluate(model, tokenizer, data: List[dict], mode: str,
+             bem_tok, bem_mdl, cross_model):
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s = []
-    sims = []
+    f1s, cras, bems, pa_bems = [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -460,16 +498,23 @@ def evaluate(model, tokenizer, data: List[dict], mode: str, bem_tok, bem_mdl):
 
         em += int(normalize(pred) == normalize(gold))
         f1s.append(f1_score(pred, gold))
-        sims.append(semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"]))
+        cra = semsim_cra(cross_model, pred, gold)
+        bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
+        cras.append(cra)
+        bems.append(bem)
+        pa_bems.append(semsim_pa_bem(bem, cra, pred, gold))
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
 
+    n = len(data)
     return {
-        "EM": em / len(data),
-        "F1": sum(f1s) / len(f1s),
-        "BEM": sum(sims) / len(sims),
-        "N": len(data),
+        "N": n,
+        "EM": em / n,
+        "F1": sum(f1s) / n,
+        "CrA": sum(cras) / n,
+        "BEM": sum(bems) / n,
+        "PA_BEM": sum(pa_bems) / n,
     }
 
 
@@ -483,17 +528,18 @@ def main():
 
     model, tokenizer = load_model()
 
-    log("loading BEM (kortukov/answer-equivalence-bem)...")
+    log("loading similarity models...")
+    cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl.eval()
-    log("BEM loaded")
+    log("CrA + BEM loaded")
 
     log("Running mode: reasoning")
-    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl)
+    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl, cross_model)
 
     log("Running mode: no_reasoning")
-    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl)
+    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl, cross_model)
 
     print("\n====== FINAL RESULTS ======")
     print("\n[WITH REASONING]")
