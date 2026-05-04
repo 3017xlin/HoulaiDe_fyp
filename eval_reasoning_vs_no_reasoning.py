@@ -2,6 +2,7 @@ import json
 import re
 import time
 import random
+import os
 from pathlib import Path
 from collections import Counter, defaultdict
 from typing import List, Dict, Tuple
@@ -10,6 +11,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import PeftModel
 from sentence_transformers import CrossEncoder
+from openai import OpenAI
 
 
 # =========================
@@ -35,6 +37,118 @@ def log(msg: str):
 # =========================
 # Robust file loading
 # =========================
+# =========================
+# LLM-as-Judge (GPT-4o-mini)
+# =========================
+LLM_JUDGE_PROMPT = """You are an expert evaluator for a psychological reasoning evaluation task. \
+Your role is to judge whether a candidate answer is semantically equivalent \
+to a reference answer, given the question's context.
+
+## Task context
+
+The questions are open-ended and probe subjective psychological states \
+such as emotions, beliefs, attitudes, and self-perception (e.g., "How \
+disappointed do you feel?", "How did the accusation affect your \
+self-esteem?"). Reference answers are short, natural-language \
+expressions of these subjective states. Candidate answers come from \
+language models and may vary in length, wording, and specificity.
+
+For this task, semantic equivalence requires matching THREE dimensions:
+  1. Topic — does the candidate address what the question asks about?
+  2. Direction — does the candidate express the same valence/stance as \
+     the reference (e.g., both negative, both positive, both neutral)?
+  3. Intensity — does the candidate express comparable strength of the \
+     state (e.g., "slightly annoyed" is NOT equivalent to "furious", \
+     even though both are negative)?
+
+## Context-aware judgment instruction (IMPORTANT)
+
+You MUST use the QUESTION'S context to interpret short or ambiguous \
+candidate answers. The candidate's meaning is shaped by what the \
+question asks.
+
+Examples:
+  - Q: "How disappointed are you?"
+    Candidate: "High"  → interpret as "very disappointed" (high degree of disappointment)
+  - Q: "How did this affect your mood?"
+    Candidate: "Negatively"  → interpret as "it had a negative effect on my mood"
+  - Q: "How confident were you?"
+    Candidate: "Low"  → interpret as "not very confident"
+
+Do not penalize candidates for being short or for using a different \
+phrasing, as long as the question's context makes their meaning clear.
+
+## Rating scale (3 levels)
+
+EQUIVALENT — Candidate matches the reference in topic, direction, AND \
+  intensity. Wording may differ. Short answers that, when interpreted \
+  through the question's context, mean the same thing as the reference \
+  count as EQUIVALENT.
+
+PARTIAL — Candidate matches the reference in topic and direction, but \
+  differs notably in intensity, completeness, or specificity. Also use \
+  this label when the candidate captures part of the reference's meaning \
+  but misses or adds significant content.
+
+NOT_EQUIVALENT — Candidate fails on at least one of:
+  - Wrong topic (does not address what the question asks)
+  - Opposite or contradictory direction (e.g., positive vs. negative)
+  - Format-collapsed output (e.g., a single letter "A", empty string, \
+    multiple-choice option, off-task content)
+  - Substantively different meaning despite surface similarity
+
+## What to ignore
+
+  - Length differences alone do NOT affect the score.
+  - Stylistic differences (formal vs. casual, first-person vs. \
+    third-person) do NOT affect the score.
+  - Different but equivalent wordings are fully acceptable.
+
+## Procedure
+
+1. Identify what dimension of psychological state the question asks about.
+2. Determine the reference answer's direction and intensity on that dimension.
+3. Interpret the candidate answer USING the question's context.
+4. Compare on topic, direction, and intensity.
+5. Assign one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT.
+
+---
+
+Question: {question}
+Reference answer: {gold}
+Candidate answer: {pred}
+
+Respond in EXACTLY this format, with no additional text:
+
+Reasoning: <2–3 sentences explaining your judgment, referencing topic, direction, and intensity>
+Label: <one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT>"""
+
+LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
+
+
+def llm_judge(client, pred: str, gold: str, question: str) -> float:
+    if client is None:
+        return -1.0
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred:
+        return 0.0
+    prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0, max_tokens=200,
+        )
+        text = resp.choices[0].message.content.strip()
+        for label, score in LABEL_TO_SCORE.items():
+            if f"Label: {label}" in text or text.endswith(label):
+                return score
+        return 0.0
+    except Exception as e:
+        print(f"[warn] LLM-Judge API error: {e}", flush=True)
+        return -1.0
+
+
 def try_json_loads(s: str):
     try:
         return json.loads(s)
@@ -450,11 +564,11 @@ def load_model():
 # =========================
 @torch.no_grad()
 def evaluate(model, tokenizer, data: List[dict], mode: str,
-             bem_tok, bem_mdl, cross_model):
+             bem_tok, bem_mdl, cross_model, oai_client):
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s, cras, bems, pa_bems = [], [], [], []
+    f1s, cras, bems, pa_bems, ljs = [], [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -480,13 +594,17 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         f1s.append(f1_score(pred, gold))
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
+        pa = semsim_pa_bem(bem, cra, pred, gold)
+        lj = llm_judge(oai_client, pred, gold, ex["question"])
         cras.append(cra)
         bems.append(bem)
-        pa_bems.append(semsim_pa_bem(bem, cra, pred, gold))
+        pa_bems.append(pa)
+        ljs.append(lj)
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
 
+    valid_lj = [s for s in ljs if s >= 0]
     n = len(data)
     return {
         "N": n,
@@ -495,6 +613,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         "CrA": sum(cras) / n,
         "BEM": sum(bems) / n,
         "PA_BEM": sum(pa_bems) / n,
+        "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
     }
 
 
@@ -513,13 +632,17 @@ def main():
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl.eval()
-    log("CrA + BEM loaded")
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    oai_client = OpenAI(api_key=api_key) if api_key else None
+    if not api_key:
+        log("[WARN] OPENAI_API_KEY not set — LLM-Judge will be skipped")
+    log("All eval models loaded")
 
     log("Running mode: reasoning")
-    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl, cross_model)
+    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl, cross_model, oai_client)
 
     log("Running mode: no_reasoning")
-    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl, cross_model)
+    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl, cross_model, oai_client)
 
     print("\n====== FINAL RESULTS ======")
     print("\n[WITH REASONING]")
