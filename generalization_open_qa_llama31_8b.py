@@ -200,31 +200,38 @@ def semsim_bem(bem_tok, bem_mdl, pred, gold, question):
 
 
 
-POSITIVE_POLAR = {"yes", "yeah", "definitely", "certainly", "absolutely"}
-NEGATIVE_POLAR = {"no", "not", "never", "neither", "none", "nor",
-                  "didn't", "doesn't", "don't", "isn't", "wasn't",
+POSITIVE_POLAR = {"yes"}
+NEGATIVE_POLAR = {"no", "not", "didn't", "doesn't", "don't", "isn't", "wasn't",
                   "wouldn't", "couldn't", "shouldn't", "haven't", "hasn't"}
 
 
-def _extract_polarity(text: str):
-    tokens = set(normalize_text(text).split())
-    has_pos = bool(tokens & POSITIVE_POLAR)
-    has_neg = bool(tokens & NEGATIVE_POLAR)
-    if has_neg:
+def _extract_polarity_gold(text: str):
+    before_comma = normalize_text(text).split(",")[0]
+    tokens = set(before_comma.split())
+    if tokens & NEGATIVE_POLAR:
         return "negative"
-    if has_pos:
+    if tokens & POSITIVE_POLAR:
+        return "positive"
+    return None
+
+
+def _extract_polarity_pred(text: str):
+    tokens = set(normalize_text(text).split()[:3])
+    if tokens & NEGATIVE_POLAR:
+        return "negative"
+    if tokens & POSITIVE_POLAR:
         return "positive"
     return None
 
 
 def semsim_pa_bem(bem_score: float, cra_score: float,
                   pred_answer: str, gold_answer: str) -> float:
-    gold_pol = _extract_polarity(gold_answer)
+    gold_pol = _extract_polarity_gold(gold_answer)
 
     if gold_pol is None:
         return bem_score
 
-    pred_pol = _extract_polarity(pred_answer)
+    pred_pol = _extract_polarity_pred(pred_answer)
 
     if pred_pol is not None:
         if pred_pol == gold_pol:
