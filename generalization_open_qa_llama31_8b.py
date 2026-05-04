@@ -210,9 +210,9 @@ def _has_polarity(text: str) -> bool:
     return bool(tokens & POLARITY_WORDS)
 
 
-def semsim_pa_bem(bem_score: float, crq_score: float, gold_answer: str) -> float:
+def semsim_pa_bem(bem_score: float, cra_score: float, gold_answer: str) -> float:
     if _has_polarity(gold_answer):
-        return 0.3 * bem_score + 0.7 * crq_score
+        return 0.2 * bem_score + 0.8 * cra_score
     return bem_score
 
 
@@ -412,7 +412,7 @@ def evaluate_rows(model, tokenizer, rows: List[Dict], max_new_tokens: int,
             "crossenc_question": semsim_crossenc_question(cross_model, pred_answer, gold_answer, question),
             "bem":              semsim_bem(bem_tok, bem_mdl, pred_answer, gold_answer, question),
         }
-        s["pa_bem"] = semsim_pa_bem(s["bem"], s["crossenc_question"], gold_answer)
+        s["pa_bem"] = semsim_pa_bem(s["bem"], s["crossenc_answer"], gold_answer)
 
         acc_hits += acc
         f1s.append(f1)
