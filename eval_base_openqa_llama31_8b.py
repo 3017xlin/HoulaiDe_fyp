@@ -242,11 +242,13 @@ def main():
         bnb_4bit_quant_type="nf4",
         bnb_4bit_use_double_quant=True,
         bnb_4bit_compute_dtype=torch.bfloat16 if use_bf16 else torch.float16,
+        llm_int8_enable_fp32_cpu_offload=True,
     )
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         quantization_config=bnb_config,
         device_map="auto",
+        max_memory={0: "7GiB", "cpu": "24GiB"},
         low_cpu_mem_usage=True,
         trust_remote_code=False,
     )
