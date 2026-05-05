@@ -84,7 +84,7 @@ MODELS = {
         "name": "microsoft/Phi-3.5-mini-instruct",
         "mc_adapter": "sft_phi3p5_mini_qlora_safe_resume2",
         "openqa_adapter": "sft_phi3p5_mini_openqa_qlora",
-        "needs_4bit_base": False,
+        "needs_4bit_base": True,
         "label": "Phi-3.5-mini",
     },
     "llama31": {
