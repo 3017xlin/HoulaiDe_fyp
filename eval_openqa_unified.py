@@ -59,7 +59,7 @@ from transformers import (
     AutoModelForSequenceClassification, BitsAndBytesConfig,
 )
 from peft import PeftModel
-from sentence_transformers import CrossEncoder
+from sentence_transformers import SentenceTransformer, CrossEncoder, util
 from openai import OpenAI
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -193,11 +193,35 @@ def is_degenerate(pred: str) -> str:
 # =========================
 # Semantic similarity: CrA, BEM, PA-BEM
 # =========================
+def semsim_bia(st_model, pred, gold):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([pred, gold], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_biq(st_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([f"{question} {pred}", f"{question} {gold}"], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
 def semsim_cra(cross_model, pred, gold):
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred and not gold: return 1.0
     if not pred or not gold: return 0.0
     score = cross_model.predict([(pred, gold)])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
+def semsim_crq(cross_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(f"{question} {pred}", f"{question} {gold}")])[0]
     return float(max(0.0, min(score / 5.0, 1.0)))
 
 
@@ -661,12 +685,12 @@ def load_model(model_key, task):
 # Evaluation
 # =========================
 @torch.no_grad()
-def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client):
+def evaluate(model, tokenizer, examples, st_model, cross_model, bem_tok, bem_mdl, oai_client):
     device = next(model.parameters()).device
 
     records = []
     em_hits = 0
-    f1s, cras, bems, pa_bems, llm_scores = [], [], [], [], []
+    f1s, bias, biqs, cras, crqs, bems, pa_bems, llm_scores = [], [], [], [], [], [], [], []
     lj_labels, lj_debugs = [], []
     degen_count = 0
     parse_fail_count = 0
@@ -697,7 +721,10 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
 
         em = int(normalize_text(pred) == normalize_text(gold))
         f1 = f1_word(pred, gold)
+        bia = semsim_bia(st_model, pred, gold)
+        biq = semsim_biq(st_model, pred, gold, question)
         cra = semsim_cra(cross_model, pred, gold)
+        crq = semsim_crq(cross_model, pred, gold, question)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
         pa = semsim_pa_bem(bem, cra, pred, gold)
         lj_score, lj_label, lj_debug = llm_judge(
@@ -717,7 +744,10 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
 
         em_hits += em
         f1s.append(f1)
+        bias.append(bia)
+        biqs.append(biq)
         cras.append(cra)
+        crqs.append(crq)
         bems.append(bem)
         pa_bems.append(pa)
         llm_scores.append(lj_score)
@@ -726,26 +756,22 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
 
         records.append({
             "idx": i - 1,
-            "scenario": ex["scenario"],
-            "question": question,
-            "gold": gold,
-            "raw_generation": gen_text,
-            "pred": pred,
-            "degen_status": degen_status,
-            "em": em,
-            "f1": round(f1, 4),
-            "cra": round(cra, 4),
-            "bem": round(bem, 4),
-            "pa_bem": round(pa, 4),
-            "lj_score": lj_score,
-            "lj_label": lj_label,
-            "lj_overridden": lj_debug.get("overridden", False) if isinstance(lj_debug, dict) else False,
-            "lj_retries": lj_debug.get("retries", 0) if isinstance(lj_debug, dict) else 0,
-            "lj_d_flags": lj_debug.get("d_flags", {}) if isinstance(lj_debug, dict) else {},
-            "lj_raw": lj_debug.get("raw", "") if isinstance(lj_debug, dict) else "",
+            "Q": question,
+            "GOLD": gold,
+            "PRED": pred,
+            "EM": em,
+            "F1": round(f1, 4),
+            "BiA": round(bia, 4),
+            "BiQ": round(biq, 4),
+            "CrA": round(cra, 4),
+            "CrQ": round(crq, 4),
+            "BEM": round(bem, 4),
+            "PA": round(pa, 4),
+            "LJ": lj_score,
+            "LJ_label": lj_label,
         })
 
-        log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label}){'[degen]' if degen_status != 'ok' else ''}")
+        log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} BiA={bia:.3f} BiQ={biq:.3f} CrA={cra:.3f} CrQ={crq:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label}){'[degen]' if degen_status != 'ok' else ''}")
         log(f"    Q: {question[:70]}")
         log(f"    GOLD: {gold[:70]}")
         log(f"    PRED: {pred[:70]}")
@@ -771,7 +797,10 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         "exact_match": em_hits / n,
         "token_f1": sum(f1s) / n,
         "cra": sum(cras) / n,
+        "bia": sum(bias) / n,
+        "biq": sum(biqs) / n,
         "bem": sum(bems) / n,
+        "crq": sum(crqs) / n,
         "pa_bem": sum(pa_bems) / n,
         "llm_judge": sum(valid_lj_scores) / len(valid_lj_scores) if valid_lj_scores else 0.0,
         "llm_judge_n": len(valid_lj_scores),
@@ -822,11 +851,14 @@ def main():
     model, tokenizer = load_model(args.model, args.task)
 
     log("Loading similarity models...")
+    st_model = SentenceTransformer("all-MiniLM-L6-v2")
+    log("  bi-encoder loaded")
     cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
+    log("  cross-encoder loaded")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl.eval()
-    log("Similarity models loaded")
+    log("  BEM loaded")
 
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
@@ -834,24 +866,35 @@ def main():
     oai_client = OpenAI(api_key=api_key) if api_key else None
 
     log("Running evaluation...")
-    metrics = evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client)
+    metrics = evaluate(model, tokenizer, examples, st_model, cross_model, bem_tok, bem_mdl, oai_client)
 
     log("=" * 80)
     log(f"[{mcfg['label']} | {task_label}]")
     log(f"  N              : {metrics['n_eval']}")
     log(f"  Exact Match    : {metrics['exact_match']:.4f}")
     log(f"  Token F1       : {metrics['token_f1']:.4f}")
+    log(f"  BiA            : {metrics['bia']:.4f}")
+    log(f"  BiQ            : {metrics['biq']:.4f}")
     log(f"  CrA            : {metrics['cra']:.4f}")
+    log(f"  CrQ            : {metrics['crq']:.4f}")
     log(f"  BEM            : {metrics['bem']:.4f}")
     log(f"  PA-BEM         : {metrics['pa_bem']:.4f}")
     log(f"  LLM-Judge      : {metrics['llm_judge']:.4f} (n={metrics['llm_judge_n']})")
     dist = metrics['llm_judge_dist']
     log(f"  LLM-Judge dist : EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
     log(f"  Degen rate     : {metrics['degen_rate']:.2%} ({metrics['degen_count']}/{metrics['n_eval']})")
-    log(f"  LJ retries     : total_retries={metrics['total_retries']} retry_exhausted={metrics['retry_exhausted_count']}")
-    log(f"  LJ robustness  : api_err={metrics['api_error_count']} parse_fail={metrics['parse_fail_count']} overrides={metrics['safeguard_override_count']}")
     log("=" * 80)
 
+    # Save per-example CSV
+    csv_file = f"merged_{args.task}_{args.model}.csv"
+    csv_fields = ["idx", "Q", "GOLD", "PRED", "EM", "F1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA", "LJ", "LJ_label"]
+    with open(csv_file, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=csv_fields)
+        writer.writeheader()
+        writer.writerows(metrics["records"])
+    log(f"Saved CSV: {csv_file}")
+
+    # Save summary txt
     out_file = f"openqa_eval_{args.task}_{args.model}.txt"
     with open(out_file, "w", encoding="utf-8") as f:
         f.write(f"model = {mcfg['name']}\n")
@@ -859,12 +902,8 @@ def main():
         adapter = "None" if args.task == "base" else (mcfg["mc_adapter"] if args.task == "mc" else mcfg["openqa_adapter"])
         f.write(f"adapter = {adapter}\n")
         f.write(f"n_eval = {metrics['n_eval']}\n\n")
-        f.write(f"exact_match = {metrics['exact_match']:.6f}\n")
-        f.write(f"token_f1 = {metrics['token_f1']:.6f}\n")
-        f.write(f"cra = {metrics['cra']:.6f}\n")
-        f.write(f"bem = {metrics['bem']:.6f}\n")
-        f.write(f"pa_bem = {metrics['pa_bem']:.6f}\n")
-        f.write(f"llm_judge = {metrics['llm_judge']:.6f}\n")
+        for k in ["exact_match", "token_f1", "bia", "biq", "cra", "crq", "bem", "pa_bem", "llm_judge"]:
+            f.write(f"{k} = {metrics[k]:.6f}\n")
         f.write(f"llm_judge_n = {metrics['llm_judge_n']}\n")
         dist = metrics['llm_judge_dist']
         f.write(f"llm_judge_EQUIVALENT = {dist['EQUIVALENT']:.4f}\n")
@@ -872,18 +911,14 @@ def main():
         f.write(f"llm_judge_NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
         f.write(f"degen_rate = {metrics['degen_rate']:.6f}\n")
         f.write(f"degen_count = {metrics['degen_count']}\n")
-        f.write(f"lj_total_retries = {metrics['total_retries']}\n")
-        f.write(f"lj_retry_exhausted = {metrics['retry_exhausted_count']}\n")
-        f.write(f"lj_api_error = {metrics['api_error_count']}\n")
-        f.write(f"lj_parse_fail = {metrics['parse_fail_count']}\n")
-        f.write(f"safeguard_overrides = {metrics['safeguard_override_count']}\n")
     log(f"Saved summary: {out_file}")
 
+    # Save JSONL records (for LLM-Judge reasoning analysis)
     records_file = f"openqa_eval_{args.task}_{args.model}_records.jsonl"
     with open(records_file, "w", encoding="utf-8") as f:
         for r in metrics["records"]:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    log(f"Saved per-example records: {records_file}")
+    log(f"Saved JSONL: {records_file}")
 
 
 if __name__ == "__main__":
