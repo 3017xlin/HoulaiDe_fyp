@@ -3,6 +3,7 @@ import re
 import time
 import random
 import argparse
+import os
 from pathlib import Path
 from typing import List, Dict, Tuple
 from collections import Counter, defaultdict
@@ -11,6 +12,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, StoppingCriteria, StoppingCriteriaList, BitsAndBytesConfig
 from peft import PeftModel
 from sentence_transformers import CrossEncoder
+from openai import OpenAI
 
 
 torch.backends.cuda.matmul.allow_tf32 = True
@@ -123,6 +125,118 @@ def semsim_pa_bem(bem_score, cra_score, pred_answer, gold_answer):
     if pred_pol is not None:
         return bem_score if pred_pol == gold_pol else 0.0
     return 0.5 * bem_score + 0.5 * cra_score
+
+
+# =========================
+# LLM-as-Judge (GPT-4o-mini)
+# =========================
+LLM_JUDGE_PROMPT = """You are an expert evaluator for a psychological reasoning evaluation task. \
+Your role is to judge whether a candidate answer is semantically equivalent \
+to a reference answer, given the question's context.
+
+## Task context
+
+The questions are open-ended and probe subjective psychological states \
+such as emotions, beliefs, attitudes, and self-perception (e.g., "How \
+disappointed do you feel?", "How did the accusation affect your \
+self-esteem?"). Reference answers are short, natural-language \
+expressions of these subjective states. Candidate answers come from \
+language models and may vary in length, wording, and specificity.
+
+For this task, semantic equivalence requires matching THREE dimensions:
+  1. Topic — does the candidate address what the question asks about?
+  2. Direction — does the candidate express the same valence/stance as \
+     the reference (e.g., both negative, both positive, both neutral)?
+  3. Intensity — does the candidate express comparable strength of the \
+     state (e.g., "slightly annoyed" is NOT equivalent to "furious", \
+     even though both are negative)?
+
+## Context-aware judgment instruction (IMPORTANT)
+
+You MUST use the QUESTION'S context to interpret short or ambiguous \
+candidate answers. The candidate's meaning is shaped by what the \
+question asks.
+
+Examples:
+  - Q: "How disappointed are you?"
+    Candidate: "High"  → interpret as "very disappointed" (high degree of disappointment)
+  - Q: "How did this affect your mood?"
+    Candidate: "Negatively"  → interpret as "it had a negative effect on my mood"
+  - Q: "How confident were you?"
+    Candidate: "Low"  → interpret as "not very confident"
+
+Do not penalize candidates for being short or for using a different \
+phrasing, as long as the question's context makes their meaning clear.
+
+## Rating scale (3 levels)
+
+EQUIVALENT — Candidate matches the reference in topic, direction, AND \
+  intensity. Wording may differ. Short answers that, when interpreted \
+  through the question's context, mean the same thing as the reference \
+  count as EQUIVALENT.
+
+PARTIAL — Candidate matches the reference in topic and direction, but \
+  differs notably in intensity, completeness, or specificity. Also use \
+  this label when the candidate captures part of the reference's meaning \
+  but misses or adds significant content.
+
+NOT_EQUIVALENT — Candidate fails on at least one of:
+  - Wrong topic (does not address what the question asks)
+  - Opposite or contradictory direction (e.g., positive vs. negative)
+  - Format-collapsed output (e.g., a single letter "A", empty string, \
+    multiple-choice option, off-task content)
+  - Substantively different meaning despite surface similarity
+
+## What to ignore
+
+  - Length differences alone do NOT affect the score.
+  - Stylistic differences (formal vs. casual, first-person vs. \
+    third-person) do NOT affect the score.
+  - Different but equivalent wordings are fully acceptable.
+
+## Procedure
+
+1. Identify what dimension of psychological state the question asks about.
+2. Determine the reference answer's direction and intensity on that dimension.
+3. Interpret the candidate answer USING the question's context.
+4. Compare on topic, direction, and intensity.
+5. Assign one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT.
+
+---
+
+Question: {question}
+Reference answer: {gold}
+Candidate answer: {pred}
+
+Respond in EXACTLY this format, with no additional text:
+
+Reasoning: <2–3 sentences explaining your judgment, referencing topic, direction, and intensity>
+Label: <one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT>"""
+
+LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
+
+
+def llm_judge(client, pred: str, gold: str, question: str) -> float:
+    if client is None:
+        return -1.0, "SKIPPED"
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred:
+        return 0.0, "NOT_EQUIVALENT"
+    prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0, max_tokens=200,
+        )
+        text = resp.choices[0].message.content.strip()
+        for label, score in LABEL_TO_SCORE.items():
+            if f"Label: {label}" in text or text.endswith(label):
+                return score, label
+        return 0.0, "NOT_EQUIVALENT"
+    except Exception as e:
+        print(f"[warn] LLM-Judge API error: {e}", flush=True)
+        return -1.0, "ERROR"
 
 
 def try_json_loads(s: str):
@@ -460,7 +574,7 @@ def get_prompt_builder(mode: str):
 
 @torch.no_grad()
 def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
-             bem_tok, bem_mdl, cross_model, prompt_mode: str, extraction_mode: str):
+             bem_tok, bem_mdl, cross_model, oai_client, prompt_mode: str, extraction_mode: str):
     device = next(model.parameters()).device
     model.eval()
     model.config.use_cache = True
@@ -469,7 +583,7 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
     prompt_builder = get_prompt_builder(prompt_mode)
 
     em_hits = 0
-    f1s, cras, bems, pa_bems = [], [], [], []
+    f1s, cras, bems, pa_bems, ljs, lj_labels = [], [], [], [], [], []
 
     for idx, ex in enumerate(examples):
         prompt = build_chat_prompt(tokenizer, prompt_builder(ex))
@@ -509,13 +623,25 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
         f1s.append(f1_word(pred, gold))
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
+        pa = semsim_pa_bem(bem, cra, pred, gold)
+        lj_score, lj_label = llm_judge(oai_client, pred, gold, question)
         cras.append(cra)
         bems.append(bem)
-        pa_bems.append(semsim_pa_bem(bem, cra, pred, gold))
+        pa_bems.append(pa)
+        ljs.append(lj_score)
+        lj_labels.append(lj_label)
 
         if (idx + 1) % 20 == 0 or (idx + 1) == len(examples):
             log(f"progress: {idx+1}/{len(examples)}")
 
+    valid_lj = [s for s in ljs if s >= 0]
+    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR")]
+    n_valid = len(valid_labels) if valid_labels else 1
+    lj_dist = {
+        "EQUIVALENT": sum(1 for l in valid_labels if l == "EQUIVALENT") / n_valid,
+        "PARTIAL": sum(1 for l in valid_labels if l == "PARTIAL") / n_valid,
+        "NOT_EQUIVALENT": sum(1 for l in valid_labels if l == "NOT_EQUIVALENT") / n_valid,
+    }
     n = len(examples) if examples else 1
     return {
         "n_eval": len(examples),
@@ -524,6 +650,8 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
         "CrA": sum(cras) / n,
         "BEM": sum(bems) / n,
         "PA_BEM": sum(pa_bems) / n,
+        "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
+        "LLM_Judge_dist": lj_dist,
     }
 
 
@@ -573,7 +701,11 @@ def main():
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl.eval()
-    log("CrA + BEM loaded")
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    oai_client = OpenAI(api_key=api_key) if api_key else None
+    if not api_key:
+        log("[WARN] OPENAI_API_KEY not set — LLM-Judge will be skipped")
+    log("All eval models loaded")
 
     metrics = run_eval(
         model=model,
@@ -583,6 +715,7 @@ def main():
         bem_tok=bem_tok,
         bem_mdl=bem_mdl,
         cross_model=cross_model,
+        oai_client=oai_client,
         prompt_mode=args.prompt_mode,
         extraction_mode=args.extraction_mode,
     )
@@ -595,6 +728,9 @@ def main():
     log(f"CrA          = {metrics['CrA']:.4f}")
     log(f"BEM          = {metrics['BEM']:.4f}")
     log(f"PA-BEM       = {metrics['PA_BEM']:.4f}")
+    log(f"LLM-Judge    = {metrics['LLM_Judge']:.4f}")
+    dist = metrics['LLM_Judge_dist']
+    log(f"LLM-Judge dist: EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
 
     out_name = f"openqa_eval_{args.prompt_mode}_{args.extraction_mode}.txt"
     with open(out_name, "w", encoding="utf-8") as f:
@@ -605,6 +741,11 @@ def main():
         f.write(f"CrA = {metrics['CrA']:.4f}\n")
         f.write(f"BEM = {metrics['BEM']:.4f}\n")
         f.write(f"PA-BEM = {metrics['PA_BEM']:.4f}\n")
+        f.write(f"LLM-Judge = {metrics['LLM_Judge']:.4f}\n")
+        dist = metrics['LLM_Judge_dist']
+        f.write(f"LLM-Judge EQUIVALENT = {dist['EQUIVALENT']:.4f}\n")
+        f.write(f"LLM-Judge PARTIAL = {dist['PARTIAL']:.4f}\n")
+        f.write(f"LLM-Judge NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
 
 
 if __name__ == "__main__":
