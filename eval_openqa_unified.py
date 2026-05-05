@@ -13,13 +13,17 @@ Supports four models:
   llama31 — LLaMA-3.1-8B-Instruct
 
 Metrics: Exact Match, Token F1, CrA (cross-encoder answer-only),
-         BEM (question-aware), PA-BEM (polarity-aware adaptive).
+         BEM (question-aware), PA-BEM (polarity-aware adaptive),
+         LLM-Judge (GPT-4o, 3-class with retry on malformed output).
+
+Note: PA-BEM polarity heuristic is limited (yes/no detection) and largely
+degrades to BEM on subjective open-ended answers. Reported as a baseline.
 
 Usage:
   python eval_openqa_unified.py --model qwen --task base
   python eval_openqa_unified.py --model llama32 --task mc
   python eval_openqa_unified.py --model phi35 --task openqa
-  python eval_openqa_unified.py --model llama31 --task base
+  python eval_openqa_unified.py --model llama31 --task base --use_eval_split_for_all
   ...
 """
 
@@ -46,7 +50,7 @@ import random
 import argparse
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from collections import Counter, defaultdict
 
 import torch
@@ -108,6 +112,12 @@ USE_CHAT_TEMPLATE = True
 EVAL_RATIO = 0.2
 SPLIT_SEED = 42
 
+# LLM-Judge config
+LLM_JUDGE_MODEL = "gpt-4o"
+LLM_JUDGE_MAX_TOKENS = 600
+LLM_JUDGE_TEMPERATURE = 0.0
+LLM_JUDGE_MAX_RETRIES = 5
+
 
 def log(msg: str):
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
@@ -152,6 +162,35 @@ def extract_answer(text: str) -> str:
 
 
 # =========================
+# Generation degeneration detection
+# =========================
+def is_degenerate(pred: str) -> str:
+    pred = str(pred).strip()
+    if len(pred) < 3:
+        return "too_short"
+
+    words = pred.split()
+    if len(words) >= 6:
+        bigrams = [(words[i], words[i+1]) for i in range(len(words) - 1)]
+        if len(bigrams) > 0:
+            bigram_unique_ratio = len(set(bigrams)) / len(bigrams)
+            if bigram_unique_ratio < 0.4:
+                return f"bigram_loop(uniq={bigram_unique_ratio:.2f})"
+
+        unigram_unique_ratio = len(set(words)) / len(words)
+        if unigram_unique_ratio < 0.3:
+            return f"unigram_repetition(uniq={unigram_unique_ratio:.2f})"
+
+    weird_pattern = re.findall(r"\b(?:[A-Z][a-z]?){2,}\b", pred)
+    common_caps = {"I", "USA", "UK", "OK", "TV", "AI", "API", "GPU", "CEO", "MC"}
+    weird_tokens = [w for w in weird_pattern if w not in common_caps and len(w) <= 6]
+    if len(weird_tokens) >= 2:
+        return f"garbled_tokens({','.join(weird_tokens[:3])})"
+
+    return "ok"
+
+
+# =========================
 # Semantic similarity: CrA, BEM, PA-BEM
 # =========================
 def semsim_cra(cross_model, pred, gold):
@@ -189,7 +228,7 @@ def _extract_polarity_gold(text):
 
 
 def _extract_polarity_pred(text):
-    tokens = set(normalize_text(text).split()[:3])
+    tokens = set(normalize_text(text).split()[:5])
     if tokens & NEGATIVE_POLAR: return "negative"
     if tokens & POSITIVE_POLAR: return "positive"
     return None
@@ -206,7 +245,7 @@ def semsim_pa_bem(bem_score, cra_score, pred_answer, gold_answer):
 
 
 # =========================
-# LLM-as-Judge (GPT-4o-mini)
+# LLM-as-Judge (GPT-4o)
 # =========================
 LLM_JUDGE_PROMPT = """You are an expert evaluator for a psychological reasoning evaluation task. \
 Your role is to judge whether a candidate answer is semantically equivalent \
@@ -217,83 +256,151 @@ to a reference answer, given the question's context.
 The questions are open-ended and probe subjective psychological states \
 (emotions, beliefs, attitudes, self-perception). Reference answers are \
 short, natural-language expressions of these states. Candidate answers \
-come from language models and may vary in length, wording, and quality.
+come from language models and may vary in length, wording, and quality, \
+including degraded or broken outputs.
 
 Semantic equivalence requires matching THREE dimensions:
   1. Topic — addresses what the question asks about.
-  2. Direction — same valence/stance as the reference (negative/positive/neutral).
+  2. Direction — same valence/stance as the reference (negative/neutral/positive).
   3. Intensity — comparable strength of the state.
 
-## Context-aware interpretation (for short candidates)
+## Context-aware interpretation (for short candidates only)
 
-Use the question's context to interpret short answers:
+Use the question's context to interpret short, well-formed answers:
   - Q: "How disappointed are you?" + Candidate: "High" → "very disappointed"
   - Q: "How confident?" + Candidate: "Low" → "not very confident"
 
-Do NOT penalize short answers if the question's context makes meaning clear.
+This applies ONLY to short but COHERENT candidates. It does NOT apply to \
+candidates that are truncated, garbled, or evasive (see disqualifying \
+conditions below).
 
-## DISQUALIFYING CONDITIONS (check these FIRST)
+## DISQUALIFYING CONDITIONS (check these BEFORE judging equivalence)
 
-If ANY of the following applies, the label MUST be NOT_EQUIVALENT, \
-regardless of topical relevance:
+If ANY of D1–D5 applies, the label MUST be NOT_EQUIVALENT, regardless \
+of any topical relevance the candidate may have.
 
-  D1. Truncation/Incompleteness: Candidate ends mid-sentence, mid-word, \
-      or trails off without delivering a substantive response \
-      (e.g., ends with "it can be", "the situation was", "concerns m").
-  D2. Opposite direction: Candidate expresses the opposite valence from \
-      the reference (e.g., reference: "angry/defensive"; candidate: \
-      "calm/composed").
-  D3. Contextual evasion: Candidate describes the scenario, generic \
-      consequences, or third-person context INSTEAD of expressing the \
-      psychological state the question asks about.
-  D4. Format collapse: Single letter, MC option ("A"/"B"), empty string, \
-      off-task content.
+  D1. TRUNCATION/INCOMPLETENESS
+      Candidate ends mid-sentence, mid-word, or trails off without \
+      delivering a substantive response.
+      Examples: ends with "it can be", "due to the", "concerns m".
+
+  D2. OPPOSITE DIRECTION
+      Candidate expresses the OPPOSITE valence/stance from the reference.
+      Examples:
+        - Reference: "I felt angry and defensive" (negative, strong)
+          Candidate: "I remained calm and composed" (neutral/positive)
+          → OPPOSITE direction. D2 applies.
+        - Words signaling opposite direction from a NEGATIVE reference:
+          "calm", "composed", "patient", "understanding", "happy", "fine".
+        - Words signaling opposite direction from a POSITIVE reference:
+          "upset", "disappointed", "angry", "sad".
+
+  D3. CONTEXTUAL EVASION
+      Candidate describes the scenario, generic consequences, or \
+      third-person context INSTEAD of expressing the psychological state \
+      the question asks about.
+      Examples:
+        - Q asks "How did this affect your self-esteem?" but candidate \
+          says "When someone is accused, it creates a difficult \
+          situation" without expressing how self-esteem changed.
+
+  D4. FORMAT COLLAPSE
+      Single letter ("A", "B"), MC option, empty string, off-task content, \
+      or output that is not a natural-language answer.
+
+  D5. GENERATION DEGENERATION
+      Candidate contains repeated phrases, meaningless token sequences, \
+      garbled text, broken word fragments, or other signs that the \
+      language model failed to produce coherent output.
+      Examples:
+        - "I am sorry I am Ipm I am sorry Id. I am IdId? I am sorry Idd"
+          → repetition + garbled tokens (Ipm, IdId, Idd). D5 applies.
+        - "the the the the the the the the" → token loop. D5 applies.
+      Surface phrases like "I am sorry" in degenerate output do NOT count \
+      as legitimate sentiment.
 
 ## Rating scale
 
 EQUIVALENT — No disqualifying condition AND matches reference in topic, \
-  direction, and intensity. Wording may differ.
+  direction, AND intensity. Wording may differ.
 
 PARTIAL — No disqualifying condition AND matches in topic and direction, \
-  BUT differs notably in intensity, completeness, or specificity.
+  BUT differs in intensity, completeness, or specificity.
 
-NOT_EQUIVALENT — Any disqualifying condition (D1–D4), OR substantively \
-  different meaning despite surface similarity.
+NOT_EQUIVALENT — Any disqualifying condition (D1–D5) applies, OR the \
+  candidate has substantively different meaning from the reference.
+
+## What to ignore (only for COHERENT candidates)
+
+For candidates that pass D1–D5, the following do NOT affect the score:
+  - Length differences alone.
+  - Stylistic differences (formal vs. casual, first vs. third person).
+  - Different but semantically equivalent wordings.
 
 ## Counter-examples (study carefully)
 
-Example A — Opposite direction → NOT_EQUIVALENT:
+Example A — D2 Opposite direction → NOT_EQUIVALENT:
   Q: "What was your reaction?"
   Reference: "I felt angry and defensive."
-  Candidate: "I remained calm and asked for clarification."
-  Why: "calm" is opposite to "angry/defensive" (D2).
+  Candidate: "I would remain calm and composed, seeking to understand."
+  Disqualifying: D2 (opposite direction: calm vs. angry)
+  Label: NOT_EQUIVALENT
 
-Example B — Contextual evasion → NOT_EQUIVALENT:
+Example B — D3 Contextual evasion → NOT_EQUIVALENT:
   Q: "How did the accusation affect your self-esteem?"
   Reference: "It lowered my self-esteem."
-  Candidate: "When someone accuses us of not working hard enough, \
-              it creates a difficult situation in the workplace."
-  Why: Describes generic consequences instead of the speaker's self-esteem (D3).
+  Candidate: "When someone accuses us of not working hard enough, it \
+              creates a difficult workplace situation."
+  Disqualifying: D3 (describes generic situation, never says how \
+                 self-esteem was affected)
+  Label: NOT_EQUIVALENT
 
-Example C — Truncated → NOT_EQUIVALENT:
+Example C — D1 Truncation → NOT_EQUIVALENT:
   Q: "How did you feel?"
   Reference: "I felt deeply betrayed."
   Candidate: "When someone you trust does that to you, it can be"
-  Why: Truncated mid-sentence, no substantive response delivered (D1).
+  Disqualifying: D1 (truncated mid-sentence)
+  Label: NOT_EQUIVALENT
 
-## Procedure
+Example D — D5 Degeneration → NOT_EQUIVALENT:
+  Q: "What was your initial reaction?"
+  Reference: "I felt angry and defensive."
+  Candidate: "I am sorry I am Ipm I am sorry Id. I am IdId? I am sorry Idd"
+  Disqualifying: D5 (repetitive, garbled output)
+  Label: NOT_EQUIVALENT
 
-1. Identify the psychological state dimension the question asks about.
-2. Determine reference's direction and intensity.
-3. Determine candidate's direction and intensity.
-4. CHECK D1–D4 disqualifying conditions. If ANY applies → NOT_EQUIVALENT, skip step 5.
-5. If no disqualifying condition: compare for full vs partial equivalence.
-6. Output label.
+Example E — Coherent short answer → EQUIVALENT:
+  Q: "How disappointed are you?"
+  Reference: "Very disappointed."
+  Candidate: "High."
+  Disqualifying: none
+  Label: EQUIVALENT
 
-## What to ignore
+Example F — Direction matches but intensity differs → PARTIAL:
+  Q: "How upset were you?"
+  Reference: "Extremely upset."
+  Candidate: "A bit annoyed."
+  Disqualifying: none
+  Label: PARTIAL (direction matches; intensity much weaker)
 
-Length differences alone, stylistic differences (formal/casual, \
-first/third person), and equivalent wordings do NOT affect the score.
+## Procedure (follow EVERY step in order)
+
+STEP 1: Analyze the REFERENCE answer ALONE — direction & intensity.
+STEP 2: Analyze the CANDIDATE answer ALONE — direction & intensity \
+        (use question context only if candidate is coherent).
+STEP 3: Check ALL FIVE disqualifying conditions D1–D5 explicitly.
+STEP 4: Apply the labeling rule:
+        - If ANY of D1–D5 applies → NOT_EQUIVALENT
+        - Else if direction AND intensity both match → EQUIVALENT
+        - Else (direction matches but intensity differs) → PARTIAL
+        - Else → NOT_EQUIVALENT
+
+## Self-consistency rule (IMPORTANT)
+
+Your final label MUST be consistent with your disqualifying conditions \
+check. If you marked any of D1–D5 as applying, your label MUST be \
+NOT_EQUIVALENT. There are NO exceptions. Output EXACTLY ONE Label line \
+with EXACTLY ONE of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT.
 
 ---
 
@@ -301,40 +408,136 @@ Question: {question}
 Reference answer: {gold}
 Candidate answer: {pred}
 
-Respond in EXACTLY this format, no additional text:
+Respond in EXACTLY this format, with no additional text:
 
 Reference direction & intensity: <e.g., "negative, strong">
-Candidate direction & intensity: <e.g., "neutral, mild" or "N/A (truncated)">
-Disqualifying conditions: <list which of D1/D2/D3/D4 apply, or "none">
-Comparison: <1-2 sentences if no disqualifying condition, else "skipped">
-Label: <EQUIVALENT | PARTIAL | NOT_EQUIVALENT>"""
+Candidate direction & intensity: <e.g., "neutral, mild" or "N/A (degenerate)">
+D1 truncation: <yes/no — brief reason>
+D2 opposite direction: <yes/no — brief reason>
+D3 contextual evasion: <yes/no — brief reason>
+D4 format collapse: <yes/no — brief reason>
+D5 generation degeneration: <yes/no — brief reason>
+Comparison: <1-2 sentences if no D1-D5 applies, otherwise "skipped due to D#">
+Label: <EQUIVALENT | PARTIAL | NOT_EQUIVALENT>
+"""
 
 LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
 
-def llm_judge(client, pred: str, gold: str, question: str) -> float:
+def _validate_judge_response(text: str) -> Tuple[bool, str]:
+    matches = re.findall(
+        r"Label\s*:\s*(NOT_EQUIVALENT|EQUIVALENT|PARTIAL)\b",
+        text,
+        re.IGNORECASE,
+    )
+
+    if len(matches) == 0:
+        return False, "no_label_found"
+    if len(matches) > 1:
+        unique = set(m.upper() for m in matches)
+        if len(unique) > 1:
+            return False, f"multiple_conflicting_labels:{','.join(unique)}"
+        return True, "ok_duplicate_same_label"
+
+    return True, "ok"
+
+
+def _parse_judge_response(text: str) -> Tuple[str, dict]:
+    label_match = re.search(
+        r"Label\s*:\s*(NOT_EQUIVALENT|EQUIVALENT|PARTIAL)\b",
+        text,
+        re.IGNORECASE,
+    )
+
+    d_flags = {}
+    for d_key in ["D1", "D2", "D3", "D4", "D5"]:
+        m = re.search(
+            rf"{d_key}\s*[a-z\s]*\s*:\s*(yes|no)\b",
+            text,
+            re.IGNORECASE,
+        )
+        d_flags[d_key.lower()] = m.group(1).lower() if m else "unknown"
+
+    if not label_match:
+        return "PARSE_FAIL", {"raw": text, "d_flags": d_flags}
+
+    label = label_match.group(1).upper()
+
+    any_disqualifying = any(v == "yes" for v in d_flags.values())
+    overridden = False
+    if any_disqualifying and label != "NOT_EQUIVALENT":
+        label = "NOT_EQUIVALENT"
+        overridden = True
+
+    return label, {
+        "raw": text,
+        "d_flags": d_flags,
+        "overridden": overridden,
+    }
+
+
+def llm_judge(client, pred: str, gold: str, question: str, degen_status: str = "ok",
+              example_idx: int = -1):
     if client is None:
-        return -1.0, "SKIPPED", ""
+        return -1.0, "SKIPPED", {"reason": "no client", "retries": 0}
+
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred:
-        return 0.0, "NOT_EQUIVALENT", "empty candidate"
+        return 0.0, "EMPTY", {"reason": "empty candidate", "retries": 0}
+
+    if degen_status != "ok":
+        return 0.0, "DEGENERATE_AUTO", {"reason": f"pre_filter:{degen_status}", "retries": 0}
 
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
-    try:
-        resp = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.0,
-            max_tokens=200,
-        )
-        text = resp.choices[0].message.content.strip()
-        for label in ["NOT_EQUIVALENT", "PARTIAL", "EQUIVALENT"]:
-            if f"Label: {label}" in text:
-                return LABEL_TO_SCORE[label], label, text
-        return -1.0, "PARSE_FAIL", text
-    except Exception as e:
-        print(f"[warn] LLM-Judge API error: {e}", flush=True)
-        return -1.0, "ERROR", str(e)
+
+    last_text = ""
+    last_reason = ""
+
+    for attempt in range(LLM_JUDGE_MAX_RETRIES):
+        try:
+            resp = client.chat.completions.create(
+                model=LLM_JUDGE_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=LLM_JUDGE_TEMPERATURE,
+                max_tokens=LLM_JUDGE_MAX_TOKENS,
+            )
+            text = resp.choices[0].message.content.strip()
+            last_text = text
+
+            is_valid, reason = _validate_judge_response(text)
+
+            if not is_valid:
+                last_reason = reason
+                idx_str = f" [idx={example_idx}]" if example_idx >= 0 else ""
+                print(f"Model judgement failed ({reason}){idx_str}, "
+                      f"restart another judgement. (attempt {attempt + 1}/{LLM_JUDGE_MAX_RETRIES})",
+                      flush=True)
+                continue
+
+            label, debug = _parse_judge_response(text)
+
+            if label == "PARSE_FAIL":
+                last_reason = "parse_fail_after_validation"
+                print(f"Model judgement failed (parse_fail_after_validation), "
+                      f"restart another judgement. (attempt {attempt + 1}/{LLM_JUDGE_MAX_RETRIES})",
+                      flush=True)
+                continue
+
+            debug["retries"] = attempt
+            return LABEL_TO_SCORE[label], label, debug
+
+        except Exception as e:
+            print(f"[warn] LLM-Judge API error (attempt {attempt + 1}): {e}", flush=True)
+            last_reason = f"api_error:{e}"
+            continue
+
+    print(f"[warn] LLM-Judge exhausted {LLM_JUDGE_MAX_RETRIES} retries "
+          f"(last reason: {last_reason}). Skipping this item.", flush=True)
+    return -1.0, "RETRY_EXHAUSTED", {
+        "reason": last_reason,
+        "raw": last_text,
+        "retries": LLM_JUDGE_MAX_RETRIES,
+    }
 
 
 # =========================
@@ -460,7 +663,17 @@ def load_model(model_key, task):
 @torch.no_grad()
 def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client):
     device = next(model.parameters()).device
-    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels, lj_reasonings = 0, [], [], [], [], [], [], []
+
+    records = []
+    em_hits = 0
+    f1s, cras, bems, pa_bems, llm_scores = [], [], [], [], []
+    lj_labels, lj_debugs = [], []
+    degen_count = 0
+    parse_fail_count = 0
+    api_error_count = 0
+    safeguard_override_count = 0
+    retry_exhausted_count = 0
+    total_retries = 0
 
     for i, ex in enumerate(examples, 1):
         prompt = build_chat_prompt(tokenizer, ex["prompt"])
@@ -478,12 +691,29 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         gen_text = tokenizer.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
         pred = extract_answer(gen_text)
 
+        degen_status = is_degenerate(pred)
+        if degen_status != "ok":
+            degen_count += 1
+
         em = int(normalize_text(pred) == normalize_text(gold))
         f1 = f1_word(pred, gold)
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
         pa = semsim_pa_bem(bem, cra, pred, gold)
-        lj_score, lj_label, lj_reasoning = llm_judge(oai_client, pred, gold, question)
+        lj_score, lj_label, lj_debug = llm_judge(
+            oai_client, pred, gold, question, degen_status, example_idx=i - 1
+        )
+
+        if lj_label == "PARSE_FAIL":
+            parse_fail_count += 1
+        if lj_label == "ERROR":
+            api_error_count += 1
+        if lj_label == "RETRY_EXHAUSTED":
+            retry_exhausted_count += 1
+        if isinstance(lj_debug, dict):
+            if lj_debug.get("overridden"):
+                safeguard_override_count += 1
+            total_retries += lj_debug.get("retries", 0)
 
         em_hits += em
         f1s.append(f1)
@@ -492,26 +722,50 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         pa_bems.append(pa)
         llm_scores.append(lj_score)
         lj_labels.append(lj_label)
-        lj_reasonings.append(lj_reasoning)
+        lj_debugs.append(lj_debug)
 
-        if True:
-            log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
-            log(f"    Q: {question[:70]}")
-            log(f"    GOLD: {gold[:70]}")
-            log(f"    PRED: {pred[:70]}")
+        records.append({
+            "idx": i - 1,
+            "scenario": ex["scenario"],
+            "question": question,
+            "gold": gold,
+            "raw_generation": gen_text,
+            "pred": pred,
+            "degen_status": degen_status,
+            "em": em,
+            "f1": round(f1, 4),
+            "cra": round(cra, 4),
+            "bem": round(bem, 4),
+            "pa_bem": round(pa, 4),
+            "lj_score": lj_score,
+            "lj_label": lj_label,
+            "lj_overridden": lj_debug.get("overridden", False) if isinstance(lj_debug, dict) else False,
+            "lj_retries": lj_debug.get("retries", 0) if isinstance(lj_debug, dict) else 0,
+            "lj_d_flags": lj_debug.get("d_flags", {}) if isinstance(lj_debug, dict) else {},
+            "lj_raw": lj_debug.get("raw", "") if isinstance(lj_debug, dict) else "",
+        })
+
+        log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label}){'[degen]' if degen_status != 'ok' else ''}")
+        log(f"    Q: {question[:70]}")
+        log(f"    GOLD: {gold[:70]}")
+        log(f"    PRED: {pred[:70]}")
 
         del inputs, out
         if torch.cuda.is_available(): torch.cuda.empty_cache()
 
-    valid_lj = [s for s in llm_scores if s >= 0]
-    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR", "PARSE_FAIL")]
-    n_valid = len(valid_labels) if valid_labels else 1
+    valid_labels = [l for l in lj_labels
+                    if l in ("EQUIVALENT", "PARTIAL", "NOT_EQUIVALENT", "DEGENERATE_AUTO", "EMPTY")]
+    collapsed_labels = ["NOT_EQUIVALENT" if l in ("DEGENERATE_AUTO", "EMPTY") else l for l in valid_labels]
+    n_valid = len(collapsed_labels) if collapsed_labels else 1
     lj_dist = {
-        "EQUIVALENT": sum(1 for l in valid_labels if l == "EQUIVALENT") / n_valid,
-        "PARTIAL": sum(1 for l in valid_labels if l == "PARTIAL") / n_valid,
-        "NOT_EQUIVALENT": sum(1 for l in valid_labels if l == "NOT_EQUIVALENT") / n_valid,
+        "EQUIVALENT": sum(1 for l in collapsed_labels if l == "EQUIVALENT") / n_valid,
+        "PARTIAL": sum(1 for l in collapsed_labels if l == "PARTIAL") / n_valid,
+        "NOT_EQUIVALENT": sum(1 for l in collapsed_labels if l == "NOT_EQUIVALENT") / n_valid,
     }
+
+    valid_lj_scores = [s for s in llm_scores if s >= 0]
     n = len(examples)
+
     return {
         "n_eval": n,
         "exact_match": em_hits / n,
@@ -519,10 +773,17 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         "cra": sum(cras) / n,
         "bem": sum(bems) / n,
         "pa_bem": sum(pa_bems) / n,
-        "llm_judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
-        "llm_judge_n": len(valid_lj),
+        "llm_judge": sum(valid_lj_scores) / len(valid_lj_scores) if valid_lj_scores else 0.0,
+        "llm_judge_n": len(valid_lj_scores),
         "llm_judge_dist": lj_dist,
-        "lj_reasonings": lj_reasonings,
+        "degen_count": degen_count,
+        "degen_rate": degen_count / n,
+        "parse_fail_count": parse_fail_count,
+        "api_error_count": api_error_count,
+        "safeguard_override_count": safeguard_override_count,
+        "retry_exhausted_count": retry_exhausted_count,
+        "total_retries": total_retries,
+        "records": records,
     }
 
 
@@ -535,6 +796,8 @@ def main():
                         help="Model to evaluate")
     parser.add_argument("--task", required=True, choices=["base", "mc", "openqa"],
                         help="base=no finetune, mc=MC-finetuned, openqa=OpenQA-finetuned")
+    parser.add_argument("--use_eval_split_for_all", action="store_true",
+                        help="If set, base/mc tasks also use only the eval split (matches openqa N).")
     args = parser.parse_args()
 
     mcfg = MODELS[args.model]
@@ -548,10 +811,10 @@ def main():
     log("Loading Open QA data...")
     all_examples = load_openqa(OPENQA_PATH)
 
-    if args.task == "openqa":
+    if args.task == "openqa" or args.use_eval_split_for_all:
         _, eval_examples = split_by_scenario(all_examples, EVAL_RATIO, SPLIT_SEED)
         examples = eval_examples
-        log(f"Using EVAL split only: {len(examples)} examples (model was trained on train split)")
+        log(f"Using EVAL split only: {len(examples)} examples")
     else:
         examples = all_examples
         log(f"Using ALL examples: {len(examples)}")
@@ -584,6 +847,9 @@ def main():
     log(f"  LLM-Judge      : {metrics['llm_judge']:.4f} (n={metrics['llm_judge_n']})")
     dist = metrics['llm_judge_dist']
     log(f"  LLM-Judge dist : EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
+    log(f"  Degen rate     : {metrics['degen_rate']:.2%} ({metrics['degen_count']}/{metrics['n_eval']})")
+    log(f"  LJ retries     : total_retries={metrics['total_retries']} retry_exhausted={metrics['retry_exhausted_count']}")
+    log(f"  LJ robustness  : api_err={metrics['api_error_count']} parse_fail={metrics['parse_fail_count']} overrides={metrics['safeguard_override_count']}")
     log("=" * 80)
 
     out_file = f"openqa_eval_{args.task}_{args.model}.txt"
@@ -604,13 +870,20 @@ def main():
         f.write(f"llm_judge_EQUIVALENT = {dist['EQUIVALENT']:.4f}\n")
         f.write(f"llm_judge_PARTIAL = {dist['PARTIAL']:.4f}\n")
         f.write(f"llm_judge_NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
-    log(f"Saved: {out_file}")
+        f.write(f"degen_rate = {metrics['degen_rate']:.6f}\n")
+        f.write(f"degen_count = {metrics['degen_count']}\n")
+        f.write(f"lj_total_retries = {metrics['total_retries']}\n")
+        f.write(f"lj_retry_exhausted = {metrics['retry_exhausted_count']}\n")
+        f.write(f"lj_api_error = {metrics['api_error_count']}\n")
+        f.write(f"lj_parse_fail = {metrics['parse_fail_count']}\n")
+        f.write(f"safeguard_overrides = {metrics['safeguard_override_count']}\n")
+    log(f"Saved summary: {out_file}")
 
-    reasoning_file = f"openqa_eval_{args.task}_{args.model}_llm_judge.jsonl"
-    with open(reasoning_file, "w", encoding="utf-8") as f:
-        for i, r in enumerate(metrics.get("lj_reasonings", [])):
-            f.write(json.dumps({"idx": i, "reasoning": r}, ensure_ascii=False) + "\n")
-    log(f"Saved LLM-Judge reasoning: {reasoning_file}")
+    records_file = f"openqa_eval_{args.task}_{args.model}_records.jsonl"
+    with open(records_file, "w", encoding="utf-8") as f:
+        for r in metrics["records"]:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    log(f"Saved per-example records: {records_file}")
 
 
 if __name__ == "__main__":
