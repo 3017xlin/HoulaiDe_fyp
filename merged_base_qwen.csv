@@ -1,0 +1,248 @@
+idx,Q,GOLD,PRED,EM,F1,BiA,BiQ,CrA,CrQ,BEM,PA,LJ,LJ_label
+1,How did the accusation make you feel?,It felt very negative.,... I was not working hard enough in front of the... I wasito team. I,0,0.0,0.173,0.652,0.162,0.094,0.123,0.123,0.0,DEGENERATE_AUTO
+2,What was your initial reaction to the accusation?,I felt angry and defensive.,I am sorry I am Ipm I am sorry Id. I am IdId? I am sorry Idd I am sorr,0,0.022,0.113,0.501,0.116,0.11,0.082,0.082,0.0,DEGENERATE_AUTO
+3,How did the accusation affect your self-esteem?,It lowered my self-esteem.,The accusation the thethethe,0,0.0,0.182,0.903,0.003,0.132,0.269,0.269,0.0,NOT_EQUIVALENT
+4,Did the accusation affect your relationship with your colleague?,"Yes, it damaged our relationship.",... I apologize......I apologize......I apologize......... I apologize,0,0.0,0.188,0.882,0.146,0.137,0.066,0.106,0.0,DEGENERATE_AUTO
+5,How did you feel about your colleague's accusation?,I felt disappointed in them.,I felt hurt and betrayed by my colleague for accusing me... I was... I,0,0.022,0.193,0.841,0.138,0.135,0.574,0.574,0.0,DEGENERATE_AUTO
+6,How does Dea feel about her speaking abilities?,She feels inadequate and embarrassed.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+7,What contributes to Dea's reluctance to speak up?,Fear of judgment and low confidence.,Assistant: It contributes to Dea's reluctance because it makes her les,0,0.009,0.194,0.814,0.129,0.114,0.356,0.356,0.0,DEGENERATE_AUTO
+8,What fears might Dea have about participating in class?,Fear of making mistakes or being ridiculed.,...,0,0.0,0.179,0.923,0.08,0.135,0.054,0.054,-1.0,RETRY_EXHAUSTED
+9,How might Dea feel about her participation grades?,She feels disappointed in herself.,Deb. 12345678999999999999999999999999999999999999999999999999999999999,0,0.0,0.008,0.814,0.038,0.128,0.083,0.083,0.0,NOT_EQUIVALENT
+10,How connected does Dea feel with her classmates?,She feels isolated and disconnected.,Dea feels embarrassed Dea. Dea feels embarrassed Dea Dea De De De De.,0,0.01,0.151,0.805,0.135,0.129,0.09,0.09,0.0,DEGENERATE_AUTO
+11,What negative feelings arise from the labmate's actions?,Frustration and betrayal.,<negative emotions>.,0,0.0,0.46,0.902,0.041,0.131,0.082,0.082,0.0,NOT_EQUIVALENT
+12,How angry do you feel about the labmate's report?,Very angry.,"Yesterday, a I handed in our project reports to supervisor. A few days",0,0.0,0.122,0.901,0.106,0.127,0.718,0.718,0.0,DEGENERATE_AUTO
+13,How has this incident affected your self-esteem?,It has decreased my self-esteem.,a mistake that you have been involved in? Scenario: You were supposed,0,0.0,0.086,0.832,0.123,0.104,0.16,0.16,0.0,DEGENERATE_AUTO
+14,How disappointed are you in your labmate?,Extremely disappointed.,mistake that i have not made a mistake that mistake that i have not ma,0,0.0,0.086,0.766,0.148,0.109,0.099,0.099,0.0,DEGENERATE_AUTO
+15,What discord does this situation create in the team?,Distrust among team members.,"Yesterday, we handed in our project reports to the supervisor. a mista",0,0.0,0.194,0.685,0.12,0.106,0.046,0.046,0.0,DEGENERATE_AUTO
+16,How did the interaction affect Bob's self-esteem?,It likely diminished his self-esteem.,Bob's self-esteem was significantly affected by his teammates' contrib,0,0.008,0.505,0.906,0.131,0.137,0.495,0.495,0.0,DEGENERATE_AUTO
+17,Did Bob feel connected to his teammate during the session?,"No, he felt disconnected.",Bob felt disconnected from his teammate during the session because he,0,0.019,0.579,0.968,0.133,0.187,0.949,0.541,0.0,DEGENERATE_AUTO
+18,How might Bob feel towards his teammate's behavior?,He may feel angry.,A) ashamed B) angry C)Answer: A) ashamed B) angry C) A) indifferent D),0,0.0,0.356,0.838,0.133,0.14,0.249,0.249,0.0,DEGENERATE_AUTO
+19,Is Bob disappointed in his team's dynamics?,"Yes, he is likely disappointed.",Bob is not disappointed in his team dynamics. over Bob's contributions,0,0.01,0.333,0.921,0.122,0.1,0.857,0.0,0.0,DEGENERATE_AUTO
+20,What overall tone did the interaction create for Bob?,It created a negative tone.,Bob's contribution was significant as it made him understand the impor,0,0.017,0.178,0.838,0.138,0.111,0.885,0.885,0.0,DEGENERATE_AUTO
+21,How do you feel about the rumors spread about Jane?,Very negative.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+22,What emotions does Jane feel towards her neighbor?,Intense anger.,her neighbor is spreading false rumors her her neighbor is spreading f,0,0.0,0.098,0.885,0.16,0.099,0.057,0.057,0.0,DEGENERATE_AUTO
+23,How disappointed is Jane in her community's response?,Highly disappointed.,her community was greatly affected by it. Her neighbor had spread fals,0,0.0,0.082,0.814,0.18,0.123,0.386,0.386,0.0,DEGENERATE_AUTO
+24,What fears does Jane have about the rumors?,Fear of isolation.,her false rumors her reputation by spreading false rumors her reputati,0,0.0,0.101,0.842,0.138,0.111,0.129,0.129,0.0,DEGENERATE_AUTO
+25,How proud is Jane of her character despite the rumors?,Very proud.,Her neighbors have been spreading false rumors her her reputation for,0,0.0,0.11,0.881,0.125,0.148,0.972,0.972,0.0,DEGENERATE_AUTO
+26,What negative feelings might Karen experience?,Frustration and anxiety.,Karen experienced stress and anxiety as she needed to earn more money,0,0.015,0.444,0.902,0.189,0.134,0.245,0.245,0.0,DEGENERATE_AUTO
+27,What fears could Karen have about her job?,Fear of losing her job.,Karen had been worried about her job because her manager called her he,0,0.009,0.432,0.907,0.173,0.129,0.696,0.696,0.0,DEGENERATE_AUTO
+28,How disappointed might Karen feel about her hours?,Very disappointed.,... I A)...I A.........I A......... I A......... I A......... I A.....,0,0.0,0.085,0.91,0.115,0.146,0.095,0.095,0.0,NOT_EQUIVALENT
+29,What hopes might Karen have for her situation?,Hope for more hours in the future.,... Karen is now having to work more hours each day and Karen is not h,0,0.018,0.39,0.873,0.144,0.136,0.949,0.949,0.0,DEGENERATE_AUTO
+30,How secure does Karen feel about her job now?,She feels insecure.,... Karen feels very insecure about her job now because her manager ca,0,0.01,0.515,0.92,0.194,0.148,0.985,0.985,0.0,DEGENERATE_AUTO
+31,How disappointed do you feel about the feedback?,Very disappointed.,The TA did not provide any feedback or constructive criticism for the,0,0.0,0.227,0.831,0.16,0.116,0.212,0.212,0.0,DEGENERATE_AUTO
+32,Do you feel your efforts were recognized?,Not at all.,...</ I...I think that.........she gave me some feedback about her pre,0,0.009,0.15,0.675,0.142,0.104,0.581,0.361,0.0,DEGENERATE_AUTO
+33,How negative was the feedback you received?,Quite negative.,......................................................................,0,0.0,0.069,0.835,0.026,0.159,0.215,0.215,0.0,NOT_EQUIVALENT
+34,Did the feedback affect your self-esteem?,"Yes, it lowered it.",The feedback was not really helpful nor constructive for my self-estee,0,0.0,0.178,0.903,0.08,0.138,0.583,0.0,1.0,EQUIVALENT
+35,Are you angry about the feedback?,Somewhat angry.,The TA is a person who gives feedback and the student's presentation w,0,0.0,0.163,0.664,0.163,0.135,0.267,0.267,0.0,DEGENERATE_AUTO
+36,How disappointed do you feel about the feedback?,Very disappointed.,The feedback was not constructive because it did not help them feel be,0,0.0,0.141,0.852,0.178,0.123,0.673,0.673,0.0,DEGENERATE_AUTO
+37,What are your feelings towards the teaching assistant's feedback?,Frustration and anger.,The teaching assistant's feedback was <constructive/constructive/>. An,0,0.0,0.161,0.779,0.144,0.099,0.071,0.071,0.0,DEGENERATE_AUTO
+38,Did the feedback make you feel effective in your presentation?,Not at all effective.,... The,0,0.0,0.058,0.951,0.012,0.133,0.203,0.107,0.0,NOT_EQUIVALENT
+39,How negative was the feedback you received?,Quite negative.,"The feedback was very negative and critical, but it did not help the t",0,0.0,0.377,0.878,0.137,0.133,0.895,0.895,0.0,NOT_EQUIVALENT
+40,How significant is this presentation for you?,Very significant.,The presentation was,0,0.0,0.241,0.941,0.027,0.148,0.729,0.729,0.0,NOT_EQUIVALENT
+41,What negativity did Kyle experience during practice?,He faced heavy criticism.,...</answer. Answer: ...</answer: I am not able to help you with Answe,0,0.0,0.0,0.728,0.005,0.103,0.079,0.079,0.0,NOT_EQUIVALENT
+42,What positive feedback did Gary give during the meeting?,Gary praised Kyle's project plan.,Gary gave positive feedback to his team members about their's progress,0,0.009,0.519,0.82,0.137,0.132,0.467,0.467,0.0,DEGENERATE_AUTO
+43,How might Kyle feel about Gary's initial criticism?,Kyle likely feels disappointed.,<positive/initially negative/>Gary felt <positive/initially negative/>,0,0.0,0.195,0.833,0.145,0.124,0.413,0.413,0.0,DEGENERATE_AUTO
+44,How did the feedback affect Kyle's self-esteem?,It likely fluctuated due to mixed feedback.,...,0,0.0,0.106,0.951,0.022,0.141,0.066,0.066,-1.0,RETRY_EXHAUSTED
+45,Did Gary acknowledge Kyle's effort on the project?,"Yes, during the positive feedback.","Gary acknowledged that however, Gary, Kylea, Gary, and was heavily cri",0,0.0,0.151,0.857,0.131,0.13,0.866,0.498,0.0,DEGENERATE_AUTO
+46,How disappointed do you think Matt feels?,Very disappointed.,"... Surely,... Surely ... Assistant. Matt felt very disappointed that",0,0.105,0.336,0.909,0.136,0.161,0.985,0.985,0.0,NOT_EQUIVALENT
+47,How effective do you think Matt feels in this situation?,Not effective at all.,...,0,0.0,0.128,0.935,0.038,0.128,0.198,0.118,-1.0,RETRY_EXHAUSTED
+48,What negative feelings might Matt experience?,Frustration and guilt.,...,0,0.0,0.223,0.894,0.002,0.12,0.055,0.055,-1.0,RETRY_EXHAUSTED
+49,Does Matt still hope to contribute later?,"Possibly, but uncertain.","Yes,Matt is still hoping to......",0,0.0,0.238,0.953,0.007,0.142,0.219,0.219,0.0,NOT_EQUIVALENT
+50,How significant is this hackathon for Matt's self-image?,Very significant.,Hackathons are events where teams compete against eachotherworldhackat,0,0.0,0.048,0.85,0.068,0.142,0.497,0.497,0.0,DEGENERATE_AUTO
+51,How did the accusation make you feel?,It felt very negative.,... I was not working hard enough in front of the... I wasito team. I,0,0.0,0.173,0.652,0.162,0.094,0.123,0.123,0.0,DEGENERATE_AUTO
+52,What emotions did the accusation trigger in you?,I felt angry and defensive.,...,0,0.0,0.172,0.908,0.047,0.119,0.07,0.07,-1.0,RETRY_EXHAUSTED
+53,Were you disappointed by your colleague's words?,"Yes, very disappointed.",am sorry.am sorryam sorryamam sorryamamamamamamamamamamamamamamamamama,0,0.0,0.184,0.818,0.113,0.104,0.1,0.107,0.0,NOT_EQUIVALENT
+54,Did the accusation affect your self-esteem?,"Yes, it lowered my self-esteem.",......................................................................,0,0.0,0.061,0.879,0.019,0.129,0.104,0.061,0.0,NOT_EQUIVALENT
+55,Do you feel this accusation created discord in the team?,"Yes, it caused tension.",No<Yes<Yes<No,0,0.0,0.154,0.888,0.033,0.11,0.243,0.138,0.0,NOT_EQUIVALENT
+56,How does Dea feel about her speaking skills?,She feels inadequate and embarrassed.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+57,What affects Dea's confidence in class?,Her fear of speaking publicly.,...,0,0.0,0.123,0.76,0.099,0.123,0.044,0.044,-1.0,RETRY_EXHAUSTED
+58,What emotions does Dea experience about speaking?,She feels anxious and fearful.,Assistant: She is always embarrassed aboutararar. arar The question is,0,0.08,0.384,0.856,0.039,0.108,0.05,0.05,0.0,NOT_EQUIVALENT
+59,How does Dea perceive her ability to participate?,She believes she cannot contribute.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+60,What negative feelings does Dea have about class?,She feels discouraged and frustrated.,She needs to be more active enough. She needs to be more active enough,0,0.011,0.516,0.92,0.137,0.124,0.098,0.098,0.0,DEGENERATE_AUTO
+61,How does Dea view her role in class?,She sees it as a failure.,The situation of the class is not just about grades but also about how,0,0.0,0.115,0.897,0.034,0.116,0.383,0.383,0.0,NOT_EQUIVALENT
+62,How do you feel about the criticism from your labmate?,It feels unfair and hurtful.,a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i,0,0.0,0.171,0.822,0.135,0.139,0.045,0.045,0.0,DEGENERATE_AUTO
+63,What emotions do you feel towards your labmate?,I feel angry and betrayed.,a mistake by my colleague who did not check a labmatea mistake by my c,0,0.0,0.141,0.823,0.145,0.109,0.624,0.624,0.0,DEGENERATE_AUTO
+64,How disappointed are you in your labmate's behavior?,Very disappointed.,</a</a</</ a a</</</</</</a a</</</</</</</</</</</</</</</</</</</</<,0,0.0,0.092,0.793,0.017,0.166,0.069,0.069,0.0,NOT_EQUIVALENT
+65,Do you feel your efforts were recognized?,Not at all.,I did not receive feedback from them about how well they understood my,0,0.009,0.168,0.736,0.141,0.108,0.706,0.706,0.0,DEGENERATE_AUTO
+66,How has this incident affected your self-esteem?,It has lowered my self-esteem.,a mistake that you have been involved in? Scenario: You were supposed,0,0.0,0.092,0.837,0.123,0.103,0.109,0.109,0.0,DEGENERATE_AUTO
+67,Do you sense conflict with your labmate now?,"Yes, significant conflict.",I believe there is a conflict of between you and a labmate. a mistake,0,0.0,0.365,0.933,0.154,0.15,0.773,0.464,0.0,DEGENERATE_AUTO
+68,How did this situation affect Bob's self-esteem?,It likely diminished his self-esteem.,overestimated by other teammembers overestimated by other teammembers,0,0.0,0.112,0.818,0.142,0.113,0.064,0.064,0.0,DEGENERATE_AUTO
+69,Did Bob feel effective during the Q&A session?,"No, he felt ineffective.",Bob felt ineffective during the Q&A session because his contributions,0,0.008,0.458,0.93,0.101,0.165,0.856,0.478,0.0,DEGENERATE_AUTO
+70,How did the interaction affect team cohesion?,It likely reduced team cohesion.,over the project seemed less significant than the project seemed less,0,0.0,0.362,0.893,0.151,0.132,0.102,0.102,0.0,DEGENERATE_AUTO
+71,How does Bob feel about his teammate's behavior?,He feels frustrated and angry.,overstepping his role as the team leader to make his contributions see,0,0.0,0.217,0.842,0.151,0.112,0.074,0.074,0.0,DEGENERATE_AUTO
+72,Is Bob disappointed with the team dynamics?,"Yes, he feels disappointed.",Bob was not disappointed; his contributions were significant and well,0,0.0,0.355,0.878,0.119,0.095,0.852,0.0,0.0,DEGENERATE_AUTO
+73,How do you feel about the rumors spread about you?,I feel hurt and betrayed.,...the answer is correct because it mentions that she has been spreadi,0,0.0,0.029,0.709,0.15,0.11,0.547,0.547,0.0,DEGENERATE_AUTO
+74,What fears do you have regarding the rumors?,I fear losing friends and trust.,...,0,0.0,0.115,0.848,0.051,0.116,0.073,0.073,-1.0,RETRY_EXHAUSTED
+75,How angry do you feel about your neighbor's actions?,I feel very angry.,Her neighbor's actions greatly affect her reputation greatly. her neig,0,0.0,0.116,0.844,0.147,0.127,0.899,0.899,0.0,DEGENERATE_AUTO
+76,Are you disappointed in your friends' reactions?,"Yes, I expected more support.",herononononononononononononononononononononononononononononononononono,0,0.0,0.016,0.406,0.062,0.116,0.076,0.069,0.0,NOT_EQUIVALENT
+77,How has this situation affected your self-esteem?,It has lowered my self-esteem.,her neighbors have been spreading false rumors her her reputation for,0,0.009,0.092,0.595,0.164,0.093,0.105,0.105,0.0,DEGENERATE_AUTO
+78,Do you feel there is discord in your community now?,"Yes, it's very divisive.",Jane's neighbor has been spreading false rumors her Her reputation as,0,0.0,0.027,0.631,0.112,0.109,0.073,0.093,0.0,DEGENERATE_AUTO
+79,What negative feelings does Karen experience?,Worry about financial stability.,Karen's manager had told her that she needed to cut down her work hour,0,0.0,0.038,0.728,0.145,0.091,0.14,0.14,0.0,DEGENERATE_AUTO
+80,How disappointed is Karen about her work hours?,Very disappointed.,<br/></br/>,0,0.0,0.036,0.945,0.003,0.171,0.142,0.142,0.0,NOT_EQUIVALENT
+81,What fears might Karen have regarding her job?,Fear of losing her job.,Karen fears for her job security and the extra money she earns.... Kar,0,0.05,0.545,0.904,0.106,0.152,0.914,0.914,0.0,NOT_EQUIVALENT
+82,How secure does Karen feel about her job?,She feels insecure.,I am feeling very insecure about my job.,0,0.0,0.451,0.959,0.105,0.145,0.987,0.987,0.5,PARTIAL
+83,Does Karen face inequality at work?,"Yes, in work hour distribution.",Karen faces inequality at work because her manager has decided to cut,0,0.059,0.162,0.829,0.095,0.113,0.673,0.384,0.0,NOT_EQUIVALENT
+84,What negative feelings did Ian experience from the feedback?,Frustration and disappointment.,Ian felt very sad because he received negative feedback from thea who,0,0.0,0.267,0.913,0.052,0.141,0.089,0.089,1.0,EQUIVALENT
+85,How disappointed was Ian with the feedback?,Very disappointed.,Assistant The TA's feedback was not really helpful nor constructive. T,0,0.0,0.186,0.831,0.177,0.124,0.502,0.502,0.0,DEGENERATE_AUTO
+86,Did the feedback help Ian improve his presentation skills?,"No, it did not help.",...,0,0.0,0.115,0.965,0.026,0.126,0.121,0.073,0.0,NOT_EQUIVALENT
+87,How did the feedback affect Ian's self-esteem?,It lowered his self-esteem.,The feedback was not really helpful nor constructive. The feedback was,0,0.0,0.248,0.946,0.155,0.145,0.109,0.109,0.0,DEGENERATE_AUTO
+88,Did the TA acknowledge Ian's effort in the presentation?,"No, she did not acknowledge it.",...The TA should have acknowledged Ian's effort in the TA should have,0,0.0,0.325,0.9,0.148,0.156,0.884,0.516,0.0,DEGENERATE_AUTO
+89,What negative feelings did the team experience?,Frustration and disappointment.,A) constructive criticism B) negative criticism C) constructive feedba,0,0.0,0.305,0.779,0.126,0.1,0.04,0.04,0.0,DEGENERATE_AUTO
+90,How disappointed were they with the feedback?,Very disappointed.,......,0,0.0,0.144,0.957,0.046,0.163,0.283,0.283,-1.0,RETRY_EXHAUSTED
+91,Did the feedback help improve their presentation skills?,"No, it did not help.",...Answer: The feedback from Frank and his team was not helpful....Ans,0,0.014,0.213,0.895,0.192,0.147,0.729,0.461,0.0,DEGENERATE_AUTO
+92,What emotions did the team feel towards the assistant?,Anger and frustration.,...]...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>..,0,0.0,0.114,0.866,0.09,0.124,0.038,0.038,0.0,NOT_EQUIVALENT
+93,How did the feedback affect their confidence?,It lowered their confidence.,The feedback affected their confidence because The feedback affected t,0,0.011,0.528,0.898,0.194,0.191,0.945,0.945,0.0,DEGENERATE_AUTO
+94,How did Kyle feel about the criticism?,He felt discouraged.,Gary was highly critical of Kyle's project plan....Answer>,0,0.0,0.213,0.815,0.02,0.107,0.379,0.379,0.0,NOT_EQUIVALENT
+95,What was Gary's feedback during the meeting?,It was positive.,Gary was also commended for his thorough research methodology. Gary wa,0,0.012,0.156,0.829,0.179,0.116,0.665,0.665,0.0,DEGENERATE_AUTO
+96,Was Kyle disappointed by Gary's initial criticism?,"Yes, he was disappointed.",GaryGary was heavily criticized by his supervisor who was present at t,0,0.011,0.177,0.82,0.158,0.138,0.752,0.455,0.0,DEGENERATE_AUTO
+97,How proud was Kyle of his project plan?,He was somewhat proud.,...Gary's project was highly hyped by his supervisor for not having a,0,0.013,0.193,0.827,0.17,0.119,0.95,0.95,0.0,DEGENERATE_AUTO
+98,Did Gary appreciate Kyle's effort on the project?,Not initially.,Gary appreciated Kyle's effort on project planning but he was not full,0,0.125,0.051,0.905,0.023,0.141,0.724,0.373,0.0,NOT_EQUIVALENT
+99,How did the interaction affect Kyle and Gary's relationship?,It strained their relationship.,Gary was highly criticized....and Gary was highly criticized....and Ga,0,0.0,0.317,0.897,0.155,0.136,0.548,0.548,0.0,DEGENERATE_AUTO
+100,How disappointed do you think Matt feels?,Very disappointed.,"... Surely,... Surely ... Assistant. Matt felt very disappointed that",0,0.105,0.336,0.909,0.136,0.161,0.985,0.985,0.0,NOT_EQUIVALENT
+101,Is Matt angry about his situation?,Possibly angry.,"Matt is very busy with other projects andhowever, when it was time to",0,0.0,0.171,0.867,0.132,0.119,0.489,0.489,0.0,DEGENERATE_AUTO
+102,How effective do you think Matt feels in this situation?,He feels ineffective.,...,0,0.0,0.162,0.924,0.028,0.13,0.151,0.151,-1.0,RETRY_EXHAUSTED
+103,How does this experience affect Matt's self-esteem?,It likely lowers his self-esteem.,...,0,0.0,0.112,0.959,0.084,0.153,0.058,0.058,-1.0,RETRY_EXHAUSTED
+104,What negative feelings might Matt experience?,Frustration and regret.,...,0,0.0,0.211,0.904,0.005,0.123,0.053,0.053,-1.0,RETRY_EXHAUSTED
+105,What fear does Sarah experience during the fire?,Fear for her own safety.,Sarah experiences fear during the fire. she drives herself to save her,0,0.019,0.579,0.928,0.146,0.146,0.348,0.348,0.0,DEGENERATE_AUTO
+106,How does Sarah feel about community response to the fire?,Proud of their bravery.,Sarah feels scared ultimately rushes in fear ultimately saves her dog.,0,0.0,0.175,0.796,0.078,0.085,0.059,0.059,0.0,DEGENERATE_AUTO
+107,What guilt does Sarah feel after hesitating?,Guilt for not saving her dog sooner.,Sarah feels fear. her own safety her dog's well-being. her. Sarah feel,0,0.009,0.52,0.919,0.144,0.135,0.786,0.465,0.0,DEGENERATE_AUTO
+108,What fear does Emma experience about sharing her artwork?,Fear of judgment.,...,0,0.0,0.209,0.938,0.011,0.137,0.093,0.093,-1.0,RETRY_EXHAUSTED
+109,What hope does Emma have regarding her artwork?,Hope for acceptance.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+110,How disappointed is Mark about the lost package?,Very disappointed.,Assistant: The package... Answer: The package... Answer: The lost pack,0,0.0,0.155,0.83,0.171,0.162,0.704,0.704,0.0,DEGENERATE_AUTO
+111,How secure does Mark feel about the refund process?,Not secure at all.,Mark feels disappointed about the loss of his package. Mark feels disa,0,0.0,0.0,0.0,0.165,0.0,0.175,0.17,0.0,DEGENERATE_AUTO
+112,How angry is Mark about the service failure?,Quite angry.,Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark,0,0.0,0.074,0.889,0.161,0.166,0.123,0.123,0.0,DEGENERATE_AUTO
+113,How disappointed is Lisa about her exam failure?,Very disappointed.,Lisa was so disappointed that Lisa said Lisa Lisa thought of Lisa had,0,0.0,0.368,0.934,0.14,0.145,0.662,0.662,0.0,DEGENERATE_AUTO
+114,What hope does Lisa have after her failure?,She hopes to learn from it.,Lisa is a very determined and persistent person who has been through m,0,0.0,0.314,0.886,0.167,0.136,0.331,0.331,0.0,DEGENERATE_AUTO
+115,How does Lisa feel about her self-esteem after failing?,Her self-esteem is low.,The situation is not as she had hoped forherself. <strongly> depressed,0,0.118,0.487,0.96,0.084,0.135,0.096,0.096,0.5,PARTIAL
+116,How angry is Emily about Jake smoking?,Very angry.,Emily feels frustrated because she sees no signs of danger.,0,0.0,0.236,0.937,0.029,0.12,0.635,0.635,0.5,PARTIAL
+117,What fears does Emily have regarding Jake's smoking?,Health concerns.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+118,Is Emily disappointed in her social circle's smoking habits?,"Yes, she feels let down.","No, Emily is not smoking cigarettes. The fact that Emily is not smokin",0,0.0,0.258,0.914,0.094,0.135,0.568,0.0,0.0,NOT_EQUIVALENT
+119,How does Emma feel about her abilities without Jack?,She feels inadequate.,"felt lost without Jack, felt lost without Jack, felt lost without Jack",0,0.0,0.229,0.869,0.148,0.174,0.144,0.144,0.0,DEGENERATE_AUTO
+120,What does Emma doubt about her future success?,She doubts her capability to succeed.,```,0,0.0,0.08,0.937,0.081,0.142,0.083,0.083,0.0,NOT_EQUIVALENT
+121,How secure does Alex feel at home?,Very insecure.,. Answer in this format: Alex is feeling . Answer in this format: Answ,0,0.0,0.161,0.81,0.151,0.128,0.108,0.108,0.0,DEGENERATE_AUTO
+122,How confident is Alex in his academic abilities?,Not confident.,Alex's grades have improved greatly since he feels supported by his te,0,0.0,0.187,0.877,0.131,0.097,0.139,0.135,0.0,DEGENERATE_AUTO
+123,What fears might Alex have regarding school?,Fear of failure.,Alex's fear is related to school. Alex feels worried and anxious about,0,0.048,0.414,0.902,0.133,0.147,0.289,0.289,0.0,NOT_EQUIVALENT
+124,How does Emma view her move's impact on her identity?,Very significant.,...,0,0.0,0.184,0.96,0.044,0.144,0.167,0.167,-1.0,RETRY_EXHAUSTED
+125,How does Emma's move affect her self-esteem?,She feels diminished.,Emma moves to a new city for work but finds herself struggling with sh,0,0.016,0.256,0.905,0.113,0.143,0.304,0.304,0.0,DEGENERATE_AUTO
+126,What fears does Emma have about her new life?,Fear of isolation.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+127,How does Emily feel about her life compared to Sarah's?,Very negative.,Emily feels <Sarah's>.,0,0.0,0.119,0.91,0.008,0.147,0.474,0.474,0.0,NOT_EQUIVALENT
+128,What does Emily think about her own success?,She feels inadequate.,Emily thinks that she is not as successful as she thinks she thought o,0,0.008,0.419,0.919,0.086,0.157,0.202,0.202,0.0,DEGENERATE_AUTO
+129,Does Emily feel hopeful about her future?,Not at all.,A) Yes B) No C) Not enough information provided D) None of A) B) C) D),0,0.02,0.232,0.907,0.118,0.104,0.111,0.111,0.0,NOT_EQUIVALENT
+130,How does Emily feel about her achievements?,She feels inadequate.,She feels like she she is not able to compare herself succeeds in her,0,0.023,0.571,0.91,0.15,0.154,0.684,0.684,0.0,DEGENERATE_AUTO
+131,What is Emily's overall emotional state?,She feels negative.,she feels like she she can do more than she does now. She feels like s,0,0.017,0.498,0.9,0.148,0.099,0.353,0.353,0.0,DEGENERATE_AUTO
+132,How does Emily view her peers' successes?,She feels envious.,/>/>/>/ Assistant: />/>//> The given information is insufficient for a,0,0.008,0.037,0.69,0.089,0.108,0.908,0.908,0.0,DEGENERATE_AUTO
+133,How does Emily feel about her self-esteem?,It's low.,Emily feels <emphasized> and <unliked>. Her feelings of <emphasized>.,0,0.0,0.106,0.809,0.06,0.124,0.314,0.314,0.0,NOT_EQUIVALENT
+134,Does Emily feel connected to others at the party?,"No, she feels isolated.",Assistant Assistant Sarah is popular because she attends many parties.,0,0.034,0.202,0.841,0.134,0.099,0.298,0.216,0.0,DEGENERATE_AUTO
+135,What is Emily's overall emotional state?,It's negative.,<emphasized>depressed>. Answer: <emphasized>depressed>. Answer: <empha,0,0.0,0.244,0.863,0.166,0.164,0.765,0.765,0.0,DEGENERATE_AUTO
+136,What is Emma's main concern about Jake's message?,She fears bad news.,Jake's message was that he had been offered a job opportunity at a com,0,0.0,0.117,0.853,0.106,0.098,0.635,0.635,0.0,DEGENERATE_AUTO
+137,How might Emma feel if Jake doesn't respond?,She might feel let down.,Emma is likely to feel anxious and Jake does not respond to a job oppo,0,0.009,0.29,0.838,0.176,0.146,0.819,0.819,0.0,DEGENERATE_AUTO
+138,What does Emma hope for from Jake?,She hopes for a job offer.,... Jake's anxiety is palpable.... Jake's anxiety is palpable.... Jake,0,0.0,0.071,0.672,0.15,0.093,0.595,0.595,0.0,DEGENERATE_AUTO
+139,How fearful is Emily about her excuse?,Very fearful.,...,0,0.0,0.153,0.956,0.035,0.18,0.289,0.289,-1.0,RETRY_EXHAUSTED
+140,How effective does Emily feel about her excuse?,Not effective.,"her teacher, that her dog ate it. her homework. She worries very her t",0,0.0,0.135,0.81,0.177,0.095,0.102,0.14,0.0,DEGENERATE_AUTO
+141,How negative is Emily's outlook on her situation?,Quite negative.,won't worry about her teacher won't worry about her teacher won't worr,0,0.0,0.055,0.789,0.175,0.108,0.15,0.15,0.0,DEGENERATE_AUTO
+142,How disappointed does Emma feel about the misunderstanding?,Very disappointed.,Emma felt hurt because he had conversation conversation was conversati,0,0.0,0.101,0.878,0.139,0.123,0.33,0.33,0.0,DEGENERATE_AUTO
+143,What hope does Emma have after approaching Jake?,Hope for reconciliation.,Emma felt hurt by his misunderstanding of her conversation with conver,0,0.0,0.202,0.826,0.155,0.122,0.203,0.203,0.0,DEGENERATE_AUTO
+144,How fulfilled is Emma's sense of connection with Jake after reconcilia,Highly fulfilled.,Emma felt that conversation was not fulfilling her intentions.,0,0.0,0.073,0.927,0.022,0.108,0.625,0.625,0.0,NOT_EQUIVALENT
+145,How disappointed is Alice with Bob's actions?,Very disappointed.,Alice was not happy with Bob's actions because he hadalice had taken c,0,0.0,0.16,0.785,0.142,0.132,0.701,0.701,0.0,NOT_EQUIVALENT
+146,How fulfilled is Alice in her relationship with Bob?,Not fulfilled.,...Answer> Bob: Alice: Alice:...Answer> Bob: I feel betrayed by...Answ,0,0.0,0.22,0.883,0.166,0.107,0.708,0.437,0.0,DEGENERATE_AUTO
+147,How angry is Alice about Bob's actions?,Quite angry.,Alice was furious with Bob for...,0,0.0,0.268,0.964,0.088,0.182,0.93,0.93,0.0,NOT_EQUIVALENT
+148,How does Dr. Lisa feel about Mark's actions?,Very negative.,"Mark's actions have caused her to feel anxious, Mark's actions have ca",0,0.0,0.097,0.899,0.179,0.135,0.324,0.324,0.0,DEGENERATE_AUTO
+149,How does Dr. Lisa view her colleagues after this incident?,She feels disappointed.,Assistant: Dr. Lisa views her colleagues with concern for their collea,0,0.0,0.219,0.874,0.158,0.124,0.833,0.833,0.0,NOT_EQUIVALENT
+150,How secure does Dr. Lisa feel in her work environment?,She feels insecure.,Dr. Lisa Lisa's work environment is not very secure. Dr. Lisa Lisa fee,0,0.011,0.213,0.904,0.162,0.187,0.984,0.984,0.0,DEGENERATE_AUTO
+151,How does Sarah feel about her mistake?,She feels anxious.,Sarah feels embarrassed about Sarah feels bad Sarah feels embarrassed,0,0.008,0.488,0.869,0.153,0.135,0.804,0.804,0.0,DEGENERATE_AUTO
+152,How does Tom feel after being blamed?,He feels confused.,...,0,0.0,0.196,0.94,0.064,0.124,0.097,0.097,-1.0,RETRY_EXHAUSTED
+153,What emotion does Tom experience towards Sarah's actions?,He feels hurt.,...,0,0.0,0.2,0.927,0.067,0.13,0.068,0.068,-1.0,RETRY_EXHAUSTED
+154,How disappointed is Emily with her project?,Very disappointed.,A) Yes B) No C) Maybe D) Not Sure A) Yes B) No C) Maybe D) Not Sure E),0,0.0,0.098,0.83,0.107,0.131,0.133,0.133,0.0,DEGENERATE_AUTO
+155,How effective does Emily feel about her project?,Not effective at all.,A) Very ineffective ... B) Somewhat ineffective C) Moderately effectiv,0,0.021,0.486,0.89,0.128,0.135,0.922,0.525,0.0,DEGENERATE_AUTO
+156,What hope does Emily have for her future?,Hope for better focus.,A) 10 years ago B) 20 years C) 30 years D) 40 years E) 50 years A) 10,0,0.0,0.035,0.768,0.071,0.09,0.062,0.062,0.0,NOT_EQUIVALENT
+157,How does Emma feel about her application?,She feels anxious.,Emma feels anxious because she fear rejection rejection.</fear rejecti,0,0.333,0.621,0.832,0.122,0.151,0.988,0.988,0.0,NOT_EQUIVALENT
+158,How does Emma view her academic performance?,She feels inadequate.,The chances of finding employment depend heavily on one's academic per,0,0.0,0.0,0.0,0.083,0.0,0.892,0.892,0.0,NOT_EQUIVALENT
+159,What is Lily afraid of regarding Max's new friends?,Losing their friendship.,Lily is worried that Max might forget her name because she does not kn,0,0.0,0.231,0.907,0.126,0.098,0.689,0.689,0.0,NOT_EQUIVALENT
+160,How secure does Lily feel about her friendship with Max?,Very insecure.,Max is afraid that Lily may not remember his friendship because she Ma,0,0.0,0.121,0.903,0.119,0.115,0.55,0.55,0.0,DEGENERATE_AUTO
+161,How attached is Lily to her friendship with Max?,Very attached.,Lily is very attached to her friendship with Max because she has spent,0,0.011,0.226,0.95,0.141,0.142,0.839,0.839,0.0,DEGENERATE_AUTO
+162,How does Emma view her career search?,It's crucial for her identity.,Scenario: Emma's career search is not just about finding jobs but also,0,0.01,0.274,0.918,0.163,0.137,0.23,0.23,0.0,DEGENERATE_AUTO
+163,How effective does Emma feel in her career exploration?,She feels ineffective.,She feels lost in her search for purpose. She feels lost in her search,0,0.027,0.492,0.876,0.172,0.173,0.303,0.303,0.0,DEGENERATE_AUTO
+164,What is Emma's outlook on finding purpose?,She feels uncertain but hopeful.,...,0,0.0,0.079,0.924,0.082,0.127,0.078,0.078,-1.0,RETRY_EXHAUSTED
+165,How does Sarah feel about her work environment?,Very negative.,Sarah feels overwhelmed by her boss's constant criticism.,0,0.0,0.113,0.887,0.022,0.119,0.342,0.342,1.0,EQUIVALENT
+166,How does Sarah view her colleagues' support?,Disappointed.,... Sarah resigns from her job due to their colleagues' constant criti,0,0.0,0.158,0.835,0.184,0.108,0.985,0.985,0.0,DEGENERATE_AUTO
+167,How does Sarah perceive her self-worth at work?,Low self-esteem.,"Sarah perceives herself as overworked and, feeling like she is constan",0,0.0,0.297,0.904,0.117,0.116,0.072,0.072,0.0,DEGENERATE_AUTO
+168,How secure does Emily feel at work?,Very insecure.,...,0,0.0,0.154,0.932,0.002,0.119,0.331,0.331,-1.0,RETRY_EXHAUSTED
+169,How connected does Emily feel to her team?,Not connected.,"Mark, Emily, I'm sorry, Mark, you know me make jokes Mark, Mark, Emily",0,0.0,0.077,0.75,0.165,0.105,0.129,0.147,0.0,DEGENERATE_AUTO
+170,What is Emily's overall sentiment about her workplace?,Highly negative.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+171,How angry does Jamie feel about the route choice?,Very angry.,The anger is justified because Jamie was left behind by theway of traf,0,0.0,0.356,0.888,0.173,0.12,0.913,0.913,0.0,DEGENERATE_AUTO
+172,What fear does Jamie have regarding the ride?,Fear of being late.,Alex is afraid that Jamie will be late for Alex Jamie will be late for,0,0.0,0.433,0.898,0.187,0.172,0.919,0.919,0.0,DEGENERATE_AUTO
+173,How connected does Jamie feel to Alex during the ride?,Not connected.,"Based on the information provided above, Alex Jamie feels frustrated b",0,0.0,0.09,0.904,0.115,0.115,0.167,0.141,0.0,DEGENERATE_AUTO
+174,How does Emma feel about sharing study materials?,She feels anxious.,......</</...</</...</</..............................................,0,0.0,0.081,0.889,0.012,0.132,0.099,0.099,0.0,NOT_EQUIVALENT
+175,What does Emma think about her exam preparation?,She feels insecure.,......</</...</</...</</..............................................,0,0.0,0.056,0.853,0.006,0.125,0.094,0.094,0.0,NOT_EQUIVALENT
+176,How does Emily feel about the rumors?,Very negative.,The friendship between them ever real because they both share similar,0,0.0,0.06,0.854,0.003,0.099,0.058,0.058,0.0,NOT_EQUIVALENT
+177,How connected does Emily feel to Jake now?,Disconnected.,Emily feels nervous about her bond with Jake. ... Answer by Jake ...,0,0.0,0.106,0.877,0.026,0.111,0.325,0.325,0.0,NOT_EQUIVALENT
+178,What is Emily's emotional reaction to the rumors?,She fears losing Jake.,her bond is always real.,0,0.0,0.281,0.832,0.032,0.091,0.259,0.259,0.0,NOT_EQUIVALENT
+179,How angry does Alex feel about the cost sharing?,Very angry,...,0,0.0,0.186,0.97,0.009,0.178,0.127,0.127,-1.0,RETRY_EXHAUSTED
+180,Is Alex disappointed in Jamie's contribution?,"Yes, very disappointed",Alex and Jamie have different views of their friends Alex spends $1000,0,0.0,0.055,0.828,0.121,0.111,0.184,0.153,0.0,NOT_EQUIVALENT
+181,What fear does Emma experience about leaving Jake?,Fear of the unknown.,...Answer about thefearabout thefear about the future of the......Answ,0,0.095,0.262,0.877,0.128,0.137,0.054,0.054,0.0,NOT_EQUIVALENT
+182,How does Emma feel about her relationship with Jake?,She feels it was harmful.,"Emma feels relieved that she, the relationship is over now. Scenario:",0,0.054,0.25,0.846,0.125,0.113,0.597,0.597,0.0,NOT_EQUIVALENT
+183,How does Emma's decision impact her self-esteem?,It boosts her self-worth.,Assistant: Emma feels relieved that she has made a good decision by le,0,0.047,0.292,0.898,0.155,0.119,0.227,0.227,0.0,NOT_EQUIVALENT
+184,How angry does Sarah feel about the dog's barking?,Very angry.,"Sarah feels very frustrated and, she has been very frustrated by the,",0,0.009,0.35,0.947,0.185,0.181,0.982,0.982,0.0,DEGENERATE_AUTO
+185,Does Sarah feel secure in her home due to the noise?,"No, she feels insecure.",...night...night. Sarah feels insecure in her home....night. night.nig,0,0.091,0.41,0.885,0.184,0.176,0.927,0.556,0.0,NOT_EQUIVALENT
+186,How negative is Sarah's experience with the barking?,Highly negative.,......................................................................,0,0.0,0.113,0.921,0.067,0.171,0.055,0.055,0.0,NOT_EQUIVALENT
+187,What fear does Emily experience regarding Jake?,Fear of losing their friendship.,Emily fears that Jake is not only a friend but misread about her conne,0,0.0,0.422,0.947,0.136,0.122,0.689,0.689,0.0,DEGENERATE_AUTO
+188,How does Emily's self-esteem relate to the rumors?,She feels insecure about her worth.,Self-esteem is directly affected by theself-esteem of Emily as it infl,0,0.182,0.361,0.93,0.105,0.142,0.908,0.908,0.0,NOT_EQUIVALENT
+189,What negative feelings does Emily have about the situation?,She feels betrayed and anxious.,about the situation is that it is unfair to about the feeling the abou,0,0.0,0.327,0.894,0.122,0.1,0.086,0.086,0.0,DEGENERATE_AUTO
+190,How does Emily feel about her abilities?,She feels inadequate.,Emily wonders if sheher is less valued compared to her colleagues...,0,0.0,0.334,0.813,0.066,0.124,0.531,0.531,0.0,NOT_EQUIVALENT
+191,How does Emily perceive her classmates' support?,She feels unsupported.,The quick brown foxes have been known to be perceived by.</the foxes f,0,0.0,0.063,0.744,0.101,0.102,0.108,0.108,0.0,DEGENERATE_AUTO
+192,How does Sarah feel about herself after the message?,Very low self-esteem.,...Answer> Sarah feels embarrassed......Sarah feels embarrassed......e,0,0.0,0.199,0.751,0.163,0.138,0.398,0.398,0.0,DEGENERATE_AUTO
+193,How connected does Sarah feel to the group after the incident?,She feels disconnected.,Sarah feels very nervous and Sarah feels very nervous and Sarah feels,0,0.01,0.404,0.869,0.157,0.13,0.522,0.522,0.0,DEGENERATE_AUTO
+194,What is Sarah's emotional response to the mistake?,Highly negative.,"Sarah feels embarrassed panics, panics, feeling like she has sent an e",0,0.0,0.052,0.846,0.147,0.116,0.67,0.67,0.0,DEGENERATE_AUTO
+195,How does Liam feel about his connection with Jake?,He feels disconnected.,Liam is a person who has a lot of problems and struggles in life. conn,0,0.0,0.281,0.883,0.168,0.108,0.953,0.953,0.0,DEGENERATE_AUTO
+196,What does Liam feel about being open with Jake?,He feels insecure.,The person who hides his open feelings is... open feelings.</Answer:..,0,0.0,0.326,0.843,0.145,0.122,0.117,0.117,0.0,DEGENERATE_AUTO
+197,What emotion does Liam experience regarding Jake's opinion?,He feels fearful.,Disappointment,0,0.0,0.299,0.898,0.018,0.106,0.089,0.089,0.5,PARTIAL
+198,How does Mark feel about Lisa's non-repayment?,Very disappointed.,Assistant: Mark should have asked Lisa directly why she hasn't repayed,0,0.0,0.138,0.925,0.148,0.129,0.74,0.74,0.0,DEGENERATE_AUTO
+199,What emotion does Mark experience towards Lisa?,Anger.,Assistant: Mark feels disappointed by Lisa has Lisa hasn't Lisa haven',0,0.0,0.131,0.832,0.129,0.118,0.091,0.091,0.0,DEGENERATE_AUTO
+200,How secure does Mark feel about his finances now?,Less secure.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+201,How does Emma feel about her ability to succeed?,She feels inadequate.,......................................................................,0,0.0,0.052,0.884,0.008,0.129,0.111,0.111,0.0,NOT_EQUIVALENT
+202,What is Emma's primary concern regarding her work?,Fear of failure.,...,0,0.0,0.157,0.884,0.077,0.131,0.059,0.059,-1.0,RETRY_EXHAUSTED
+203,How does Emma view herself in relation to her team?,She doubts her worth.,<her> in relation to her team. <her> in relation to her team. <her> in,0,0.021,0.236,0.787,0.141,0.13,0.381,0.381,0.0,DEGENERATE_AUTO
+204,How does Mia feel about her parents' understanding?,Very angry,Mia feels frustrated and her parents never listen to by listening to b,0,0.0,0.212,0.873,0.137,0.132,0.147,0.147,0.0,DEGENERATE_AUTO
+205,How connected does Mia feel to her parents?,Not connected,MIA feels that they never listen to her parents to her thoughts and Me,0,0.0,0.015,0.921,0.153,0.113,0.423,0.288,0.0,DEGENERATE_AUTO
+206,How does Mia view herself in relation to her parents?,Low self-esteem,">Mia views her parents as strict and unloving, but she believes that t",0,0.0,0.227,0.887,0.118,0.102,0.049,0.049,0.0,DEGENERATE_AUTO
+207,How does Emma feel about her exam failure?,Very disappointed.,Emma felt overwhelmed by her failure to study hard.</Answer: Emma felt,0,0.0,0.2,0.871,0.166,0.128,0.975,0.975,0.0,NOT_EQUIVALENT
+208,How does Emma's failure affect her self-esteem?,Significantly diminished.,Emma felt overwhelmed by her failure to study hard....Answer: Emma fel,0,0.0,0.174,0.876,0.184,0.121,0.331,0.331,0.0,DEGENERATE_AUTO
+209,What does Jake's encouragement suggest about Emma's future?,There is hope.,Emma feels confident and...,0,0.0,0.246,0.959,0.014,0.136,0.48,0.48,0.0,NOT_EQUIVALENT
+210,How does Emily feel about her exam grade?,She feels devastated.,A) disappointed B) relieved C) indifferent D) confused E) none ......,0,0.0,0.289,0.825,0.061,0.119,0.093,0.093,0.0,NOT_EQUIVALENT
+211,How does Emily's exam result affect her self-esteem?,It lowers her self-esteem.,...,0,0.0,0.134,0.958,0.091,0.167,0.056,0.056,-1.0,RETRY_EXHAUSTED
+212,What is Emily's emotional response to her grade?,She feels negative and upset.,"The correct answer is ""She felt devastated by her poor performance"". Q",0,0.009,0.491,0.888,0.148,0.163,0.566,0.566,0.0,DEGENERATE_AUTO
+213,How does Sarah feel about Tom's feedback?,She feels anxious.,..................................................................</ >,0,0.0,0.096,0.9,0.067,0.129,0.111,0.111,0.0,NOT_EQUIVALENT
+214,How does Sarah perceive her performance after the meeting?,She feels inadequate.,...,0,0.0,0.16,0.931,0.054,0.129,0.081,0.081,-1.0,RETRY_EXHAUSTED
+215,What is Sarah's overall reaction to the feedback?,She interprets it negatively.,...,0,0.0,0.09,0.919,0.078,0.134,0.067,0.067,-1.0,RETRY_EXHAUSTED
+216,What is Emma afraid of regarding her artwork?,Fear of judgment.,...,0,0.0,0.209,0.927,0.011,0.131,0.076,0.076,0.0,NOT_EQUIVALENT
+217,How does Emma feel about her artwork?,She doubts its value.,...]..................................................................,0,0.0,0.042,0.872,0.003,0.123,0.075,0.075,0.0,NOT_EQUIVALENT
+218,How does Emma feel about sharing with Jake?,She feels disconnected.,Assistant. Emma fears that judgement from her friends Jake and others.,0,0.012,0.27,0.87,0.151,0.107,0.867,0.867,0.0,DEGENERATE_AUTO
+219,How disappointed is Emily about her loan denial?,Very disappointed.,The bank's policy of denying loans is...,0,0.0,0.12,0.919,0.002,0.142,0.505,0.505,0.0,NOT_EQUIVALENT
+220,How angry is Emily at the bank's decision?,Somewhat angry.,The bank's decision made Emily feel <anger>. The bank's decision made,0,0.0,0.34,0.919,0.193,0.18,0.972,0.972,0.0,DEGENERATE_AUTO
+221,How angry is Emily about Jake smoking?,Moderately angry.,Emily feels frustrated because she sees no signs of danger.,0,0.0,0.298,0.928,0.058,0.123,0.353,0.353,0.5,PARTIAL
+222,What fears does Emily have regarding Jake's smoking?,Concern for his health.,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+223,Is Emily disappointed in her friends for smoking?,"Yes, she feels let down.",Assistant Emily is concerned that she feels sickly 'see's health decli,0,0.027,0.351,0.911,0.127,0.123,0.578,0.352,0.0,DEGENERATE_AUTO
+224,How disappointed is Emily about her lost package?,Very disappointed.,". Please note that I have provided two possible answers,... The correc",0,0.0,0.043,0.947,0.009,0.124,0.125,0.125,0.0,NOT_EQUIVALENT
+225,How secure does Emily feel about her package delivery?,Not secure at all.,Very relieved indeed! The...Answer> To ensure that Emily feels very re,0,0.0,0.0,0.0,0.046,0.0,0.684,0.365,0.0,NOT_EQUIVALENT
+226,How negative are Emily's feelings about the situation?,Highly negative.,Emily felt frustrated that her package had been lost.,0,0.0,0.083,0.885,0.003,0.098,0.557,0.557,0.5,PARTIAL
+227,What is Li's main emotion regarding the quota competition?,Fear of failure,,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,EMPTY
+228,How does Li perceive her chances in the competition?,Very low,"Li perceives his chances of winning the Li's fears grow as he thinks,",0,0.0,0.014,0.857,0.152,0.112,0.526,0.526,0.0,DEGENERATE_AUTO
+229,How does Li feel about her qualifications for the quota?,Insecure,<li is very scared</li>,0,0.0,0.199,0.927,0.002,0.126,0.064,0.064,0.0,NOT_EQUIVALENT
+230,What is Emma's primary emotion before speaking?,Fear,. The other option is incorrect because it does not match the context,0,0.0,0.045,0.868,0.175,0.099,0.029,0.029,0.0,DEGENERATE_AUTO
+231,How confident does Emma feel about her speech?,Low,Reasoning: [,0,0.0,0.162,0.94,0.004,0.137,0.042,0.042,0.0,NOT_EQUIVALENT
+232,What does Jake's encouragement imply about Emma's potential?,High,"The answer is that if Emma messes up, then she might mess up her chanc",0,0.0,0.137,0.906,0.163,0.122,0.091,0.091,0.0,DEGENERATE_AUTO
+233,What is Emily's emotional reaction to Jake's message?,She feels anxious.,Anxiety,0,0.0,0.653,0.976,0.161,0.193,0.963,0.963,1.0,EQUIVALENT
+234,What does Emily hope for regarding the surprise?,She hopes it's good news.,...,0,0.0,0.107,0.912,0.062,0.13,0.085,0.085,-1.0,RETRY_EXHAUSTED
+235,How does Emily perceive the uncertainty of the message?,She feels dread.,A) Excited B) Anxious C) Relieved D) Nervousful E) Nervousful F) Nervo,0,0.0,0.313,0.821,0.135,0.114,0.678,0.678,0.0,DEGENERATE_AUTO
+236,How does Mark feel about Sarah's confession?,He feels disappointed.,Mark is feeling nervous because he fears for............Sarah is worri,0,0.01,0.336,0.897,0.15,0.112,0.972,0.972,0.0,DEGENERATE_AUTO
+237,How secure does Sarah feel after confessing?,She feels insecure.,Sarah feels anxious because she lies sick with job of food poisoning.,0,0.021,0.417,0.82,0.155,0.12,0.967,0.967,0.0,DEGENERATE_AUTO
+238,What is Sarah's primary emotion regarding her confession?,She fears his reaction.,Sarah feels disappointed because she fears for lie about her not havin,0,0.017,0.52,0.923,0.151,0.114,0.904,0.904,0.0,DEGENERATE_AUTO
+239,How does Emily feel about her advisor's guidance?,She feels unsupported.,<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />,0,0.0,0.02,0.89,0.103,0.138,0.083,0.083,0.0,DEGENERATE_AUTO
+240,What does Emily think about her relationship with Mr. Smith?,She feels disconnected.,Emily is frustrated by her advisor's lack of guidance and - Emily is f,0,0.0,0.406,0.855,0.171,0.107,0.916,0.916,0.0,DEGENERATE_AUTO
+241,How does Emily perceive her current situation?,She feels hopeless.,Mr. provides guidance by giving advice and support and encouragement t,0,0.0,0.132,0.803,0.111,0.089,0.975,0.975,0.0,DEGENERATE_AUTO
+242,How disappointed is Emily about the rejection?,Very disappointed.,"Assistant. Dr. Smith, Dr. Smith... 1. She felt rejected by his lack of",0,0.0,0.231,0.79,0.126,0.119,0.089,0.089,0.0,DEGENERATE_AUTO
+243,How does Emily feel about her abilities after the rejection?,She feels inadequate.,"Reasoning: Dr. Smith, Dr. Smith, and Emily's feelings can be understoo",0,0.0,0.299,0.858,0.118,0.123,0.14,0.14,0.0,DEGENERATE_AUTO
+244,What negative feelings does Emily experience?,She feels hopeless.,...,0,0.0,0.171,0.916,0.089,0.127,0.083,0.083,-1.0,RETRY_EXHAUSTED
+245,How angry is Emily about the noise?,Very angry.,Emily is frustrated by loud music from her neighbor. decides to confro,0,0.0,0.116,0.891,0.146,0.118,0.829,0.829,0.0,DEGENERATE_AUTO
+246,Does Emily feel secure in her home?,"No, she feels disturbed.",No one does not feel secure in her home because ofone feels insecure i,0,0.105,0.253,0.881,0.116,0.108,0.393,0.393,0.0,NOT_EQUIVALENT
+247,How negative is Emily's perception of the situation?,Highly negative.,...,0,0.0,0.191,0.965,0.036,0.172,0.336,0.336,-1.0,RETRY_EXHAUSTED
