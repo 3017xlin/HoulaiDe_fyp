@@ -6,7 +6,7 @@ def parse_log(text):
         r'\[(\d+)/(\d+)\].*?\n'
         r'.*?Q: (.*?)\n'
         r'.*?GOLD: (.*?)\n'
-        r'.*?PRED: (.*?)(?:\n|$)',
+        r'.*?PRED:(.*?)(?:\n|$)',
         re.MULTILINE
     )
     records = []
