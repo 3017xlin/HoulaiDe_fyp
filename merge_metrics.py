@@ -60,10 +60,10 @@ def main():
     rows = []
     for idx in sorted(main_records.keys()):
         row = main_records[idx]
-        ph = posthoc_records.get(idx, {"BiA": "", "BiQ": "", "CrQ": ""})
-        row["BiA"] = ph["BiA"]
-        row["BiQ"] = ph["BiQ"]
-        row["CrQ"] = ph["CrQ"]
+        ph = posthoc_records.get(idx, {"BiA": 0.0, "BiQ": 0.0, "CrQ": 0.0})
+        row["BiA"] = float(ph["BiA"]) if ph["BiA"] != "" else 0.0
+        row["BiQ"] = float(ph["BiQ"]) if ph["BiQ"] != "" else 0.0
+        row["CrQ"] = float(ph["CrQ"]) if ph["CrQ"] != "" else 0.0
         rows.append(row)
 
     with open(output_csv, "w", encoding="utf-8", newline="") as f:
