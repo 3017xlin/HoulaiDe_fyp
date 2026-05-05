@@ -19,6 +19,7 @@ except Exception:
     pass
 
 import json
+import csv
 import re
 import time
 import random
@@ -30,7 +31,7 @@ from typing import List, Dict, Tuple
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import CrossEncoder
+from sentence_transformers import SentenceTransformer, CrossEncoder, util
 from openai import OpenAI
 
 
@@ -424,6 +425,31 @@ def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
     return float(probs[0, 1].item())
 
 
+
+def semsim_bia(st_model, pred, gold):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([pred, gold], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_biq(st_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([f"{question} {pred}", f"{question} {gold}"], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_crq(cross_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(f"{question} {pred}", f"{question} {gold}")])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
+
+
 def semsim_cra(cross_model, pred: str, gold: str) -> float:
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred and not gold: return 1.0
@@ -602,11 +628,12 @@ def load_model():
 # =========================
 @torch.no_grad()
 def evaluate(model, tokenizer, data: List[dict], mode: str,
-             bem_tok, bem_mdl, cross_model, oai_client):
+             st_model, bem_tok, bem_mdl, cross_model, oai_client):
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s, cras, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], []
+    records = []
+    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -630,16 +657,37 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
 
         em += int(normalize(pred) == normalize(gold))
         f1s.append(f1_score(pred, gold))
+        bia = semsim_bia(st_model, pred, gold)
+        biq = semsim_biq(st_model, pred, gold, ex['question'])
         cra = semsim_cra(cross_model, pred, gold)
+        crq = semsim_crq(cross_model, pred, gold, ex['question'])
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
         pa = semsim_pa_bem(bem, cra, pred, gold)
         lj_score, lj_label, lj_reasoning = llm_judge(oai_client, pred, gold, ex["question"])
+        bias.append(bia)
+        biqs.append(biq)
         cras.append(cra)
+        crqs.append(crq)
         bems.append(bem)
         pa_bems.append(pa)
         ljs.append(lj_score)
         lj_labels.append(lj_label)
         lj_reasonings.append(lj_reasoning)
+
+        records.append({
+            "idx": i, "Q": ex["question"], "GOLD": gold, "PRED": pred,
+            "EM": int(normalize(pred) == normalize(gold)),
+            "F1": round(f1_score(pred, gold), 4),
+            "BiA": round(bia, 4), "BiQ": round(biq, 4),
+            "CrA": round(cra, 4), "CrQ": round(crq, 4),
+            "BEM": round(bem, 4), "PA": round(pa, 4),
+            "LJ": lj_score, "LJ_label": lj_label,
+        })
+
+        log(f"  [{i+1}/{len(data)}] EM={int(normalize(pred)==normalize(gold))} F1={f1_score(pred,gold):.3f} BiA={bia:.3f} BiQ={biq:.3f} CrA={cra:.3f} CrQ={crq:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
+        log(f"    Q: {ex['question'][:70]}")
+        log(f"    GOLD: {gold[:70]}")
+        log(f"    PRED: {pred[:70]}")
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
@@ -657,11 +705,15 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         "N": n,
         "EM": em / n,
         "F1": sum(f1s) / n,
+        "BiA": sum(bias) / n,
+        "BiQ": sum(biqs) / n,
         "CrA": sum(cras) / n,
+        "CrQ": sum(crqs) / n,
         "BEM": sum(bems) / n,
         "PA_BEM": sum(pa_bems) / n,
         "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
         "LLM_Judge_dist": lj_dist,
+        "records": records,
         "lj_reasonings": lj_reasonings,
     }
 
@@ -677,6 +729,7 @@ def main():
     model, tokenizer = load_model()
 
     log("loading similarity models...")
+    st_model = SentenceTransformer("all-MiniLM-L6-v2")
     cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
@@ -688,10 +741,10 @@ def main():
     log("All eval models loaded")
 
     log("Running mode: reasoning")
-    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", bem_tok, bem_mdl, cross_model, oai_client)
+    res_reasoning = evaluate(model, tokenizer, eval_data, "reasoning", st_model, bem_tok, bem_mdl, cross_model, oai_client)
 
     log("Running mode: no_reasoning")
-    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", bem_tok, bem_mdl, cross_model, oai_client)
+    res_no_reasoning = evaluate(model, tokenizer, eval_data, "no_reasoning", st_model, bem_tok, bem_mdl, cross_model, oai_client)
 
     print("\n====== FINAL RESULTS ======")
     print("\n[WITH REASONING]")
@@ -700,22 +753,40 @@ def main():
     print("\n[NO REASONING]")
     print(res_no_reasoning)
 
+    print("\n====== FINAL RESULTS ======")
+    for label, mode, res in [("WITH REASONING", "reasoning", res_reasoning), ("NO REASONING", "no_reasoning", res_no_reasoning)]:
+        print(f"\n[{label}]")
+        for k in ["N", "EM", "F1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA_BEM", "LLM_Judge"]:
+            if k in res:
+                print(f"  {k} = {res[k]:.4f}" if isinstance(res[k], float) else f"  {k} = {res[k]}")
+        dist = res.get("LLM_Judge_dist", {})
+        if dist:
+            print(f"  LLM dist: EQ={dist.get('EQUIVALENT',0):.2%} PAR={dist.get('PARTIAL',0):.2%} NEQ={dist.get('NOT_EQUIVALENT',0):.2%}")
+
+    # Save summary txt
     with open("reasoning_vs_no_reasoning_results_llama31_8b.txt", "w", encoding="utf-8") as f:
         f.write("====== FINAL RESULTS ======\n\n")
         for label, res in [("WITH REASONING", res_reasoning), ("NO REASONING", res_no_reasoning)]:
             f.write(f"[{label}]\n")
-            for k, v in res.items():
-                if k == "lj_reasonings":
-                    continue
-                f.write(f"  {k} = {v}\n")
+            for k in ["N", "EM", "F1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA_BEM", "LLM_Judge"]:
+                if k in res:
+                    f.write(f"  {k} = {res[k]}\n")
+            dist = res.get("LLM_Judge_dist", {})
+            if dist:
+                for dk, dv in dist.items():
+                    f.write(f"  LLM_{dk} = {dv:.4f}\n")
             f.write("\n")
+    log("Saved summary")
 
+    # Save per-example CSV for each mode
     for mode, res in [("reasoning", res_reasoning), ("no_reasoning", res_no_reasoning)]:
-        rfile = f"reasoning_{mode}_llama31_8b_llm_judge.jsonl"
-        with open(rfile, "w", encoding="utf-8") as f:
-            for i, r in enumerate(res.get("lj_reasonings", [])):
-                f.write(json.dumps({"idx": i, "mode": mode, "reasoning": r}, ensure_ascii=False) + "\n")
-        log(f"Saved: {rfile}")
+        csv_file = f"merged_reasoning_{mode}_llama31_8b.csv"
+        csv_fields = ["idx", "Q", "GOLD", "PRED", "EM", "F1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA", "LJ", "LJ_label"]
+        with open(csv_file, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=csv_fields)
+            writer.writeheader()
+            writer.writerows(res.get("records", []))
+        log(f"Saved CSV: {csv_file}")
 
 
 if __name__ == "__main__":
