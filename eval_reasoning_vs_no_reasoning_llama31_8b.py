@@ -148,10 +148,10 @@ LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
 def llm_judge(client, pred: str, gold: str, question: str) -> float:
     if client is None:
-        return -1.0
+        return -1.0, "SKIPPED"
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred:
-        return 0.0
+        return 0.0, "NOT_EQUIVALENT"
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
     try:
         resp = client.chat.completions.create(
@@ -162,11 +162,11 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
         text = resp.choices[0].message.content.strip()
         for label, score in LABEL_TO_SCORE.items():
             if f"Label: {label}" in text or text.endswith(label):
-                return score
-        return 0.0
+                return score, label
+        return 0.0, "NOT_EQUIVALENT"
     except Exception as e:
         print(f"[warn] LLM-Judge API error: {e}", flush=True)
-        return -1.0
+        return -1.0, "ERROR"
 
 
 def try_json_loads(s: str):
@@ -588,7 +588,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s, cras, bems, pa_bems, ljs = [], [], [], [], []
+    f1s, cras, bems, pa_bems, ljs, lj_labels = [], [], [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -615,16 +615,24 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
         pa = semsim_pa_bem(bem, cra, pred, gold)
-        lj = llm_judge(oai_client, pred, gold, ex["question"])
+        lj_score, lj_label = llm_judge(oai_client, pred, gold, ex["question"])
         cras.append(cra)
         bems.append(bem)
         pa_bems.append(pa)
-        ljs.append(lj)
+        ljs.append(lj_score)
+        lj_labels.append(lj_label)
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
 
     valid_lj = [s for s in ljs if s >= 0]
+    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR")]
+    n_valid = len(valid_labels) if valid_labels else 1
+    lj_dist = {
+        "EQUIVALENT": sum(1 for l in valid_labels if l == "EQUIVALENT") / n_valid,
+        "PARTIAL": sum(1 for l in valid_labels if l == "PARTIAL") / n_valid,
+        "NOT_EQUIVALENT": sum(1 for l in valid_labels if l == "NOT_EQUIVALENT") / n_valid,
+    }
     n = len(data)
     return {
         "N": n,
@@ -634,6 +642,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         "BEM": sum(bems) / n,
         "PA_BEM": sum(pa_bems) / n,
         "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
+        "LLM_Judge_dist": lj_dist,
     }
 
 

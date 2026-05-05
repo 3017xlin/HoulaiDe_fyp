@@ -296,10 +296,10 @@ LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
 def llm_judge(client, pred: str, gold: str, question: str) -> float:
     if client is None:
-        return -1.0
+        return -1.0, "SKIPPED"
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred:
-        return 0.0
+        return 0.0, "NOT_EQUIVALENT"
 
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
     try:
@@ -312,11 +312,11 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
         text = resp.choices[0].message.content.strip()
         for label, score in LABEL_TO_SCORE.items():
             if f"Label: {label}" in text or text.endswith(label):
-                return score
-        return 0.0
+                return score, label
+        return 0.0, "NOT_EQUIVALENT"
     except Exception as e:
         print(f"[warn] LLM-Judge API error: {e}", flush=True)
-        return -1.0
+        return -1.0, "ERROR"
 
 
 # =========================
@@ -442,7 +442,7 @@ def load_model(model_key, task):
 @torch.no_grad()
 def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client):
     device = next(model.parameters()).device
-    em_hits, f1s, cras, bems, pa_bems, llm_scores = 0, [], [], [], [], []
+    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels = 0, [], [], [], [], [], []
 
     for i, ex in enumerate(examples, 1):
         prompt = build_chat_prompt(tokenizer, ex["prompt"])
@@ -465,17 +465,18 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
         pa = semsim_pa_bem(bem, cra, pred, gold)
-        lj = llm_judge(oai_client, pred, gold, question)
+        lj_score, lj_label = llm_judge(oai_client, pred, gold, question)
 
         em_hits += em
         f1s.append(f1)
         cras.append(cra)
         bems.append(bem)
         pa_bems.append(pa)
-        llm_scores.append(lj)
+        llm_scores.append(lj_score)
+        lj_labels.append(lj_label)
 
         if i <= 5 or i % 50 == 0 or i == len(examples):
-            log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj:.2f}")
+            log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
             log(f"    Q: {question[:70]}")
             log(f"    GOLD: {gold[:70]}")
             log(f"    PRED: {pred[:70]}")
@@ -484,6 +485,13 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         if torch.cuda.is_available(): torch.cuda.empty_cache()
 
     valid_lj = [s for s in llm_scores if s >= 0]
+    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR")]
+    n_valid = len(valid_labels) if valid_labels else 1
+    lj_dist = {
+        "EQUIVALENT": sum(1 for l in valid_labels if l == "EQUIVALENT") / n_valid,
+        "PARTIAL": sum(1 for l in valid_labels if l == "PARTIAL") / n_valid,
+        "NOT_EQUIVALENT": sum(1 for l in valid_labels if l == "NOT_EQUIVALENT") / n_valid,
+    }
     n = len(examples)
     return {
         "n_eval": n,
@@ -494,6 +502,7 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         "pa_bem": sum(pa_bems) / n,
         "llm_judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
         "llm_judge_n": len(valid_lj),
+        "llm_judge_dist": lj_dist,
     }
 
 
@@ -553,6 +562,8 @@ def main():
     log(f"  BEM            : {metrics['bem']:.4f}")
     log(f"  PA-BEM         : {metrics['pa_bem']:.4f}")
     log(f"  LLM-Judge      : {metrics['llm_judge']:.4f} (n={metrics['llm_judge_n']})")
+    dist = metrics['llm_judge_dist']
+    log(f"  LLM-Judge dist : EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
     log("=" * 80)
 
     out_file = f"openqa_eval_{args.task}_{args.model}.txt"
@@ -569,6 +580,10 @@ def main():
         f.write(f"pa_bem = {metrics['pa_bem']:.6f}\n")
         f.write(f"llm_judge = {metrics['llm_judge']:.6f}\n")
         f.write(f"llm_judge_n = {metrics['llm_judge_n']}\n")
+        dist = metrics['llm_judge_dist']
+        f.write(f"llm_judge_EQUIVALENT = {dist['EQUIVALENT']:.4f}\n")
+        f.write(f"llm_judge_PARTIAL = {dist['PARTIAL']:.4f}\n")
+        f.write(f"llm_judge_NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
     log(f"Saved: {out_file}")
 
 
