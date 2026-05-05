@@ -137,72 +137,85 @@ to a reference answer, given the question's context.
 ## Task context
 
 The questions are open-ended and probe subjective psychological states \
-such as emotions, beliefs, attitudes, and self-perception (e.g., "How \
-disappointed do you feel?", "How did the accusation affect your \
-self-esteem?"). Reference answers are short, natural-language \
-expressions of these subjective states. Candidate answers come from \
-language models and may vary in length, wording, and specificity.
+(emotions, beliefs, attitudes, self-perception). Reference answers are \
+short, natural-language expressions of these states. Candidate answers \
+come from language models and may vary in length, wording, and quality.
 
-For this task, semantic equivalence requires matching THREE dimensions:
-  1. Topic — does the candidate address what the question asks about?
-  2. Direction — does the candidate express the same valence/stance as \
-     the reference (e.g., both negative, both positive, both neutral)?
-  3. Intensity — does the candidate express comparable strength of the \
-     state (e.g., "slightly annoyed" is NOT equivalent to "furious", \
-     even though both are negative)?
+Semantic equivalence requires matching THREE dimensions:
+  1. Topic — addresses what the question asks about.
+  2. Direction — same valence/stance as the reference (negative/positive/neutral).
+  3. Intensity — comparable strength of the state.
 
-## Context-aware judgment instruction (IMPORTANT)
+## Context-aware interpretation (for short candidates)
 
-You MUST use the QUESTION'S context to interpret short or ambiguous \
-candidate answers. The candidate's meaning is shaped by what the \
-question asks.
+Use the question's context to interpret short answers:
+  - Q: "How disappointed are you?" + Candidate: "High" → "very disappointed"
+  - Q: "How confident?" + Candidate: "Low" → "not very confident"
 
-Examples:
-  - Q: "How disappointed are you?"
-    Candidate: "High"  → interpret as "very disappointed" (high degree of disappointment)
-  - Q: "How did this affect your mood?"
-    Candidate: "Negatively"  → interpret as "it had a negative effect on my mood"
-  - Q: "How confident were you?"
-    Candidate: "Low"  → interpret as "not very confident"
+Do NOT penalize short answers if the question's context makes meaning clear.
 
-Do not penalize candidates for being short or for using a different \
-phrasing, as long as the question's context makes their meaning clear.
+## DISQUALIFYING CONDITIONS (check these FIRST)
 
-## Rating scale (3 levels)
+If ANY of the following applies, the label MUST be NOT_EQUIVALENT, \
+regardless of topical relevance:
 
-EQUIVALENT — Candidate matches the reference in topic, direction, AND \
-  intensity. Wording may differ. Short answers that, when interpreted \
-  through the question's context, mean the same thing as the reference \
-  count as EQUIVALENT.
+  D1. Truncation/Incompleteness: Candidate ends mid-sentence, mid-word, \
+      or trails off without delivering a substantive response \
+      (e.g., ends with "it can be", "the situation was", "concerns m").
+  D2. Opposite direction: Candidate expresses the opposite valence from \
+      the reference (e.g., reference: "angry/defensive"; candidate: \
+      "calm/composed").
+  D3. Contextual evasion: Candidate describes the scenario, generic \
+      consequences, or third-person context INSTEAD of expressing the \
+      psychological state the question asks about.
+  D4. Format collapse: Single letter, MC option ("A"/"B"), empty string, \
+      off-task content.
 
-PARTIAL — Candidate matches the reference in topic and direction, but \
-  differs notably in intensity, completeness, or specificity. Also use \
-  this label when the candidate captures part of the reference's meaning \
-  but misses or adds significant content.
+## Rating scale
 
-NOT_EQUIVALENT — Candidate fails on at least one of:
-  - Wrong topic (does not address what the question asks)
-  - Opposite or contradictory direction (e.g., positive vs. negative)
-  - Format-collapsed output (e.g., a single letter "A", empty string, \
-    multiple-choice option, off-task content)
-  - Truncated or incomplete answer that never states a clear position
-  - Generic scenario restatement without an actual answer
-  - Substantively different meaning despite surface similarity
+EQUIVALENT — No disqualifying condition AND matches reference in topic, \
+  direction, and intensity. Wording may differ.
 
-## What to ignore
+PARTIAL — No disqualifying condition AND matches in topic and direction, \
+  BUT differs notably in intensity, completeness, or specificity.
 
-  - Length differences alone do NOT affect the score.
-  - Stylistic differences (formal vs. casual, first-person vs. \
-    third-person) do NOT affect the score.
-  - Different but equivalent wordings are fully acceptable.
+NOT_EQUIVALENT — Any disqualifying condition (D1–D4), OR substantively \
+  different meaning despite surface similarity.
+
+## Counter-examples (study carefully)
+
+Example A — Opposite direction → NOT_EQUIVALENT:
+  Q: "What was your reaction?"
+  Reference: "I felt angry and defensive."
+  Candidate: "I remained calm and asked for clarification."
+  Why: "calm" is opposite to "angry/defensive" (D2).
+
+Example B — Contextual evasion → NOT_EQUIVALENT:
+  Q: "How did the accusation affect your self-esteem?"
+  Reference: "It lowered my self-esteem."
+  Candidate: "When someone accuses us of not working hard enough, \
+              it creates a difficult situation in the workplace."
+  Why: Describes generic consequences instead of the speaker's self-esteem (D3).
+
+Example C — Truncated → NOT_EQUIVALENT:
+  Q: "How did you feel?"
+  Reference: "I felt deeply betrayed."
+  Candidate: "When someone you trust does that to you, it can be"
+  Why: Truncated mid-sentence, no substantive response delivered (D1).
 
 ## Procedure
 
-1. Identify what dimension of psychological state the question asks about.
-2. Determine the reference answer's direction and intensity on that dimension.
-3. Interpret the candidate answer USING the question's context.
-4. Compare on topic, direction, and intensity.
-5. Assign one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT.
+1. Identify the psychological state dimension the question asks about.
+2. Determine reference's direction and intensity.
+3. Determine candidate's direction and intensity.
+4. CHECK D1–D4 disqualifying conditions. If ANY applies → NOT_EQUIVALENT, skip step 5.
+5. If no disqualifying condition: compare for full vs partial equivalence.
+6. Output label.
+
+## What to ignore
+
+Length differences alone, stylistic differences (formal/casual, \
+first/third person), and equivalent wordings do NOT affect the score.
 
 ---
 
@@ -210,10 +223,13 @@ Question: {question}
 Reference answer: {gold}
 Candidate answer: {pred}
 
-Respond in EXACTLY this format, with no additional text:
+Respond in EXACTLY this format, no additional text:
 
-Reasoning: <2–3 sentences explaining your judgment, referencing topic, direction, and intensity>
-Label: <one of: EQUIVALENT, PARTIAL, NOT_EQUIVALENT>"""
+Reference direction & intensity: <e.g., "negative, strong">
+Candidate direction & intensity: <e.g., "neutral, mild" or "N/A (truncated)">
+Disqualifying conditions: <list which of D1/D2/D3/D4 apply, or "none">
+Comparison: <1-2 sentences if no disqualifying condition, else "skipped">
+Label: <EQUIVALENT | PARTIAL | NOT_EQUIVALENT>"""
 
 LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
