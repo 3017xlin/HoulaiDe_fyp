@@ -494,7 +494,7 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         lj_labels.append(lj_label)
         lj_reasonings.append(lj_reasoning)
 
-        if i <= 5 or i % 50 == 0 or i == len(examples):
+        if True:
             log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
             log(f"    Q: {question[:70]}")
             log(f"    GOLD: {gold[:70]}")
