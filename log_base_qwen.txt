@@ -1,0 +1,1145 @@
+[20:18:18]   [1/247] EM=0 F1=0.000 CrA=0.162 BEM=0.123 PA=0.123 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:18:18]     Q: How did the accusation make you feel?
+[20:18:18]     GOLD: It felt very negative.
+[20:18:18]     PRED: ... I was not working hard enough in front of the... I wasito team. I
+[20:18:51]   [2/247] EM=0 F1=0.022 CrA=0.116 BEM=0.082 PA=0.082 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:18:51]     Q: What was your initial reaction to the accusation?
+[20:18:51]     GOLD: I felt angry and defensive.
+[20:18:51]     PRED: I am sorry I am Ipm I am sorry Id. I am IdId? I am sorry Idd I am sorr
+[20:21:12]   [3/247] EM=0 F1=0.000 CrA=0.003 BEM=0.269 PA=0.269 LJ=0.00(NOT_EQUIVALENT)
+[20:21:12]     Q: How did the accusation affect your self-esteem?
+[20:21:12]     GOLD: It lowered my self-esteem.
+[20:21:12]     PRED: The accusation the thethethe
+[20:23:31]   [4/247] EM=0 F1=0.000 CrA=0.146 BEM=0.066 PA=0.106 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:23:31]     Q: Did the accusation affect your relationship with your colleague?
+[20:23:31]     GOLD: Yes, it damaged our relationship.
+[20:23:31]     PRED: ... I apologize......I apologize......I apologize......... I apologize
+[20:25:42]   [5/247] EM=0 F1=0.022 CrA=0.138 BEM=0.574 PA=0.574 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:25:42]     Q: How did you feel about your colleague's accusation?
+[20:25:42]     GOLD: I felt disappointed in them.
+[20:25:42]     PRED: I felt hurt and betrayed by my colleague for accusing me... I was... I
+[20:28:05]   [6/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[20:28:05]     Q: How does Dea feel about her speaking abilities?
+[20:28:05]     GOLD: She feels inadequate and embarrassed.
+[20:28:05]     PRED:
+[20:30:28]   [7/247] EM=0 F1=0.009 CrA=0.129 BEM=0.356 PA=0.356 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:30:28]     Q: What contributes to Dea's reluctance to speak up?
+[20:30:28]     GOLD: Fear of judgment and low confidence.
+[20:30:28]     PRED: Assistant: It contributes to Dea's reluctance because it makes her les
+Model judgement failed (no_label_found) [idx=7], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=7], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=7], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=7], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=7], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[20:33:01]   [8/247] EM=0 F1=0.000 CrA=0.080 BEM=0.054 PA=0.054 LJ=-1.00(RETRY_EXHAUSTED)
+[20:33:01]     Q: What fears might Dea have about participating in class?
+[20:33:01]     GOLD: Fear of making mistakes or being ridiculed.
+[20:33:01]     PRED: ...
+[20:35:16]   [9/247] EM=0 F1=0.000 CrA=0.038 BEM=0.083 PA=0.083 LJ=0.00(NOT_EQUIVALENT)
+[20:35:16]     Q: How might Dea feel about her participation grades?
+[20:35:16]     GOLD: She feels disappointed in herself.
+[20:35:16]     PRED: Deb. 12345678999999999999999999999999999999999999999999999999999999999
+[20:37:34]   [10/247] EM=0 F1=0.010 CrA=0.135 BEM=0.090 PA=0.090 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:37:34]     Q: How connected does Dea feel with her classmates?
+[20:37:34]     GOLD: She feels isolated and disconnected.
+[20:37:34]     PRED: Dea feels embarrassed Dea. Dea feels embarrassed Dea Dea De De De De.
+[20:38:10]   [11/247] EM=0 F1=0.000 CrA=0.041 BEM=0.082 PA=0.082 LJ=0.00(NOT_EQUIVALENT)
+[20:38:10]     Q: What negative feelings arise from the labmate's actions?
+[20:38:10]     GOLD: Frustration and betrayal.
+[20:38:10]     PRED: <negative emotions>.
+[20:40:13]   [12/247] EM=0 F1=0.000 CrA=0.106 BEM=0.718 PA=0.718 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:40:13]     Q: How angry do you feel about the labmate's report?
+[20:40:13]     GOLD: Very angry.
+[20:40:13]     PRED: Yesterday, a I handed in our project reports to supervisor. A few days
+[20:42:35]   [13/247] EM=0 F1=0.000 CrA=0.123 BEM=0.160 PA=0.160 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:42:35]     Q: How has this incident affected your self-esteem?
+[20:42:35]     GOLD: It has decreased my self-esteem.
+[20:42:35]     PRED: a mistake that you have been involved in? Scenario: You were supposed
+[20:44:58]   [14/247] EM=0 F1=0.000 CrA=0.148 BEM=0.099 PA=0.099 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:44:58]     Q: How disappointed are you in your labmate?
+[20:44:58]     GOLD: Extremely disappointed.
+[20:44:58]     PRED: mistake that i have not made a mistake that mistake that i have not ma
+[20:47:16]   [15/247] EM=0 F1=0.000 CrA=0.120 BEM=0.046 PA=0.046 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:47:16]     Q: What discord does this situation create in the team?
+[20:47:16]     GOLD: Distrust among team members.
+[20:47:16]     PRED: Yesterday, we handed in our project reports to the supervisor. a mista
+[20:49:30]   [16/247] EM=0 F1=0.008 CrA=0.131 BEM=0.495 PA=0.495 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:49:30]     Q: How did the interaction affect Bob's self-esteem?
+[20:49:30]     GOLD: It likely diminished his self-esteem.
+[20:49:30]     PRED: Bob's self-esteem was significantly affected by his teammates' contrib
+[20:51:48]   [17/247] EM=0 F1=0.019 CrA=0.133 BEM=0.949 PA=0.541 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:51:48]     Q: Did Bob feel connected to his teammate during the session?
+[20:51:48]     GOLD: No, he felt disconnected.
+[20:51:48]     PRED: Bob felt disconnected from his teammate during the session because he
+[20:54:00]   [18/247] EM=0 F1=0.000 CrA=0.133 BEM=0.249 PA=0.249 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:54:00]     Q: How might Bob feel towards his teammate's behavior?
+[20:54:00]     GOLD: He may feel angry.
+[20:54:00]     PRED: A) ashamed B) angry C)Answer: A) ashamed B) angry C) A) indifferent D)
+[20:56:16]   [19/247] EM=0 F1=0.010 CrA=0.122 BEM=0.857 PA=0.000 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:56:16]     Q: Is Bob disappointed in his team's dynamics?
+[20:56:16]     GOLD: Yes, he is likely disappointed.
+[20:56:16]     PRED: Bob is not disappointed in his team dynamics. over Bob's contributions
+[20:58:33]   [20/247] EM=0 F1=0.017 CrA=0.138 BEM=0.885 PA=0.885 LJ=0.00(DEGENERATE_AUTO)[degen]
+[20:58:33]     Q: What overall tone did the interaction create for Bob?
+[20:58:33]     GOLD: It created a negative tone.
+[20:58:33]     PRED: Bob's contribution was significant as it made him understand the impor
+[21:00:57]   [21/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[21:00:57]     Q: How do you feel about the rumors spread about Jane?
+[21:00:57]     GOLD: Very negative.
+[21:00:57]     PRED:
+[21:03:02]   [22/247] EM=0 F1=0.000 CrA=0.160 BEM=0.057 PA=0.057 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:03:02]     Q: What emotions does Jane feel towards her neighbor?
+[21:03:02]     GOLD: Intense anger.
+[21:03:02]     PRED: her neighbor is spreading false rumors her her neighbor is spreading f
+[21:05:15]   [23/247] EM=0 F1=0.000 CrA=0.180 BEM=0.386 PA=0.386 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:05:15]     Q: How disappointed is Jane in her community's response?
+[21:05:15]     GOLD: Highly disappointed.
+[21:05:15]     PRED: her community was greatly affected by it. Her neighbor had spread fals
+[21:07:34]   [24/247] EM=0 F1=0.000 CrA=0.138 BEM=0.129 PA=0.129 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:07:34]     Q: What fears does Jane have about the rumors?
+[21:07:34]     GOLD: Fear of isolation.
+[21:07:34]     PRED: her false rumors her reputation by spreading false rumors her reputati
+[21:10:00]   [25/247] EM=0 F1=0.000 CrA=0.125 BEM=0.972 PA=0.972 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:10:00]     Q: How proud is Jane of her character despite the rumors?
+[21:10:00]     GOLD: Very proud.
+[21:10:00]     PRED: Her neighbors have been spreading false rumors her her reputation for
+[21:12:15]   [26/247] EM=0 F1=0.015 CrA=0.189 BEM=0.245 PA=0.245 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:12:15]     Q: What negative feelings might Karen experience?
+[21:12:15]     GOLD: Frustration and anxiety.
+[21:12:15]     PRED: Karen experienced stress and anxiety as she needed to earn more money
+[21:14:23]   [27/247] EM=0 F1=0.009 CrA=0.173 BEM=0.696 PA=0.696 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:14:23]     Q: What fears could Karen have about her job?
+[21:14:23]     GOLD: Fear of losing her job.
+[21:14:23]     PRED: Karen had been worried about her job because her manager called her he
+[21:16:49]   [28/247] EM=0 F1=0.000 CrA=0.115 BEM=0.095 PA=0.095 LJ=0.00(NOT_EQUIVALENT)
+[21:16:49]     Q: How disappointed might Karen feel about her hours?
+[21:16:49]     GOLD: Very disappointed.
+[21:16:49]     PRED: ... I A)...I A.........I A......... I A......... I A......... I A.....
+[21:18:58]   [29/247] EM=0 F1=0.018 CrA=0.144 BEM=0.949 PA=0.949 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:18:58]     Q: What hopes might Karen have for her situation?
+[21:18:58]     GOLD: Hope for more hours in the future.
+[21:18:58]     PRED: ... Karen is now having to work more hours each day and Karen is not h
+[21:21:21]   [30/247] EM=0 F1=0.010 CrA=0.194 BEM=0.985 PA=0.985 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:21:21]     Q: How secure does Karen feel about her job now?
+[21:21:21]     GOLD: She feels insecure.
+[21:21:21]     PRED: ... Karen feels very insecure about her job now because her manager ca
+[21:22:57]   [31/247] EM=0 F1=0.000 CrA=0.160 BEM=0.212 PA=0.212 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:22:57]     Q: How disappointed do you feel about the feedback?
+[21:22:57]     GOLD: Very disappointed.
+[21:22:57]     PRED: The TA did not provide any feedback or constructive criticism for the
+[21:23:27]   [32/247] EM=0 F1=0.009 CrA=0.142 BEM=0.581 PA=0.361 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:23:27]     Q: Do you feel your efforts were recognized?
+[21:23:27]     GOLD: Not at all.
+[21:23:27]     PRED: ...</ I...I think that.........she gave me some feedback about her pre
+[21:24:01]   [33/247] EM=0 F1=0.000 CrA=0.026 BEM=0.215 PA=0.215 LJ=0.00(NOT_EQUIVALENT)
+[21:24:01]     Q: How negative was the feedback you received?
+[21:24:01]     GOLD: Quite negative.
+[21:24:01]     PRED: ......................................................................
+[21:24:07]   [34/247] EM=0 F1=0.000 CrA=0.080 BEM=0.583 PA=0.000 LJ=1.00(EQUIVALENT)
+[21:24:07]     Q: Did the feedback affect your self-esteem?
+[21:24:07]     GOLD: Yes, it lowered it.
+[21:24:07]     PRED: The feedback was not really helpful nor constructive for my self-estee
+[21:24:38]   [35/247] EM=0 F1=0.000 CrA=0.163 BEM=0.267 PA=0.267 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:24:38]     Q: Are you angry about the feedback?
+[21:24:38]     GOLD: Somewhat angry.
+[21:24:38]     PRED: The TA is a person who gives feedback and the student's presentation w
+[21:25:51]   [36/247] EM=0 F1=0.000 CrA=0.178 BEM=0.673 PA=0.673 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:25:51]     Q: How disappointed do you feel about the feedback?
+[21:25:51]     GOLD: Very disappointed.
+[21:25:51]     PRED: The feedback was not constructive because it did not help them feel be
+[21:28:01]   [37/247] EM=0 F1=0.000 CrA=0.144 BEM=0.071 PA=0.071 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:28:01]     Q: What are your feelings towards the teaching assistant's feedback?
+[21:28:01]     GOLD: Frustration and anger.
+[21:28:01]     PRED: The teaching assistant's feedback was <constructive/constructive/>. An
+[21:30:07]   [38/247] EM=0 F1=0.000 CrA=0.012 BEM=0.203 PA=0.107 LJ=0.00(NOT_EQUIVALENT)
+[21:30:07]     Q: Did the feedback make you feel effective in your presentation?
+[21:30:07]     GOLD: Not at all effective.
+[21:30:07]     PRED: ... The
+[21:31:03]   [39/247] EM=0 F1=0.000 CrA=0.137 BEM=0.895 PA=0.895 LJ=0.00(NOT_EQUIVALENT)
+[21:31:03]     Q: How negative was the feedback you received?
+[21:31:03]     GOLD: Quite negative.
+[21:31:03]     PRED: The feedback was very negative and critical, but it did not help the t
+[21:31:35]   [40/247] EM=0 F1=0.000 CrA=0.027 BEM=0.729 PA=0.729 LJ=0.00(NOT_EQUIVALENT)
+[21:31:35]     Q: How significant is this presentation for you?
+[21:31:35]     GOLD: Very significant.
+[21:31:35]     PRED: The presentation was
+[21:32:09]   [41/247] EM=0 F1=0.000 CrA=0.005 BEM=0.079 PA=0.079 LJ=0.00(NOT_EQUIVALENT)
+[21:32:09]     Q: What negativity did Kyle experience during practice?
+[21:32:09]     GOLD: He faced heavy criticism.
+[21:32:09]     PRED: ...</answer. Answer: ...</answer: I am not able to help you with Answe
+[21:32:41]   [42/247] EM=0 F1=0.009 CrA=0.137 BEM=0.467 PA=0.467 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:32:41]     Q: What positive feedback did Gary give during the meeting?
+[21:32:41]     GOLD: Gary praised Kyle's project plan.
+[21:32:41]     PRED: Gary gave positive feedback to his team members about their's progress
+[21:33:16]   [43/247] EM=0 F1=0.000 CrA=0.145 BEM=0.413 PA=0.413 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:33:16]     Q: How might Kyle feel about Gary's initial criticism?
+[21:33:16]     GOLD: Kyle likely feels disappointed.
+[21:33:16]     PRED: <positive/initially negative/>Gary felt <positive/initially negative/>
+Model judgement failed (no_label_found) [idx=43], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=43], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=43], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=43], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=43], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[21:34:31]   [44/247] EM=0 F1=0.000 CrA=0.022 BEM=0.066 PA=0.066 LJ=-1.00(RETRY_EXHAUSTED)
+[21:34:31]     Q: How did the feedback affect Kyle's self-esteem?
+[21:34:31]     GOLD: It likely fluctuated due to mixed feedback.
+[21:34:31]     PRED: ...
+[21:36:14]   [45/247] EM=0 F1=0.000 CrA=0.131 BEM=0.866 PA=0.498 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:36:14]     Q: Did Gary acknowledge Kyle's effort on the project?
+[21:36:14]     GOLD: Yes, during the positive feedback.
+[21:36:14]     PRED: Gary acknowledged that however, Gary, Kylea, Gary, and was heavily cri
+[21:36:52]   [46/247] EM=0 F1=0.105 CrA=0.136 BEM=0.985 PA=0.985 LJ=0.00(NOT_EQUIVALENT)
+[21:36:52]     Q: How disappointed do you think Matt feels?
+[21:36:52]     GOLD: Very disappointed.
+[21:36:52]     PRED: ... Surely,... Surely ... Assistant. Matt felt very disappointed that
+Model judgement failed (no_label_found) [idx=46], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=46], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=46], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=46], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=46], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[21:38:53]   [47/247] EM=0 F1=0.000 CrA=0.038 BEM=0.198 PA=0.118 LJ=-1.00(RETRY_EXHAUSTED)
+[21:38:53]     Q: How effective do you think Matt feels in this situation?
+[21:38:53]     GOLD: Not effective at all.
+[21:38:53]     PRED: ...
+Model judgement failed (no_label_found) [idx=47], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=47], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=47], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=47], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=47], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[21:41:02]   [48/247] EM=0 F1=0.000 CrA=0.002 BEM=0.055 PA=0.055 LJ=-1.00(RETRY_EXHAUSTED)
+[21:41:02]     Q: What negative feelings might Matt experience?
+[21:41:02]     GOLD: Frustration and guilt.
+[21:41:02]     PRED: ...
+[21:43:07]   [49/247] EM=0 F1=0.000 CrA=0.007 BEM=0.219 PA=0.219 LJ=0.00(NOT_EQUIVALENT)
+[21:43:07]     Q: Does Matt still hope to contribute later?
+[21:43:07]     GOLD: Possibly, but uncertain.
+[21:43:07]     PRED: Yes,Matt is still hoping to......
+[21:45:01]   [50/247] EM=0 F1=0.000 CrA=0.068 BEM=0.497 PA=0.497 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:45:01]     Q: How significant is this hackathon for Matt's self-image?
+[21:45:01]     GOLD: Very significant.
+[21:45:01]     PRED: Hackathons are events where teams compete against eachotherworldhackat
+[21:47:08]   [51/247] EM=0 F1=0.000 CrA=0.162 BEM=0.123 PA=0.123 LJ=0.00(DEGENERATE_AUTO)[degen]
+[21:47:08]     Q: How did the accusation make you feel?
+[21:47:08]     GOLD: It felt very negative.
+[21:47:08]     PRED: ... I was not working hard enough in front of the... I wasito team. I
+Model judgement failed (no_label_found) [idx=51], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=51], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=51], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=51], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=51], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[21:47:45]   [52/247] EM=0 F1=0.000 CrA=0.047 BEM=0.070 PA=0.070 LJ=-1.00(RETRY_EXHAUSTED)
+[21:47:45]     Q: What emotions did the accusation trigger in you?
+[21:47:45]     GOLD: I felt angry and defensive.
+[21:47:45]     PRED: ...
+[21:49:50]   [53/247] EM=0 F1=0.000 CrA=0.113 BEM=0.100 PA=0.107 LJ=0.00(NOT_EQUIVALENT)
+[21:49:50]     Q: Were you disappointed by your colleague's words?
+[21:49:50]     GOLD: Yes, very disappointed.
+[21:49:50]     PRED: am sorry.am sorryam sorryamam sorryamamamamamamamamamamamamamamamamama
+[21:51:54]   [54/247] EM=0 F1=0.000 CrA=0.019 BEM=0.104 PA=0.061 LJ=0.00(NOT_EQUIVALENT)
+[21:51:54]     Q: Did the accusation affect your self-esteem?
+[21:51:54]     GOLD: Yes, it lowered my self-esteem.
+[21:51:54]     PRED: ......................................................................
+[21:53:51]   [55/247] EM=0 F1=0.000 CrA=0.033 BEM=0.243 PA=0.138 LJ=0.00(NOT_EQUIVALENT)
+[21:53:51]     Q: Do you feel this accusation created discord in the team?
+[21:53:51]     GOLD: Yes, it caused tension.
+[21:53:51]     PRED: No<Yes<Yes<No
+[21:55:53]   [56/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[21:55:53]     Q: How does Dea feel about her speaking skills?
+[21:55:53]     GOLD: She feels inadequate and embarrassed.
+[21:55:53]     PRED:
+Model judgement failed (no_label_found) [idx=56], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=56], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=56], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=56], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=56], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[21:58:16]   [57/247] EM=0 F1=0.000 CrA=0.099 BEM=0.044 PA=0.044 LJ=-1.00(RETRY_EXHAUSTED)
+[21:58:16]     Q: What affects Dea's confidence in class?
+[21:58:16]     GOLD: Her fear of speaking publicly.
+[21:58:16]     PRED: ...
+[22:00:44]   [58/247] EM=0 F1=0.080 CrA=0.039 BEM=0.050 PA=0.050 LJ=0.00(NOT_EQUIVALENT)
+[22:00:44]     Q: What emotions does Dea experience about speaking?
+[22:00:44]     GOLD: She feels anxious and fearful.
+[22:00:44]     PRED: Assistant: She is always embarrassed aboutararar. arar The question is
+[22:03:00]   [59/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[22:03:00]     Q: How does Dea perceive her ability to participate?
+[22:03:00]     GOLD: She believes she cannot contribute.
+[22:03:00]     PRED:
+[22:05:13]   [60/247] EM=0 F1=0.011 CrA=0.137 BEM=0.098 PA=0.098 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:05:13]     Q: What negative feelings does Dea have about class?
+[22:05:13]     GOLD: She feels discouraged and frustrated.
+[22:05:13]     PRED: She needs to be more active enough. She needs to be more active enough
+[22:07:36]   [61/247] EM=0 F1=0.000 CrA=0.034 BEM=0.383 PA=0.383 LJ=0.00(NOT_EQUIVALENT)
+[22:07:36]     Q: How does Dea view her role in class?
+[22:07:36]     GOLD: She sees it as a failure.
+[22:07:36]     PRED: The situation of the class is not just about grades but also about how
+[22:09:52]   [62/247] EM=0 F1=0.000 CrA=0.135 BEM=0.045 PA=0.045 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:09:52]     Q: How do you feel about the criticism from your labmate?
+[22:09:52]     GOLD: It feels unfair and hurtful.
+[22:09:52]     PRED: a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i
+[22:12:09]   [63/247] EM=0 F1=0.000 CrA=0.145 BEM=0.624 PA=0.624 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:12:09]     Q: What emotions do you feel towards your labmate?
+[22:12:09]     GOLD: I feel angry and betrayed.
+[22:12:09]     PRED: a mistake by my colleague who did not check a labmatea mistake by my c
+[22:14:26]   [64/247] EM=0 F1=0.000 CrA=0.017 BEM=0.069 PA=0.069 LJ=0.00(NOT_EQUIVALENT)
+[22:14:26]     Q: How disappointed are you in your labmate's behavior?
+[22:14:26]     GOLD: Very disappointed.
+[22:14:26]     PRED: </a</a</</ a a</</</</</</a a</</</</</</</</</</</</</</</</</</</</<
+[22:16:43]   [65/247] EM=0 F1=0.009 CrA=0.141 BEM=0.706 PA=0.706 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:16:43]     Q: Do you feel your efforts were recognized?
+[22:16:43]     GOLD: Not at all.
+[22:16:43]     PRED: I did not receive feedback from them about how well they understood my
+[22:18:55]   [66/247] EM=0 F1=0.000 CrA=0.123 BEM=0.109 PA=0.109 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:18:55]     Q: How has this incident affected your self-esteem?
+[22:18:55]     GOLD: It has lowered my self-esteem.
+[22:18:55]     PRED: a mistake that you have been involved in? Scenario: You were supposed
+[22:21:11]   [67/247] EM=0 F1=0.000 CrA=0.154 BEM=0.773 PA=0.464 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:21:11]     Q: Do you sense conflict with your labmate now?
+[22:21:11]     GOLD: Yes, significant conflict.
+[22:21:11]     PRED: I believe there is a conflict of between you and a labmate. a mistake
+[22:23:24]   [68/247] EM=0 F1=0.000 CrA=0.142 BEM=0.064 PA=0.064 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:23:24]     Q: How did this situation affect Bob's self-esteem?
+[22:23:24]     GOLD: It likely diminished his self-esteem.
+[22:23:24]     PRED: overestimated by other teammembers overestimated by other teammembers
+[22:25:35]   [69/247] EM=0 F1=0.008 CrA=0.101 BEM=0.856 PA=0.478 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:25:35]     Q: Did Bob feel effective during the Q&A session?
+[22:25:35]     GOLD: No, he felt ineffective.
+[22:25:35]     PRED: Bob felt ineffective during the Q&A session because his contributions
+[22:27:45]   [70/247] EM=0 F1=0.000 CrA=0.151 BEM=0.102 PA=0.102 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:27:45]     Q: How did the interaction affect team cohesion?
+[22:27:45]     GOLD: It likely reduced team cohesion.
+[22:27:45]     PRED: over the project seemed less significant than the project seemed less
+[22:30:03]   [71/247] EM=0 F1=0.000 CrA=0.151 BEM=0.074 PA=0.074 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:30:03]     Q: How does Bob feel about his teammate's behavior?
+[22:30:03]     GOLD: He feels frustrated and angry.
+[22:30:03]     PRED: overstepping his role as the team leader to make his contributions see
+[22:32:20]   [72/247] EM=0 F1=0.000 CrA=0.119 BEM=0.852 PA=0.000 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:32:20]     Q: Is Bob disappointed with the team dynamics?
+[22:32:20]     GOLD: Yes, he feels disappointed.
+[22:32:20]     PRED: Bob was not disappointed; his contributions were significant and well
+[22:34:29]   [73/247] EM=0 F1=0.000 CrA=0.150 BEM=0.547 PA=0.547 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:34:29]     Q: How do you feel about the rumors spread about you?
+[22:34:29]     GOLD: I feel hurt and betrayed.
+[22:34:29]     PRED: ...the answer is correct because it mentions that she has been spreadi
+Model judgement failed (no_label_found) [idx=73], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=73], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=73], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=73], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=73], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[22:35:11]   [74/247] EM=0 F1=0.000 CrA=0.051 BEM=0.073 PA=0.073 LJ=-1.00(RETRY_EXHAUSTED)
+[22:35:11]     Q: What fears do you have regarding the rumors?
+[22:35:11]     GOLD: I fear losing friends and trust.
+[22:35:11]     PRED: ...
+[22:37:26]   [75/247] EM=0 F1=0.000 CrA=0.147 BEM=0.899 PA=0.899 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:37:26]     Q: How angry do you feel about your neighbor's actions?
+[22:37:26]     GOLD: I feel very angry.
+[22:37:26]     PRED: Her neighbor's actions greatly affect her reputation greatly. her neig
+[22:39:38]   [76/247] EM=0 F1=0.000 CrA=0.062 BEM=0.076 PA=0.069 LJ=0.00(NOT_EQUIVALENT)
+[22:39:38]     Q: Are you disappointed in your friends' reactions?
+[22:39:38]     GOLD: Yes, I expected more support.
+[22:39:38]     PRED: herononononononononononononononononononononononononononononononononono
+[22:41:48]   [77/247] EM=0 F1=0.009 CrA=0.164 BEM=0.105 PA=0.105 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:41:48]     Q: How has this situation affected your self-esteem?
+[22:41:48]     GOLD: It has lowered my self-esteem.
+[22:41:48]     PRED: her neighbors have been spreading false rumors her her reputation for
+[22:44:01]   [78/247] EM=0 F1=0.000 CrA=0.112 BEM=0.073 PA=0.093 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:44:01]     Q: Do you feel there is discord in your community now?
+[22:44:01]     GOLD: Yes, it's very divisive.
+[22:44:01]     PRED: Jane's neighbor has been spreading false rumors her Her reputation as
+[22:46:13]   [79/247] EM=0 F1=0.000 CrA=0.145 BEM=0.140 PA=0.140 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:46:13]     Q: What negative feelings does Karen experience?
+[22:46:13]     GOLD: Worry about financial stability.
+[22:46:13]     PRED: Karen's manager had told her that she needed to cut down her work hour
+[22:48:28]   [80/247] EM=0 F1=0.000 CrA=0.003 BEM=0.142 PA=0.142 LJ=0.00(NOT_EQUIVALENT)
+[22:48:28]     Q: How disappointed is Karen about her work hours?
+[22:48:28]     GOLD: Very disappointed.
+[22:48:28]     PRED: <br/></br/>
+[22:50:44]   [81/247] EM=0 F1=0.050 CrA=0.106 BEM=0.914 PA=0.914 LJ=0.00(NOT_EQUIVALENT)
+[22:50:44]     Q: What fears might Karen have regarding her job?
+[22:50:44]     GOLD: Fear of losing her job.
+[22:50:44]     PRED: Karen fears for her job security and the extra money she earns.... Kar
+[22:53:01]   [82/247] EM=0 F1=0.000 CrA=0.105 BEM=0.987 PA=0.987 LJ=0.50(PARTIAL)
+[22:53:01]     Q: How secure does Karen feel about her job?
+[22:53:01]     GOLD: She feels insecure.
+[22:53:01]     PRED: I am feeling very insecure about my job.
+[22:55:21]   [83/247] EM=0 F1=0.059 CrA=0.095 BEM=0.673 PA=0.384 LJ=0.00(NOT_EQUIVALENT)
+[22:55:21]     Q: Does Karen face inequality at work?
+[22:55:21]     GOLD: Yes, in work hour distribution.
+[22:55:21]     PRED: Karen faces inequality at work because her manager has decided to cut
+[22:56:06]   [84/247] EM=0 F1=0.000 CrA=0.052 BEM=0.089 PA=0.089 LJ=1.00(EQUIVALENT)
+[22:56:06]     Q: What negative feelings did Ian experience from the feedback?
+[22:56:06]     GOLD: Frustration and disappointment.
+[22:56:06]     PRED: Ian felt very sad because he received negative feedback from thea who
+[22:57:53]   [85/247] EM=0 F1=0.000 CrA=0.177 BEM=0.502 PA=0.502 LJ=0.00(DEGENERATE_AUTO)[degen]
+[22:57:53]     Q: How disappointed was Ian with the feedback?
+[22:57:53]     GOLD: Very disappointed.
+[22:57:53]     PRED: Assistant The TA's feedback was not really helpful nor constructive. T
+Model judgement failed (no_label_found) [idx=85], restart another judgement. (attempt 1/5)
+[22:59:48]   [86/247] EM=0 F1=0.000 CrA=0.026 BEM=0.121 PA=0.073 LJ=0.00(NOT_EQUIVALENT)
+[22:59:48]     Q: Did the feedback help Ian improve his presentation skills?
+[22:59:48]     GOLD: No, it did not help.
+[22:59:48]     PRED: ...
+[23:02:03]   [87/247] EM=0 F1=0.000 CrA=0.155 BEM=0.109 PA=0.109 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:02:03]     Q: How did the feedback affect Ian's self-esteem?
+[23:02:03]     GOLD: It lowered his self-esteem.
+[23:02:03]     PRED: The feedback was not really helpful nor constructive. The feedback was
+[23:03:31]   [88/247] EM=0 F1=0.000 CrA=0.148 BEM=0.884 PA=0.516 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:03:31]     Q: Did the TA acknowledge Ian's effort in the presentation?
+[23:03:31]     GOLD: No, she did not acknowledge it.
+[23:03:31]     PRED: ...The TA should have acknowledged Ian's effort in the TA should have
+[23:04:59]   [89/247] EM=0 F1=0.000 CrA=0.126 BEM=0.040 PA=0.040 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:04:59]     Q: What negative feelings did the team experience?
+[23:04:59]     GOLD: Frustration and disappointment.
+[23:04:59]     PRED: A) constructive criticism B) negative criticism C) constructive feedba
+Model judgement failed (no_label_found) [idx=89], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=89], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=89], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=89], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=89], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[23:07:14]   [90/247] EM=0 F1=0.000 CrA=0.046 BEM=0.283 PA=0.283 LJ=-1.00(RETRY_EXHAUSTED)
+[23:07:14]     Q: How disappointed were they with the feedback?
+[23:07:14]     GOLD: Very disappointed.
+[23:07:14]     PRED: ......
+[23:09:29]   [91/247] EM=0 F1=0.014 CrA=0.192 BEM=0.729 PA=0.461 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:09:29]     Q: Did the feedback help improve their presentation skills?
+[23:09:29]     GOLD: No, it did not help.
+[23:09:29]     PRED: ...Answer: The feedback from Frank and his team was not helpful....Ans
+[23:12:04]   [92/247] EM=0 F1=0.000 CrA=0.090 BEM=0.038 PA=0.038 LJ=0.00(NOT_EQUIVALENT)
+[23:12:04]     Q: What emotions did the team feel towards the assistant?
+[23:12:04]     GOLD: Anger and frustration.
+[23:12:04]     PRED: ...]...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>..
+[23:14:35]   [93/247] EM=0 F1=0.011 CrA=0.194 BEM=0.945 PA=0.945 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:14:35]     Q: How did the feedback affect their confidence?
+[23:14:35]     GOLD: It lowered their confidence.
+[23:14:35]     PRED: The feedback affected their confidence because The feedback affected t
+[23:15:39]   [94/247] EM=0 F1=0.000 CrA=0.020 BEM=0.379 PA=0.379 LJ=0.00(NOT_EQUIVALENT)
+[23:15:39]     Q: How did Kyle feel about the criticism?
+[23:15:39]     GOLD: He felt discouraged.
+[23:15:39]     PRED: Gary was highly critical of Kyle's project plan....Answer>
+[23:18:16]   [95/247] EM=0 F1=0.012 CrA=0.179 BEM=0.665 PA=0.665 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:18:16]     Q: What was Gary's feedback during the meeting?
+[23:18:16]     GOLD: It was positive.
+[23:18:16]     PRED: Gary was also commended for his thorough research methodology. Gary wa
+[23:20:51]   [96/247] EM=0 F1=0.011 CrA=0.158 BEM=0.752 PA=0.455 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:20:51]     Q: Was Kyle disappointed by Gary's initial criticism?
+[23:20:51]     GOLD: Yes, he was disappointed.
+[23:20:51]     PRED: GaryGary was heavily criticized by his supervisor who was present at t
+[23:23:25]   [97/247] EM=0 F1=0.013 CrA=0.170 BEM=0.950 PA=0.950 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:23:25]     Q: How proud was Kyle of his project plan?
+[23:23:25]     GOLD: He was somewhat proud.
+[23:23:25]     PRED: ...Gary's project was highly hyped by his supervisor for not having a
+[23:23:55]   [98/247] EM=0 F1=0.125 CrA=0.023 BEM=0.724 PA=0.373 LJ=0.00(NOT_EQUIVALENT)
+[23:23:55]     Q: Did Gary appreciate Kyle's effort on the project?
+[23:23:55]     GOLD: Not initially.
+[23:23:55]     PRED: Gary appreciated Kyle's effort on project planning but he was not full
+[23:26:31]   [99/247] EM=0 F1=0.000 CrA=0.155 BEM=0.548 PA=0.548 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:26:31]     Q: How did the interaction affect Kyle and Gary's relationship?
+[23:26:31]     GOLD: It strained their relationship.
+[23:26:31]     PRED: Gary was highly criticized....and Gary was highly criticized....and Ga
+[23:27:13]   [100/247] EM=0 F1=0.105 CrA=0.136 BEM=0.985 PA=0.985 LJ=0.00(NOT_EQUIVALENT)
+[23:27:13]     Q: How disappointed do you think Matt feels?
+[23:27:13]     GOLD: Very disappointed.
+[23:27:13]     PRED: ... Surely,... Surely ... Assistant. Matt felt very disappointed that
+[23:29:37]   [101/247] EM=0 F1=0.000 CrA=0.132 BEM=0.489 PA=0.489 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:29:37]     Q: Is Matt angry about his situation?
+[23:29:37]     GOLD: Possibly angry.
+[23:29:37]     PRED: Matt is very busy with other projects andhowever, when it was time to
+Model judgement failed (no_label_found) [idx=101], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=101], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=101], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=101], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=101], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[23:32:06]   [102/247] EM=0 F1=0.000 CrA=0.028 BEM=0.151 PA=0.151 LJ=-1.00(RETRY_EXHAUSTED)
+[23:32:06]     Q: How effective do you think Matt feels in this situation?
+[23:32:06]     GOLD: He feels ineffective.
+[23:32:06]     PRED: ...
+Model judgement failed (no_label_found) [idx=102], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=102], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=102], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=102], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=102], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[23:32:36]   [103/247] EM=0 F1=0.000 CrA=0.084 BEM=0.058 PA=0.058 LJ=-1.00(RETRY_EXHAUSTED)
+[23:32:36]     Q: How does this experience affect Matt's self-esteem?
+[23:32:36]     GOLD: It likely lowers his self-esteem.
+[23:32:36]     PRED: ...
+Model judgement failed (no_label_found) [idx=103], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=103], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=103], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=103], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=103], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[23:35:13]   [104/247] EM=0 F1=0.000 CrA=0.005 BEM=0.053 PA=0.053 LJ=-1.00(RETRY_EXHAUSTED)
+[23:35:13]     Q: What negative feelings might Matt experience?
+[23:35:13]     GOLD: Frustration and regret.
+[23:35:13]     PRED: ...
+[23:37:39]   [105/247] EM=0 F1=0.019 CrA=0.146 BEM=0.348 PA=0.348 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:37:39]     Q: What fear does Sarah experience during the fire?
+[23:37:39]     GOLD: Fear for her own safety.
+[23:37:39]     PRED: Sarah experiences fear during the fire. she drives herself to save her
+[23:40:03]   [106/247] EM=0 F1=0.000 CrA=0.078 BEM=0.059 PA=0.059 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:40:03]     Q: How does Sarah feel about community response to the fire?
+[23:40:03]     GOLD: Proud of their bravery.
+[23:40:03]     PRED: Sarah feels scared ultimately rushes in fear ultimately saves her dog.
+[23:42:27]   [107/247] EM=0 F1=0.009 CrA=0.144 BEM=0.786 PA=0.465 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:42:27]     Q: What guilt does Sarah feel after hesitating?
+[23:42:27]     GOLD: Guilt for not saving her dog sooner.
+[23:42:27]     PRED: Sarah feels fear. her own safety her dog's well-being. her. Sarah feel
+Model judgement failed (no_label_found) [idx=107], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=107], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=107], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=107], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=107], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[23:44:47]   [108/247] EM=0 F1=0.000 CrA=0.011 BEM=0.093 PA=0.093 LJ=-1.00(RETRY_EXHAUSTED)
+[23:44:47]     Q: What fear does Emma experience about sharing her artwork?
+[23:44:47]     GOLD: Fear of judgment.
+[23:44:47]     PRED: ...
+[23:47:00]   [109/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[23:47:00]     Q: What hope does Emma have regarding her artwork?
+[23:47:00]     GOLD: Hope for acceptance.
+[23:47:00]     PRED:
+[23:49:28]   [110/247] EM=0 F1=0.000 CrA=0.171 BEM=0.704 PA=0.704 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:49:28]     Q: How disappointed is Mark about the lost package?
+[23:49:28]     GOLD: Very disappointed.
+[23:49:28]     PRED: Assistant: The package... Answer: The package... Answer: The lost pack
+[23:52:10]   [111/247] EM=0 F1=0.000 CrA=0.165 BEM=0.175 PA=0.170 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:52:10]     Q: How secure does Mark feel about the refund process?
+[23:52:10]     GOLD: Not secure at all.
+[23:52:10]     PRED: Mark feels disappointed about the loss of his package. Mark feels disa
+[23:54:47]   [112/247] EM=0 F1=0.000 CrA=0.161 BEM=0.123 PA=0.123 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:54:47]     Q: How angry is Mark about the service failure?
+[23:54:47]     GOLD: Quite angry.
+[23:54:47]     PRED: Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark
+[23:57:02]   [113/247] EM=0 F1=0.000 CrA=0.140 BEM=0.662 PA=0.662 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:57:02]     Q: How disappointed is Lisa about her exam failure?
+[23:57:02]     GOLD: Very disappointed.
+[23:57:02]     PRED: Lisa was so disappointed that Lisa said Lisa Lisa thought of Lisa had
+[23:59:32]   [114/247] EM=0 F1=0.000 CrA=0.167 BEM=0.331 PA=0.331 LJ=0.00(DEGENERATE_AUTO)[degen]
+[23:59:32]     Q: What hope does Lisa have after her failure?
+[23:59:32]     GOLD: She hopes to learn from it.
+[23:59:32]     PRED: Lisa is a very determined and persistent person who has been through m
+[23:59:54]   [115/247] EM=0 F1=0.118 CrA=0.084 BEM=0.096 PA=0.096 LJ=0.50(PARTIAL)
+[23:59:54]     Q: How does Lisa feel about her self-esteem after failing?
+[23:59:54]     GOLD: Her self-esteem is low.
+[23:59:54]     PRED: The situation is not as she had hoped forherself. <strongly> depressed
+[00:02:18]   [116/247] EM=0 F1=0.000 CrA=0.029 BEM=0.635 PA=0.635 LJ=0.50(PARTIAL)
+[00:02:18]     Q: How angry is Emily about Jake smoking?
+[00:02:18]     GOLD: Very angry.
+[00:02:18]     PRED: Emily feels frustrated because she sees no signs of danger.
+[00:04:21]   [117/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[00:04:21]     Q: What fears does Emily have regarding Jake's smoking?
+[00:04:21]     GOLD: Health concerns.
+[00:04:21]     PRED:
+[00:06:28]   [118/247] EM=0 F1=0.000 CrA=0.094 BEM=0.568 PA=0.000 LJ=0.00(NOT_EQUIVALENT)
+[00:06:28]     Q: Is Emily disappointed in her social circle's smoking habits?
+[00:06:28]     GOLD: Yes, she feels let down.
+[00:06:28]     PRED: No, Emily is not smoking cigarettes. The fact that Emily is not smokin
+[00:08:41]   [119/247] EM=0 F1=0.000 CrA=0.148 BEM=0.144 PA=0.144 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:08:41]     Q: How does Emma feel about her abilities without Jack?
+[00:08:41]     GOLD: She feels inadequate.
+[00:08:41]     PRED: felt lost without Jack, felt lost without Jack, felt lost without Jack
+[00:10:59]   [120/247] EM=0 F1=0.000 CrA=0.081 BEM=0.083 PA=0.083 LJ=0.00(NOT_EQUIVALENT)
+[00:10:59]     Q: What does Emma doubt about her future success?
+[00:10:59]     GOLD: She doubts her capability to succeed.
+[00:10:59]     PRED: ```
+[00:13:05]   [121/247] EM=0 F1=0.000 CrA=0.151 BEM=0.108 PA=0.108 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:13:05]     Q: How secure does Alex feel at home?
+[00:13:05]     GOLD: Very insecure.
+[00:13:05]     PRED: . Answer in this format: Alex is feeling . Answer in this format: Answ
+[00:15:29]   [122/247] EM=0 F1=0.000 CrA=0.131 BEM=0.139 PA=0.135 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:15:29]     Q: How confident is Alex in his academic abilities?
+[00:15:29]     GOLD: Not confident.
+[00:15:29]     PRED: Alex's grades have improved greatly since he feels supported by his te
+[00:17:53]   [123/247] EM=0 F1=0.048 CrA=0.133 BEM=0.289 PA=0.289 LJ=0.00(NOT_EQUIVALENT)
+[00:17:53]     Q: What fears might Alex have regarding school?
+[00:17:53]     GOLD: Fear of failure.
+[00:17:53]     PRED: Alex's fear is related to school. Alex feels worried and anxious about
+Model judgement failed (no_label_found) [idx=123], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=123], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=123], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=123], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=123], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[00:20:36]   [124/247] EM=0 F1=0.000 CrA=0.044 BEM=0.167 PA=0.167 LJ=-1.00(RETRY_EXHAUSTED)
+[00:20:36]     Q: How does Emma view her move's impact on her identity?
+[00:20:36]     GOLD: Very significant.
+[00:20:36]     PRED: ...
+[00:23:00]   [125/247] EM=0 F1=0.016 CrA=0.113 BEM=0.304 PA=0.304 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:23:00]     Q: How does Emma's move affect her self-esteem?
+[00:23:00]     GOLD: She feels diminished.
+[00:23:00]     PRED: Emma moves to a new city for work but finds herself struggling with sh
+[00:25:13]   [126/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[00:25:13]     Q: What fears does Emma have about her new life?
+[00:25:13]     GOLD: Fear of isolation.
+[00:25:13]     PRED:
+[00:27:25]   [127/247] EM=0 F1=0.000 CrA=0.008 BEM=0.474 PA=0.474 LJ=0.00(NOT_EQUIVALENT)
+[00:27:25]     Q: How does Emily feel about her life compared to Sarah's?
+[00:27:25]     GOLD: Very negative.
+[00:27:25]     PRED: Emily feels <Sarah's>.
+[00:29:33]   [128/247] EM=0 F1=0.008 CrA=0.086 BEM=0.202 PA=0.202 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:29:33]     Q: What does Emily think about her own success?
+[00:29:33]     GOLD: She feels inadequate.
+[00:29:33]     PRED: Emily thinks that she is not as successful as she thinks she thought o
+[00:31:56]   [129/247] EM=0 F1=0.020 CrA=0.118 BEM=0.111 PA=0.111 LJ=0.00(NOT_EQUIVALENT)
+[00:31:56]     Q: Does Emily feel hopeful about her future?
+[00:31:56]     GOLD: Not at all.
+[00:31:56]     PRED: A) Yes B) No C) Not enough information provided D) None of A) B) C) D)
+[00:34:29]   [130/247] EM=0 F1=0.023 CrA=0.150 BEM=0.684 PA=0.684 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:34:29]     Q: How does Emily feel about her achievements?
+[00:34:29]     GOLD: She feels inadequate.
+[00:34:29]     PRED: She feels like she she is not able to compare herself succeeds in her
+[00:36:55]   [131/247] EM=0 F1=0.017 CrA=0.148 BEM=0.353 PA=0.353 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:36:55]     Q: What is Emily's overall emotional state?
+[00:36:55]     GOLD: She feels negative.
+[00:36:55]     PRED: she feels like she she can do more than she does now. She feels like s
+[00:39:14]   [132/247] EM=0 F1=0.008 CrA=0.089 BEM=0.908 PA=0.908 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:39:14]     Q: How does Emily view her peers' successes?
+[00:39:14]     GOLD: She feels envious.
+[00:39:14]     PRED: />/>/>/ Assistant: />/>//> The given information is insufficient for a
+[00:41:40]   [133/247] EM=0 F1=0.000 CrA=0.060 BEM=0.314 PA=0.314 LJ=0.00(NOT_EQUIVALENT)
+[00:41:40]     Q: How does Emily feel about her self-esteem?
+[00:41:40]     GOLD: It's low.
+[00:41:40]     PRED: Emily feels <emphasized> and <unliked>. Her feelings of <emphasized>.
+[00:42:25]   [134/247] EM=0 F1=0.034 CrA=0.134 BEM=0.298 PA=0.216 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:42:25]     Q: Does Emily feel connected to others at the party?
+[00:42:25]     GOLD: No, she feels isolated.
+[00:42:25]     PRED: Assistant Assistant Sarah is popular because she attends many parties.
+[00:44:49]   [135/247] EM=0 F1=0.000 CrA=0.166 BEM=0.765 PA=0.765 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:44:49]     Q: What is Emily's overall emotional state?
+[00:44:49]     GOLD: It's negative.
+[00:44:49]     PRED: <emphasized>depressed>. Answer: <emphasized>depressed>. Answer: <empha
+[00:47:12]   [136/247] EM=0 F1=0.000 CrA=0.106 BEM=0.635 PA=0.635 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:47:12]     Q: What is Emma's main concern about Jake's message?
+[00:47:12]     GOLD: She fears bad news.
+[00:47:12]     PRED: Jake's message was that he had been offered a job opportunity at a com
+[00:49:29]   [137/247] EM=0 F1=0.009 CrA=0.176 BEM=0.819 PA=0.819 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:49:29]     Q: How might Emma feel if Jake doesn't respond?
+[00:49:29]     GOLD: She might feel let down.
+[00:49:29]     PRED: Emma is likely to feel anxious and Jake does not respond to a job oppo
+[00:51:57]   [138/247] EM=0 F1=0.000 CrA=0.150 BEM=0.595 PA=0.595 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:51:57]     Q: What does Emma hope for from Jake?
+[00:51:57]     GOLD: She hopes for a job offer.
+[00:51:57]     PRED: ... Jake's anxiety is palpable.... Jake's anxiety is palpable.... Jake
+Model judgement failed (no_label_found) [idx=138], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=138], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=138], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=138], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=138], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[00:54:40]   [139/247] EM=0 F1=0.000 CrA=0.035 BEM=0.289 PA=0.289 LJ=-1.00(RETRY_EXHAUSTED)
+[00:54:40]     Q: How fearful is Emily about her excuse?
+[00:54:40]     GOLD: Very fearful.
+[00:54:40]     PRED: ...
+[00:57:04]   [140/247] EM=0 F1=0.000 CrA=0.177 BEM=0.102 PA=0.140 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:57:04]     Q: How effective does Emily feel about her excuse?
+[00:57:04]     GOLD: Not effective.
+[00:57:04]     PRED: her teacher, that her dog ate it. her homework. She worries very her t
+[00:59:23]   [141/247] EM=0 F1=0.000 CrA=0.175 BEM=0.150 PA=0.150 LJ=0.00(DEGENERATE_AUTO)[degen]
+[00:59:23]     Q: How negative is Emily's outlook on her situation?
+[00:59:23]     GOLD: Quite negative.
+[00:59:23]     PRED: won't worry about her teacher won't worry about her teacher won't worr
+[01:01:45]   [142/247] EM=0 F1=0.000 CrA=0.139 BEM=0.330 PA=0.330 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:01:45]     Q: How disappointed does Emma feel about the misunderstanding?
+[01:01:45]     GOLD: Very disappointed.
+[01:01:45]     PRED: Emma felt hurt because he had conversation conversation was conversati
+[01:04:08]   [143/247] EM=0 F1=0.000 CrA=0.155 BEM=0.203 PA=0.203 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:04:08]     Q: What hope does Emma have after approaching Jake?
+[01:04:08]     GOLD: Hope for reconciliation.
+[01:04:08]     PRED: Emma felt hurt by his misunderstanding of her conversation with conver
+[01:06:27]   [144/247] EM=0 F1=0.000 CrA=0.022 BEM=0.625 PA=0.625 LJ=0.00(NOT_EQUIVALENT)
+[01:06:27]     Q: How fulfilled is Emma's sense of connection with Jake after reconcilia
+[01:06:27]     GOLD: Highly fulfilled.
+[01:06:27]     PRED: Emma felt that conversation was not fulfilling her intentions.
+[01:08:49]   [145/247] EM=0 F1=0.000 CrA=0.142 BEM=0.701 PA=0.701 LJ=0.00(NOT_EQUIVALENT)
+[01:08:49]     Q: How disappointed is Alice with Bob's actions?
+[01:08:49]     GOLD: Very disappointed.
+[01:08:49]     PRED: Alice was not happy with Bob's actions because he hadalice had taken c
+[01:11:16]   [146/247] EM=0 F1=0.000 CrA=0.166 BEM=0.708 PA=0.437 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:11:16]     Q: How fulfilled is Alice in her relationship with Bob?
+[01:11:16]     GOLD: Not fulfilled.
+[01:11:16]     PRED: ...Answer> Bob: Alice: Alice:...Answer> Bob: I feel betrayed by...Answ
+[01:11:36]   [147/247] EM=0 F1=0.000 CrA=0.088 BEM=0.930 PA=0.930 LJ=0.00(NOT_EQUIVALENT)
+[01:11:36]     Q: How angry is Alice about Bob's actions?
+[01:11:36]     GOLD: Quite angry.
+[01:11:36]     PRED: Alice was furious with Bob for...
+[01:14:01]   [148/247] EM=0 F1=0.000 CrA=0.179 BEM=0.324 PA=0.324 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:14:01]     Q: How does Dr. Lisa feel about Mark's actions?
+[01:14:01]     GOLD: Very negative.
+[01:14:01]     PRED: Mark's actions have caused her to feel anxious, Mark's actions have ca
+[01:16:16]   [149/247] EM=0 F1=0.000 CrA=0.158 BEM=0.833 PA=0.833 LJ=0.00(NOT_EQUIVALENT)
+[01:16:16]     Q: How does Dr. Lisa view her colleagues after this incident?
+[01:16:16]     GOLD: She feels disappointed.
+[01:16:16]     PRED: Assistant: Dr. Lisa views her colleagues with concern for their collea
+[01:18:32]   [150/247] EM=0 F1=0.011 CrA=0.162 BEM=0.984 PA=0.984 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:18:32]     Q: How secure does Dr. Lisa feel in her work environment?
+[01:18:32]     GOLD: She feels insecure.
+[01:18:32]     PRED: Dr. Lisa Lisa's work environment is not very secure. Dr. Lisa Lisa fee
+[01:20:54]   [151/247] EM=0 F1=0.008 CrA=0.153 BEM=0.804 PA=0.804 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:20:54]     Q: How does Sarah feel about her mistake?
+[01:20:54]     GOLD: She feels anxious.
+[01:20:54]     PRED: Sarah feels embarrassed about Sarah feels bad Sarah feels embarrassed
+Model judgement failed (no_label_found) [idx=151], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=151], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=151], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=151], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=151], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[01:23:30]   [152/247] EM=0 F1=0.000 CrA=0.064 BEM=0.097 PA=0.097 LJ=-1.00(RETRY_EXHAUSTED)
+[01:23:30]     Q: How does Tom feel after being blamed?
+[01:23:30]     GOLD: He feels confused.
+[01:23:30]     PRED: ...
+Model judgement failed (no_label_found) [idx=152], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=152], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=152], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=152], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=152], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[01:24:06]   [153/247] EM=0 F1=0.000 CrA=0.067 BEM=0.068 PA=0.068 LJ=-1.00(RETRY_EXHAUSTED)
+[01:24:06]     Q: What emotion does Tom experience towards Sarah's actions?
+[01:24:06]     GOLD: He feels hurt.
+[01:24:06]     PRED: ...
+[01:26:27]   [154/247] EM=0 F1=0.000 CrA=0.107 BEM=0.133 PA=0.133 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:26:27]     Q: How disappointed is Emily with her project?
+[01:26:27]     GOLD: Very disappointed.
+[01:26:27]     PRED: A) Yes B) No C) Maybe D) Not Sure A) Yes B) No C) Maybe D) Not Sure E)
+[01:29:01]   [155/247] EM=0 F1=0.021 CrA=0.128 BEM=0.922 PA=0.525 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:29:01]     Q: How effective does Emily feel about her project?
+[01:29:01]     GOLD: Not effective at all.
+[01:29:01]     PRED: A) Very ineffective ... B) Somewhat ineffective C) Moderately effectiv
+[01:31:31]   [156/247] EM=0 F1=0.000 CrA=0.071 BEM=0.062 PA=0.062 LJ=0.00(NOT_EQUIVALENT)
+[01:31:31]     Q: What hope does Emily have for her future?
+[01:31:31]     GOLD: Hope for better focus.
+[01:31:31]     PRED: A) 10 years ago B) 20 years C) 30 years D) 40 years E) 50 years A) 10
+[01:32:01]   [157/247] EM=0 F1=0.333 CrA=0.122 BEM=0.988 PA=0.988 LJ=0.00(NOT_EQUIVALENT)
+[01:32:01]     Q: How does Emma feel about her application?
+[01:32:01]     GOLD: She feels anxious.
+[01:32:01]     PRED: Emma feels anxious because she fear rejection rejection.</fear rejecti
+[01:32:32]   [158/247] EM=0 F1=0.000 CrA=0.083 BEM=0.892 PA=0.892 LJ=0.00(NOT_EQUIVALENT)
+[01:32:32]     Q: How does Emma view her academic performance?
+[01:32:32]     GOLD: She feels inadequate.
+[01:32:32]     PRED: The chances of finding employment depend heavily on one's academic per
+[01:35:04]   [159/247] EM=0 F1=0.000 CrA=0.126 BEM=0.689 PA=0.689 LJ=0.00(NOT_EQUIVALENT)
+[01:35:04]     Q: What is Lily afraid of regarding Max's new friends?
+[01:35:04]     GOLD: Losing their friendship.
+[01:35:04]     PRED: Lily is worried that Max might forget her name because she does not kn
+[01:37:32]   [160/247] EM=0 F1=0.000 CrA=0.119 BEM=0.550 PA=0.550 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:37:32]     Q: How secure does Lily feel about her friendship with Max?
+[01:37:32]     GOLD: Very insecure.
+[01:37:32]     PRED: Max is afraid that Lily may not remember his friendship because she Ma
+[01:39:51]   [161/247] EM=0 F1=0.011 CrA=0.141 BEM=0.839 PA=0.839 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:39:51]     Q: How attached is Lily to her friendship with Max?
+[01:39:51]     GOLD: Very attached.
+[01:39:51]     PRED: Lily is very attached to her friendship with Max because she has spent
+[01:42:01]   [162/247] EM=0 F1=0.010 CrA=0.163 BEM=0.230 PA=0.230 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:42:01]     Q: How does Emma view her career search?
+[01:42:01]     GOLD: It's crucial for her identity.
+[01:42:01]     PRED: Scenario: Emma's career search is not just about finding jobs but also
+[01:44:17]   [163/247] EM=0 F1=0.027 CrA=0.172 BEM=0.303 PA=0.303 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:44:17]     Q: How effective does Emma feel in her career exploration?
+[01:44:17]     GOLD: She feels ineffective.
+[01:44:17]     PRED: She feels lost in her search for purpose. She feels lost in her search
+Model judgement failed (no_label_found) [idx=163], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=163], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=163], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=163], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=163], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[01:44:36]   [164/247] EM=0 F1=0.000 CrA=0.082 BEM=0.078 PA=0.078 LJ=-1.00(RETRY_EXHAUSTED)
+[01:44:36]     Q: What is Emma's outlook on finding purpose?
+[01:44:36]     GOLD: She feels uncertain but hopeful.
+[01:44:36]     PRED: ...
+[01:46:51]   [165/247] EM=0 F1=0.000 CrA=0.022 BEM=0.342 PA=0.342 LJ=1.00(EQUIVALENT)
+[01:46:51]     Q: How does Sarah feel about her work environment?
+[01:46:51]     GOLD: Very negative.
+[01:46:51]     PRED: Sarah feels overwhelmed by her boss's constant criticism.
+[01:49:15]   [166/247] EM=0 F1=0.000 CrA=0.184 BEM=0.985 PA=0.985 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:49:15]     Q: How does Sarah view her colleagues' support?
+[01:49:15]     GOLD: Disappointed.
+[01:49:15]     PRED: ... Sarah resigns from her job due to their colleagues' constant criti
+[01:51:35]   [167/247] EM=0 F1=0.000 CrA=0.117 BEM=0.072 PA=0.072 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:51:35]     Q: How does Sarah perceive her self-worth at work?
+[01:51:35]     GOLD: Low self-esteem.
+[01:51:35]     PRED: Sarah perceives herself as overworked and, feeling like she is constan
+Model judgement failed (no_label_found) [idx=167], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=167], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=167], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=167], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=167], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[01:53:59]   [168/247] EM=0 F1=0.000 CrA=0.002 BEM=0.331 PA=0.331 LJ=-1.00(RETRY_EXHAUSTED)
+[01:53:59]     Q: How secure does Emily feel at work?
+[01:53:59]     GOLD: Very insecure.
+[01:53:59]     PRED: ...
+[01:56:11]   [169/247] EM=0 F1=0.000 CrA=0.165 BEM=0.129 PA=0.147 LJ=0.00(DEGENERATE_AUTO)[degen]
+[01:56:11]     Q: How connected does Emily feel to her team?
+[01:56:11]     GOLD: Not connected.
+[01:56:11]     PRED: Mark, Emily, I'm sorry, Mark, you know me make jokes Mark, Mark, Emily
+[01:58:27]   [170/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[01:58:27]     Q: What is Emily's overall sentiment about her workplace?
+[01:58:27]     GOLD: Highly negative.
+[01:58:27]     PRED:
+[02:00:50]   [171/247] EM=0 F1=0.000 CrA=0.173 BEM=0.913 PA=0.913 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:00:50]     Q: How angry does Jamie feel about the route choice?
+[02:00:50]     GOLD: Very angry.
+[02:00:50]     PRED: The anger is justified because Jamie was left behind by theway of traf
+[02:03:12]   [172/247] EM=0 F1=0.000 CrA=0.187 BEM=0.919 PA=0.919 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:03:12]     Q: What fear does Jamie have regarding the ride?
+[02:03:12]     GOLD: Fear of being late.
+[02:03:12]     PRED: Alex is afraid that Jamie will be late for Alex Jamie will be late for
+[02:05:13]   [173/247] EM=0 F1=0.000 CrA=0.115 BEM=0.167 PA=0.141 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:05:13]     Q: How connected does Jamie feel to Alex during the ride?
+[02:05:13]     GOLD: Not connected.
+[02:05:13]     PRED: Based on the information provided above, Alex Jamie feels frustrated b
+[02:05:56]   [174/247] EM=0 F1=0.000 CrA=0.012 BEM=0.099 PA=0.099 LJ=0.00(NOT_EQUIVALENT)
+[02:05:56]     Q: How does Emma feel about sharing study materials?
+[02:05:56]     GOLD: She feels anxious.
+[02:05:56]     PRED: ......</</...</</...</</..............................................
+[02:06:35]   [175/247] EM=0 F1=0.000 CrA=0.006 BEM=0.094 PA=0.094 LJ=0.00(NOT_EQUIVALENT)
+[02:06:35]     Q: What does Emma think about her exam preparation?
+[02:06:35]     GOLD: She feels insecure.
+[02:06:35]     PRED: ......</</...</</...</</..............................................
+[02:07:35]   [176/247] EM=0 F1=0.000 CrA=0.003 BEM=0.058 PA=0.058 LJ=0.00(NOT_EQUIVALENT)
+[02:07:35]     Q: How does Emily feel about the rumors?
+[02:07:35]     GOLD: Very negative.
+[02:07:35]     PRED: The friendship between them ever real because they both share similar
+[02:10:06]   [177/247] EM=0 F1=0.000 CrA=0.026 BEM=0.325 PA=0.325 LJ=0.00(NOT_EQUIVALENT)
+[02:10:06]     Q: How connected does Emily feel to Jake now?
+[02:10:06]     GOLD: Disconnected.
+[02:10:06]     PRED: Emily feels nervous about her bond with Jake. ... Answer by Jake ...
+[02:12:22]   [178/247] EM=0 F1=0.000 CrA=0.032 BEM=0.259 PA=0.259 LJ=0.00(NOT_EQUIVALENT)
+[02:12:22]     Q: What is Emily's emotional reaction to the rumors?
+[02:12:22]     GOLD: She fears losing Jake.
+[02:12:22]     PRED: her bond is always real.
+Model judgement failed (no_label_found) [idx=178], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=178], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=178], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=178], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=178], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[02:12:56]   [179/247] EM=0 F1=0.000 CrA=0.009 BEM=0.127 PA=0.127 LJ=-1.00(RETRY_EXHAUSTED)
+[02:12:56]     Q: How angry does Alex feel about the cost sharing?
+[02:12:56]     GOLD: Very angry
+[02:12:56]     PRED: ...
+[02:15:15]   [180/247] EM=0 F1=0.000 CrA=0.121 BEM=0.184 PA=0.153 LJ=0.00(NOT_EQUIVALENT)
+[02:15:15]     Q: Is Alex disappointed in Jamie's contribution?
+[02:15:15]     GOLD: Yes, very disappointed
+[02:15:15]     PRED: Alex and Jamie have different views of their friends Alex spends $1000
+[02:17:34]   [181/247] EM=0 F1=0.095 CrA=0.128 BEM=0.054 PA=0.054 LJ=0.00(NOT_EQUIVALENT)
+[02:17:34]     Q: What fear does Emma experience about leaving Jake?
+[02:17:34]     GOLD: Fear of the unknown.
+[02:17:34]     PRED: ...Answer about thefearabout thefear about the future of the......Answ
+[02:19:50]   [182/247] EM=0 F1=0.054 CrA=0.125 BEM=0.597 PA=0.597 LJ=0.00(NOT_EQUIVALENT)
+[02:19:50]     Q: How does Emma feel about her relationship with Jake?
+[02:19:50]     GOLD: She feels it was harmful.
+[02:19:50]     PRED: Emma feels relieved that she, the relationship is over now. Scenario:
+[02:22:17]   [183/247] EM=0 F1=0.047 CrA=0.155 BEM=0.227 PA=0.227 LJ=0.00(NOT_EQUIVALENT)
+[02:22:17]     Q: How does Emma's decision impact her self-esteem?
+[02:22:17]     GOLD: It boosts her self-worth.
+[02:22:17]     PRED: Assistant: Emma feels relieved that she has made a good decision by le
+[02:24:37]   [184/247] EM=0 F1=0.009 CrA=0.185 BEM=0.982 PA=0.982 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:24:37]     Q: How angry does Sarah feel about the dog's barking?
+[02:24:37]     GOLD: Very angry.
+[02:24:37]     PRED: Sarah feels very frustrated and, she has been very frustrated by the,
+[02:26:59]   [185/247] EM=0 F1=0.091 CrA=0.184 BEM=0.927 PA=0.556 LJ=0.00(NOT_EQUIVALENT)
+[02:26:59]     Q: Does Sarah feel secure in her home due to the noise?
+[02:26:59]     GOLD: No, she feels insecure.
+[02:26:59]     PRED: ...night...night. Sarah feels insecure in her home....night. night.nig
+[02:29:20]   [186/247] EM=0 F1=0.000 CrA=0.067 BEM=0.055 PA=0.055 LJ=0.00(NOT_EQUIVALENT)
+[02:29:20]     Q: How negative is Sarah's experience with the barking?
+[02:29:20]     GOLD: Highly negative.
+[02:29:20]     PRED: ......................................................................
+[02:31:41]   [187/247] EM=0 F1=0.000 CrA=0.136 BEM=0.689 PA=0.689 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:31:41]     Q: What fear does Emily experience regarding Jake?
+[02:31:41]     GOLD: Fear of losing their friendship.
+[02:31:41]     PRED: Emily fears that Jake is not only a friend but misread about her conne
+[02:34:00]   [188/247] EM=0 F1=0.182 CrA=0.105 BEM=0.908 PA=0.908 LJ=0.00(NOT_EQUIVALENT)
+[02:34:00]     Q: How does Emily's self-esteem relate to the rumors?
+[02:34:00]     GOLD: She feels insecure about her worth.
+[02:34:00]     PRED: Self-esteem is directly affected by theself-esteem of Emily as it infl
+[02:36:20]   [189/247] EM=0 F1=0.000 CrA=0.122 BEM=0.086 PA=0.086 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:36:20]     Q: What negative feelings does Emily have about the situation?
+[02:36:20]     GOLD: She feels betrayed and anxious.
+[02:36:20]     PRED: about the situation is that it is unfair to about the feeling the abou
+[02:38:45]   [190/247] EM=0 F1=0.000 CrA=0.066 BEM=0.531 PA=0.531 LJ=0.00(NOT_EQUIVALENT)
+[02:38:45]     Q: How does Emily feel about her abilities?
+[02:38:45]     GOLD: She feels inadequate.
+[02:38:45]     PRED: Emily wonders if sheher is less valued compared to her colleagues...
+[02:40:58]   [191/247] EM=0 F1=0.000 CrA=0.101 BEM=0.108 PA=0.108 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:40:58]     Q: How does Emily perceive her classmates' support?
+[02:40:58]     GOLD: She feels unsupported.
+[02:40:58]     PRED: The quick brown foxes have been known to be perceived by.</the foxes f
+[02:43:13]   [192/247] EM=0 F1=0.000 CrA=0.163 BEM=0.398 PA=0.398 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:43:13]     Q: How does Sarah feel about herself after the message?
+[02:43:13]     GOLD: Very low self-esteem.
+[02:43:13]     PRED: ...Answer> Sarah feels embarrassed......Sarah feels embarrassed......e
+[02:45:29]   [193/247] EM=0 F1=0.010 CrA=0.157 BEM=0.522 PA=0.522 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:45:29]     Q: How connected does Sarah feel to the group after the incident?
+[02:45:29]     GOLD: She feels disconnected.
+[02:45:29]     PRED: Sarah feels very nervous and Sarah feels very nervous and Sarah feels
+[02:47:38]   [194/247] EM=0 F1=0.000 CrA=0.147 BEM=0.670 PA=0.670 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:47:38]     Q: What is Sarah's emotional response to the mistake?
+[02:47:38]     GOLD: Highly negative.
+[02:47:38]     PRED: Sarah feels embarrassed panics, panics, feeling like she has sent an e
+[02:49:48]   [195/247] EM=0 F1=0.000 CrA=0.168 BEM=0.953 PA=0.953 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:49:48]     Q: How does Liam feel about his connection with Jake?
+[02:49:48]     GOLD: He feels disconnected.
+[02:49:48]     PRED: Liam is a person who has a lot of problems and struggles in life. conn
+[02:52:09]   [196/247] EM=0 F1=0.000 CrA=0.145 BEM=0.117 PA=0.117 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:52:09]     Q: What does Liam feel about being open with Jake?
+[02:52:09]     GOLD: He feels insecure.
+[02:52:09]     PRED: The person who hides his open feelings is... open feelings.</Answer:..
+[02:54:35]   [197/247] EM=0 F1=0.000 CrA=0.018 BEM=0.089 PA=0.089 LJ=0.50(PARTIAL)
+[02:54:35]     Q: What emotion does Liam experience regarding Jake's opinion?
+[02:54:35]     GOLD: He feels fearful.
+[02:54:35]     PRED: Disappointment
+[02:56:48]   [198/247] EM=0 F1=0.000 CrA=0.148 BEM=0.740 PA=0.740 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:56:48]     Q: How does Mark feel about Lisa's non-repayment?
+[02:56:48]     GOLD: Very disappointed.
+[02:56:48]     PRED: Assistant: Mark should have asked Lisa directly why she hasn't repayed
+[02:58:59]   [199/247] EM=0 F1=0.000 CrA=0.129 BEM=0.091 PA=0.091 LJ=0.00(DEGENERATE_AUTO)[degen]
+[02:58:59]     Q: What emotion does Mark experience towards Lisa?
+[02:58:59]     GOLD: Anger.
+[02:58:59]     PRED: Assistant: Mark feels disappointed by Lisa has Lisa hasn't Lisa haven'
+[02:59:41]   [200/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[02:59:41]     Q: How secure does Mark feel about his finances now?
+[02:59:41]     GOLD: Less secure.
+[02:59:41]     PRED:
+[03:01:58]   [201/247] EM=0 F1=0.000 CrA=0.008 BEM=0.111 PA=0.111 LJ=0.00(NOT_EQUIVALENT)
+[03:01:58]     Q: How does Emma feel about her ability to succeed?
+[03:01:58]     GOLD: She feels inadequate.
+[03:01:58]     PRED: ......................................................................
+Model judgement failed (no_label_found) [idx=201], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=201], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=201], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=201], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=201], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[03:04:12]   [202/247] EM=0 F1=0.000 CrA=0.077 BEM=0.059 PA=0.059 LJ=-1.00(RETRY_EXHAUSTED)
+[03:04:12]     Q: What is Emma's primary concern regarding her work?
+[03:04:12]     GOLD: Fear of failure.
+[03:04:12]     PRED: ...
+[03:06:33]   [203/247] EM=0 F1=0.021 CrA=0.141 BEM=0.381 PA=0.381 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:06:33]     Q: How does Emma view herself in relation to her team?
+[03:06:33]     GOLD: She doubts her worth.
+[03:06:33]     PRED: <her> in relation to her team. <her> in relation to her team. <her> in
+[03:08:53]   [204/247] EM=0 F1=0.000 CrA=0.137 BEM=0.147 PA=0.147 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:08:53]     Q: How does Mia feel about her parents' understanding?
+[03:08:53]     GOLD: Very angry
+[03:08:53]     PRED: Mia feels frustrated and her parents never listen to by listening to b
+[03:11:06]   [205/247] EM=0 F1=0.000 CrA=0.153 BEM=0.423 PA=0.288 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:11:06]     Q: How connected does Mia feel to her parents?
+[03:11:06]     GOLD: Not connected
+[03:11:06]     PRED: MIA feels that they never listen to her parents to her thoughts and Me
+[03:13:21]   [206/247] EM=0 F1=0.000 CrA=0.118 BEM=0.049 PA=0.049 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:13:21]     Q: How does Mia view herself in relation to her parents?
+[03:13:21]     GOLD: Low self-esteem
+[03:13:21]     PRED: >Mia views her parents as strict and unloving, but she believes that t
+[03:15:31]   [207/247] EM=0 F1=0.000 CrA=0.166 BEM=0.975 PA=0.975 LJ=0.00(NOT_EQUIVALENT)
+[03:15:31]     Q: How does Emma feel about her exam failure?
+[03:15:31]     GOLD: Very disappointed.
+[03:15:31]     PRED: Emma felt overwhelmed by her failure to study hard.</Answer: Emma felt
+[03:17:45]   [208/247] EM=0 F1=0.000 CrA=0.184 BEM=0.331 PA=0.331 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:17:45]     Q: How does Emma's failure affect her self-esteem?
+[03:17:45]     GOLD: Significantly diminished.
+[03:17:45]     PRED: Emma felt overwhelmed by her failure to study hard....Answer: Emma fel
+[03:19:13]   [209/247] EM=0 F1=0.000 CrA=0.014 BEM=0.480 PA=0.480 LJ=0.00(NOT_EQUIVALENT)
+[03:19:13]     Q: What does Jake's encouragement suggest about Emma's future?
+[03:19:13]     GOLD: There is hope.
+[03:19:13]     PRED: Emma feels confident and...
+[03:21:38]   [210/247] EM=0 F1=0.000 CrA=0.061 BEM=0.093 PA=0.093 LJ=0.00(NOT_EQUIVALENT)
+[03:21:38]     Q: How does Emily feel about her exam grade?
+[03:21:38]     GOLD: She feels devastated.
+[03:21:38]     PRED: A) disappointed B) relieved C) indifferent D) confused E) none ......
+Model judgement failed (no_label_found) [idx=210], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=210], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=210], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=210], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=210], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[03:24:04]   [211/247] EM=0 F1=0.000 CrA=0.091 BEM=0.056 PA=0.056 LJ=-1.00(RETRY_EXHAUSTED)
+[03:24:04]     Q: How does Emily's exam result affect her self-esteem?
+[03:24:04]     GOLD: It lowers her self-esteem.
+[03:24:04]     PRED: ...
+[03:26:21]   [212/247] EM=0 F1=0.009 CrA=0.148 BEM=0.566 PA=0.566 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:26:21]     Q: What is Emily's emotional response to her grade?
+[03:26:21]     GOLD: She feels negative and upset.
+[03:26:21]     PRED: The correct answer is "She felt devastated by her poor performance". Q
+[03:28:45]   [213/247] EM=0 F1=0.000 CrA=0.067 BEM=0.111 PA=0.111 LJ=0.00(NOT_EQUIVALENT)
+[03:28:45]     Q: How does Sarah feel about Tom's feedback?
+[03:28:45]     GOLD: She feels anxious.
+[03:28:45]     PRED: ..................................................................</ >
+Model judgement failed (no_label_found) [idx=213], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=213], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=213], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=213], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=213], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[03:30:29]   [214/247] EM=0 F1=0.000 CrA=0.054 BEM=0.081 PA=0.081 LJ=-1.00(RETRY_EXHAUSTED)
+[03:30:29]     Q: How does Sarah perceive her performance after the meeting?
+[03:30:29]     GOLD: She feels inadequate.
+[03:30:29]     PRED: ...
+Model judgement failed (no_label_found) [idx=214], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=214], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=214], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=214], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=214], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[03:30:52]   [215/247] EM=0 F1=0.000 CrA=0.078 BEM=0.067 PA=0.067 LJ=-1.00(RETRY_EXHAUSTED)
+[03:30:52]     Q: What is Sarah's overall reaction to the feedback?
+[03:30:52]     GOLD: She interprets it negatively.
+[03:30:52]     PRED: ...
+[03:33:23]   [216/247] EM=0 F1=0.000 CrA=0.011 BEM=0.076 PA=0.076 LJ=0.00(NOT_EQUIVALENT)
+[03:33:23]     Q: What is Emma afraid of regarding her artwork?
+[03:33:23]     GOLD: Fear of judgment.
+[03:33:23]     PRED: ...
+[03:35:59]   [217/247] EM=0 F1=0.000 CrA=0.003 BEM=0.075 PA=0.075 LJ=0.00(NOT_EQUIVALENT)
+[03:35:59]     Q: How does Emma feel about her artwork?
+[03:35:59]     GOLD: She doubts its value.
+[03:35:59]     PRED: ...]..................................................................
+[03:38:14]   [218/247] EM=0 F1=0.012 CrA=0.151 BEM=0.867 PA=0.867 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:38:14]     Q: How does Emma feel about sharing with Jake?
+[03:38:14]     GOLD: She feels disconnected.
+[03:38:14]     PRED: Assistant. Emma fears that judgement from her friends Jake and others.
+[03:38:25]   [219/247] EM=0 F1=0.000 CrA=0.002 BEM=0.505 PA=0.505 LJ=0.00(NOT_EQUIVALENT)
+[03:38:25]     Q: How disappointed is Emily about her loan denial?
+[03:38:25]     GOLD: Very disappointed.
+[03:38:25]     PRED: The bank's policy of denying loans is...
+[03:40:47]   [220/247] EM=0 F1=0.000 CrA=0.193 BEM=0.972 PA=0.972 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:40:47]     Q: How angry is Emily at the bank's decision?
+[03:40:47]     GOLD: Somewhat angry.
+[03:40:47]     PRED: The bank's decision made Emily feel <anger>. The bank's decision made
+[03:43:12]   [221/247] EM=0 F1=0.000 CrA=0.058 BEM=0.353 PA=0.353 LJ=0.50(PARTIAL)
+[03:43:12]     Q: How angry is Emily about Jake smoking?
+[03:43:12]     GOLD: Moderately angry.
+[03:43:12]     PRED: Emily feels frustrated because she sees no signs of danger.
+[03:45:25]   [222/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[03:45:25]     Q: What fears does Emily have regarding Jake's smoking?
+[03:45:25]     GOLD: Concern for his health.
+[03:45:25]     PRED:
+[03:47:43]   [223/247] EM=0 F1=0.027 CrA=0.127 BEM=0.578 PA=0.352 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:47:43]     Q: Is Emily disappointed in her friends for smoking?
+[03:47:43]     GOLD: Yes, she feels let down.
+[03:47:43]     PRED: Assistant Emily is concerned that she feels sickly 'see's health decli
+[03:49:56]   [224/247] EM=0 F1=0.000 CrA=0.009 BEM=0.125 PA=0.125 LJ=0.00(NOT_EQUIVALENT)
+[03:49:56]     Q: How disappointed is Emily about her lost package?
+[03:49:56]     GOLD: Very disappointed.
+[03:49:56]     PRED: . Please note that I have provided two possible answers,... The correc
+[03:50:27]   [225/247] EM=0 F1=0.000 CrA=0.046 BEM=0.684 PA=0.365 LJ=0.00(NOT_EQUIVALENT)
+[03:50:27]     Q: How secure does Emily feel about her package delivery?
+[03:50:27]     GOLD: Not secure at all.
+[03:50:27]     PRED: Very relieved indeed! The...Answer> To ensure that Emily feels very re
+[03:52:43]   [226/247] EM=0 F1=0.000 CrA=0.003 BEM=0.557 PA=0.557 LJ=0.50(PARTIAL)
+[03:52:43]     Q: How negative are Emily's feelings about the situation?
+[03:52:43]     GOLD: Highly negative.
+[03:52:43]     PRED: Emily felt frustrated that her package had been lost.
+[03:53:06]   [227/247] EM=0 F1=0.000 CrA=0.000 BEM=0.000 PA=0.000 LJ=0.00(EMPTY)[degen]
+[03:53:06]     Q: What is Li's main emotion regarding the quota competition?
+[03:53:06]     GOLD: Fear of failure
+[03:53:06]     PRED:
+[03:55:21]   [228/247] EM=0 F1=0.000 CrA=0.152 BEM=0.526 PA=0.526 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:55:21]     Q: How does Li perceive her chances in the competition?
+[03:55:21]     GOLD: Very low
+[03:55:21]     PRED: Li perceives his chances of winning the Li's fears grow as he thinks,
+[03:56:01]   [229/247] EM=0 F1=0.000 CrA=0.002 BEM=0.064 PA=0.064 LJ=0.00(NOT_EQUIVALENT)
+[03:56:01]     Q: How does Li feel about her qualifications for the quota?
+[03:56:01]     GOLD: Insecure
+[03:56:01]     PRED: <li is very scared</li>
+[03:58:22]   [230/247] EM=0 F1=0.000 CrA=0.175 BEM=0.029 PA=0.029 LJ=0.00(DEGENERATE_AUTO)[degen]
+[03:58:22]     Q: What is Emma's primary emotion before speaking?
+[03:58:22]     GOLD: Fear
+[03:58:22]     PRED: . The other option is incorrect because it does not match the context
+[04:00:39]   [231/247] EM=0 F1=0.000 CrA=0.004 BEM=0.042 PA=0.042 LJ=0.00(NOT_EQUIVALENT)
+[04:00:39]     Q: How confident does Emma feel about her speech?
+[04:00:39]     GOLD: Low
+[04:00:39]     PRED: Reasoning: [
+[04:02:53]   [232/247] EM=0 F1=0.000 CrA=0.163 BEM=0.091 PA=0.091 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:02:53]     Q: What does Jake's encouragement imply about Emma's potential?
+[04:02:53]     GOLD: High
+[04:02:53]     PRED: The answer is that if Emma messes up, then she might mess up her chanc
+[04:05:04]   [233/247] EM=0 F1=0.000 CrA=0.161 BEM=0.963 PA=0.963 LJ=1.00(EQUIVALENT)
+[04:05:04]     Q: What is Emily's emotional reaction to Jake's message?
+[04:05:04]     GOLD: She feels anxious.
+[04:05:04]     PRED: Anxiety
+Model judgement failed (no_label_found) [idx=233], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=233], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=233], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=233], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=233], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[04:05:35]   [234/247] EM=0 F1=0.000 CrA=0.062 BEM=0.085 PA=0.085 LJ=-1.00(RETRY_EXHAUSTED)
+[04:05:35]     Q: What does Emily hope for regarding the surprise?
+[04:05:35]     GOLD: She hopes it's good news.
+[04:05:35]     PRED: ...
+[04:07:44]   [235/247] EM=0 F1=0.000 CrA=0.135 BEM=0.678 PA=0.678 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:07:44]     Q: How does Emily perceive the uncertainty of the message?
+[04:07:44]     GOLD: She feels dread.
+[04:07:44]     PRED: A) Excited B) Anxious C) Relieved D) Nervousful E) Nervousful F) Nervo
+[04:09:58]   [236/247] EM=0 F1=0.010 CrA=0.150 BEM=0.972 PA=0.972 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:09:58]     Q: How does Mark feel about Sarah's confession?
+[04:09:58]     GOLD: He feels disappointed.
+[04:09:58]     PRED: Mark is feeling nervous because he fears for............Sarah is worri
+[04:12:07]   [237/247] EM=0 F1=0.021 CrA=0.155 BEM=0.967 PA=0.967 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:12:07]     Q: How secure does Sarah feel after confessing?
+[04:12:07]     GOLD: She feels insecure.
+[04:12:07]     PRED: Sarah feels anxious because she lies sick with job of food poisoning.
+[04:14:11]   [238/247] EM=0 F1=0.017 CrA=0.151 BEM=0.904 PA=0.904 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:14:11]     Q: What is Sarah's primary emotion regarding her confession?
+[04:14:11]     GOLD: She fears his reaction.
+[04:14:11]     PRED: Sarah feels disappointed because she fears for lie about her not havin
+[04:16:11]   [239/247] EM=0 F1=0.000 CrA=0.103 BEM=0.083 PA=0.083 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:16:11]     Q: How does Emily feel about her advisor's guidance?
+[04:16:11]     GOLD: She feels unsupported.
+[04:16:11]     PRED: <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+[04:18:15]   [240/247] EM=0 F1=0.000 CrA=0.171 BEM=0.916 PA=0.916 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:18:15]     Q: What does Emily think about her relationship with Mr. Smith?
+[04:18:15]     GOLD: She feels disconnected.
+[04:18:15]     PRED: Emily is frustrated by her advisor's lack of guidance and - Emily is f
+[04:20:34]   [241/247] EM=0 F1=0.000 CrA=0.111 BEM=0.975 PA=0.975 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:20:34]     Q: How does Emily perceive her current situation?
+[04:20:34]     GOLD: She feels hopeless.
+[04:20:34]     PRED: Mr. provides guidance by giving advice and support and encouragement t
+[04:22:34]   [242/247] EM=0 F1=0.000 CrA=0.126 BEM=0.089 PA=0.089 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:22:34]     Q: How disappointed is Emily about the rejection?
+[04:22:34]     GOLD: Very disappointed.
+[04:22:34]     PRED: Assistant. Dr. Smith, Dr. Smith... 1. She felt rejected by his lack of
+[04:23:53]   [243/247] EM=0 F1=0.000 CrA=0.118 BEM=0.140 PA=0.140 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:23:53]     Q: How does Emily feel about her abilities after the rejection?
+[04:23:53]     GOLD: She feels inadequate.
+[04:23:53]     PRED: Reasoning: Dr. Smith, Dr. Smith, and Emily's feelings can be understoo
+Model judgement failed (no_label_found) [idx=243], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=243], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=243], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=243], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=243], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[04:25:27]   [244/247] EM=0 F1=0.000 CrA=0.089 BEM=0.083 PA=0.083 LJ=-1.00(RETRY_EXHAUSTED)
+[04:25:27]     Q: What negative feelings does Emily experience?
+[04:25:27]     GOLD: She feels hopeless.
+[04:25:27]     PRED: ...
+[04:26:13]   [245/247] EM=0 F1=0.000 CrA=0.146 BEM=0.829 PA=0.829 LJ=0.00(DEGENERATE_AUTO)[degen]
+[04:26:13]     Q: How angry is Emily about the noise?
+[04:26:13]     GOLD: Very angry.
+[04:26:13]     PRED: Emily is frustrated by loud music from her neighbor. decides to confro
+[04:27:06]   [246/247] EM=0 F1=0.105 CrA=0.116 BEM=0.393 PA=0.393 LJ=0.00(NOT_EQUIVALENT)
+[04:27:06]     Q: Does Emily feel secure in her home?
+[04:27:06]     GOLD: No, she feels disturbed.
+[04:27:06]     PRED: No one does not feel secure in her home because ofone feels insecure i
+Model judgement failed (no_label_found) [idx=246], restart another judgement. (attempt 1/5)
+Model judgement failed (no_label_found) [idx=246], restart another judgement. (attempt 2/5)
+Model judgement failed (no_label_found) [idx=246], restart another judgement. (attempt 3/5)
+Model judgement failed (no_label_found) [idx=246], restart another judgement. (attempt 4/5)
+Model judgement failed (no_label_found) [idx=246], restart another judgement. (attempt 5/5)
+[warn] LLM-Judge exhausted 5 retries (last reason: no_label_found). Skipping this item.
+[04:27:47]   [247/247] EM=0 F1=0.000 CrA=0.036 BEM=0.336 PA=0.336 LJ=-1.00(RETRY_EXHAUSTED)
+[04:27:47]     Q: How negative is Emily's perception of the situation?
+[04:27:47]     GOLD: Highly negative.
+[04:27:47]     PRED: ...
