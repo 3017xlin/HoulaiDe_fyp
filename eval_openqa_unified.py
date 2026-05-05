@@ -322,7 +322,7 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
     try:
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.0,
             max_tokens=200,
