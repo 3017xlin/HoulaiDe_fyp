@@ -248,10 +248,10 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
             temperature=0.0, max_tokens=200,
         )
         text = resp.choices[0].message.content.strip()
-        for label, score in LABEL_TO_SCORE.items():
-            if f"Label: {label}" in text or text.endswith(label):
-                return score, label, text
-        return 0.0, "NOT_EQUIVALENT", text
+        for label in ["NOT_EQUIVALENT", "PARTIAL", "EQUIVALENT"]:
+            if f"Label: {label}" in text:
+                return LABEL_TO_SCORE[label], label, text
+        return -1.0, "PARSE_FAIL", text
     except Exception as e:
         print(f"[warn] LLM-Judge API error: {e}", flush=True)
         return -1.0, "ERROR", str(e)
@@ -654,7 +654,7 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
             log(f"progress: {idx+1}/{len(examples)}")
 
     valid_lj = [s for s in ljs if s >= 0]
-    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR")]
+    valid_labels = [l for l in lj_labels if l not in ("SKIPPED", "ERROR", "PARSE_FAIL")]
     n_valid = len(valid_labels) if valid_labels else 1
     lj_dist = {
         "EQUIVALENT": sum(1 for l in valid_labels if l == "EQUIVALENT") / n_valid,
