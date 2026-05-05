@@ -1,4 +1,5 @@
 import json
+import csv
 import re
 import time
 import random
@@ -11,7 +12,7 @@ from collections import Counter, defaultdict
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, StoppingCriteria, StoppingCriteriaList, BitsAndBytesConfig
 from peft import PeftModel
-from sentence_transformers import CrossEncoder
+from sentence_transformers import SentenceTransformer, CrossEncoder, util
 from openai import OpenAI
 
 
@@ -88,6 +89,31 @@ def semsim_bem(bem_tok, bem_mdl, pred: str, gold: str, question: str) -> float:
         logits = bem_mdl(**inputs).logits
     probs = torch.nn.functional.softmax(logits, dim=-1)
     return float(probs[0, 1].item())
+
+
+
+def semsim_bia(st_model, pred, gold):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([pred, gold], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_biq(st_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    emb = st_model.encode([f"{question} {pred}", f"{question} {gold}"], convert_to_tensor=True)
+    return float(util.cos_sim(emb[0], emb[1]).item())
+
+
+def semsim_crq(cross_model, pred, gold, question):
+    pred, gold = str(pred).strip(), str(gold).strip()
+    if not pred and not gold: return 1.0
+    if not pred or not gold: return 0.0
+    score = cross_model.predict([(f"{question} {pred}", f"{question} {gold}")])[0]
+    return float(max(0.0, min(score / 5.0, 1.0)))
 
 
 def semsim_cra(cross_model, pred: str, gold: str) -> float:
@@ -592,7 +618,7 @@ def get_prompt_builder(mode: str):
 
 @torch.no_grad()
 def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
-             bem_tok, bem_mdl, cross_model, oai_client, prompt_mode: str, extraction_mode: str):
+             st_model, bem_tok, bem_mdl, cross_model, oai_client, prompt_mode: str, extraction_mode: str):
     device = next(model.parameters()).device
     model.eval()
     model.config.use_cache = True
@@ -601,7 +627,8 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
     prompt_builder = get_prompt_builder(prompt_mode)
 
     em_hits = 0
-    f1s, cras, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], []
+    records = []
+    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], [], []
 
     for idx, ex in enumerate(examples):
         prompt = build_chat_prompt(tokenizer, prompt_builder(ex))
@@ -639,16 +666,37 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
 
         em_hits += int(normalize_text(pred) == normalize_text(gold))
         f1s.append(f1_word(pred, gold))
+        bia = semsim_bia(st_model, pred, gold)
+        biq = semsim_biq(st_model, pred, gold, question)
         cra = semsim_cra(cross_model, pred, gold)
+        crq = semsim_crq(cross_model, pred, gold, question)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
         pa = semsim_pa_bem(bem, cra, pred, gold)
         lj_score, lj_label, lj_reasoning = llm_judge(oai_client, pred, gold, question)
+        bias.append(bia)
+        biqs.append(biq)
         cras.append(cra)
+        crqs.append(crq)
         bems.append(bem)
         pa_bems.append(pa)
         ljs.append(lj_score)
         lj_labels.append(lj_label)
         lj_reasonings.append(lj_reasoning)
+
+        records.append({
+            "idx": idx, "Q": question, "GOLD": gold, "PRED": pred,
+            "EM": int(normalize_text(pred) == normalize_text(gold)),
+            "F1": round(f1_word(pred, gold), 4),
+            "BiA": round(bia, 4), "BiQ": round(biq, 4),
+            "CrA": round(cra, 4), "CrQ": round(crq, 4),
+            "BEM": round(bem, 4), "PA": round(pa, 4),
+            "LJ": lj_score, "LJ_label": lj_label,
+        })
+
+        log(f"  [{idx+1}/{len(examples)}] EM={int(normalize_text(pred)==normalize_text(gold))} F1={f1_word(pred,gold):.3f} BiA={bia:.3f} BiQ={biq:.3f} CrA={cra:.3f} CrQ={crq:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
+        log(f"    Q: {question[:70]}")
+        log(f"    GOLD: {gold[:70]}")
+        log(f"    PRED: {pred[:70]}")
 
         if (idx + 1) % 20 == 0 or (idx + 1) == len(examples):
             log(f"progress: {idx+1}/{len(examples)}")
@@ -666,11 +714,15 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
         "n_eval": len(examples),
         "exact_match": em_hits / n,
         "token_f1": sum(f1s) / n,
+        "BiA": sum(bias) / n,
+        "BiQ": sum(biqs) / n,
         "CrA": sum(cras) / n,
+        "CrQ": sum(crqs) / n,
         "BEM": sum(bems) / n,
         "PA_BEM": sum(pa_bems) / n,
         "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
         "LLM_Judge_dist": lj_dist,
+        "records": records,
         "lj_reasonings": lj_reasonings,
     }
 
@@ -717,6 +769,7 @@ def main():
     model = PeftModel.from_pretrained(model, ckpt_path)
 
     log("loading similarity models...")
+    st_model = SentenceTransformer("all-MiniLM-L6-v2")
     cross_model = CrossEncoder("cross-encoder/stsb-roberta-large")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
     bem_mdl = AutoModelForSequenceClassification.from_pretrained("kortukov/answer-equivalence-bem")
@@ -732,6 +785,7 @@ def main():
         tokenizer=tokenizer,
         examples=eval_examples,
         max_new_tokens=MAX_NEW_TOKENS,
+        st_model=st_model,
         bem_tok=bem_tok,
         bem_mdl=bem_mdl,
         cross_model=cross_model,
@@ -743,35 +797,33 @@ def main():
     title = f"[PROMPT={args.prompt_mode} | EXTRACTION={args.extraction_mode}]"
     log(title)
     log(f"N = {metrics['n_eval']}")
-    log(f"Exact Match  = {metrics['exact_match']:.4f}")
-    log(f"Token F1     = {metrics['token_f1']:.4f}")
-    log(f"CrA          = {metrics['CrA']:.4f}")
-    log(f"BEM          = {metrics['BEM']:.4f}")
-    log(f"PA-BEM       = {metrics['PA_BEM']:.4f}")
-    log(f"LLM-Judge    = {metrics['LLM_Judge']:.4f}")
+    for k in ["exact_match", "token_f1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA_BEM", "LLM_Judge"]:
+        if k in metrics:
+            log(f"  {k:12s} = {metrics[k]:.4f}")
     dist = metrics['LLM_Judge_dist']
-    log(f"LLM-Judge dist: EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
+    log(f"  LLM dist: EQ={dist['EQUIVALENT']:.2%} PAR={dist['PARTIAL']:.2%} NEQ={dist['NOT_EQUIVALENT']:.2%}")
 
+    # Save summary
     out_name = f"openqa_eval_{args.prompt_mode}_{args.extraction_mode}.txt"
     with open(out_name, "w", encoding="utf-8") as f:
         f.write(title + "\n")
         f.write(f"N = {metrics['n_eval']}\n")
-        f.write(f"Exact Match = {metrics['exact_match']:.4f}\n")
-        f.write(f"Token F1 = {metrics['token_f1']:.4f}\n")
-        f.write(f"CrA = {metrics['CrA']:.4f}\n")
-        f.write(f"BEM = {metrics['BEM']:.4f}\n")
-        f.write(f"PA-BEM = {metrics['PA_BEM']:.4f}\n")
-        f.write(f"LLM-Judge = {metrics['LLM_Judge']:.4f}\n")
+        for k in ["exact_match", "token_f1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA_BEM", "LLM_Judge"]:
+            if k in metrics:
+                f.write(f"{k} = {metrics[k]:.6f}\n")
         dist = metrics['LLM_Judge_dist']
-        f.write(f"LLM-Judge EQUIVALENT = {dist['EQUIVALENT']:.4f}\n")
-        f.write(f"LLM-Judge PARTIAL = {dist['PARTIAL']:.4f}\n")
-        f.write(f"LLM-Judge NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
+        for dk, dv in dist.items():
+            f.write(f"LLM_{dk} = {dv:.4f}\n")
+    log(f"Saved summary: {out_name}")
 
-    rfile = f"openqa_eval_{args.prompt_mode}_{args.extraction_mode}_llm_judge.jsonl"
-    with open(rfile, "w", encoding="utf-8") as f:
-        for i, r in enumerate(metrics.get("lj_reasonings", [])):
-            f.write(json.dumps({"idx": i, "reasoning": r}, ensure_ascii=False) + "\n")
-    log(f"Saved LLM-Judge reasoning: {rfile}")
+    # Save per-example CSV
+    csv_file = f"merged_ablation_{args.prompt_mode}_{args.extraction_mode}.csv"
+    csv_fields = ["idx", "Q", "GOLD", "PRED", "EM", "F1", "BiA", "BiQ", "CrA", "CrQ", "BEM", "PA", "LJ", "LJ_label"]
+    with open(csv_file, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=csv_fields)
+        writer.writeheader()
+        writer.writerows(metrics.get("records", []))
+    log(f"Saved CSV: {csv_file}")
 
 
 if __name__ == "__main__":
