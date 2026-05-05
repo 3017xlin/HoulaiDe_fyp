@@ -460,7 +460,7 @@ def load_model(model_key, task):
 @torch.no_grad()
 def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client):
     device = next(model.parameters()).device
-    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels, lj_reasonings = 0, [], [], [], [], [], [], [], []
+    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels, lj_reasonings = 0, [], [], [], [], [], [], []
 
     for i, ex in enumerate(examples, 1):
         prompt = build_chat_prompt(tokenizer, ex["prompt"])
