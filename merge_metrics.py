@@ -4,10 +4,10 @@ import re, csv, sys
 
 def parse_main_log(text):
     pattern = re.compile(
-        r'\[(\d+)/\d+\]\s+EM=(\d+)\s+F1=([0-9.]+)\s+CrA=([0-9.]+)\s+BEM=([0-9.]+)\s+PA=([0-9.]+)\s+LJ=([0-9.]+)\((\w+)\).*?\n'
+        r'\[(\d+)/\d+\]\s+EM=(\d+)\s+F1=([0-9.]+)\s+CrA=([0-9.]+)\s+BEM=([0-9.]+)\s+PA=([0-9.]+)\s+LJ=([0-9.-]+)\((\w+)\).*?\n'
         r'.*?Q: (.*?)\n'
         r'.*?GOLD: (.*?)\n'
-        r'.*?PRED: (.*?)(?:\n|$)',
+        r'.*?PRED:(.*?)(?:\n|$)',
         re.MULTILINE
     )
     records = {}
