@@ -70,8 +70,11 @@ def main():
         r["biq"] = round(biq, 4)
         r["crq"] = round(crq, 4)
 
-        if (i + 1) % 10 == 0 or (i + 1) == len(records):
-            print(f"  [{i+1}/{len(records)}] BiA={bia:.3f} BiQ={biq:.3f} CrQ={crq:.3f}")
+        print(f"  [{i+1}/{len(records)}] BiA={bia:.3f} BiQ={biq:.3f} CrQ={crq:.3f}")
+        print(f"    Q: {question[:70]}")
+        print(f"    GOLD: {gold[:70]}")
+        print(f"    PRED: {pred[:70]}")
+        print("-" * 80)
 
     n = len(records)
     avg_bia = sum(bia_list) / n
