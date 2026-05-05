@@ -314,10 +314,10 @@ LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
 def llm_judge(client, pred: str, gold: str, question: str) -> float:
     if client is None:
-        return -1.0, "SKIPPED"
+        return -1.0, "SKIPPED", ""
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred:
-        return 0.0, "NOT_EQUIVALENT"
+        return 0.0, "NOT_EQUIVALENT", "empty candidate"
 
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
     try:
@@ -330,11 +330,11 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
         text = resp.choices[0].message.content.strip()
         for label, score in LABEL_TO_SCORE.items():
             if f"Label: {label}" in text or text.endswith(label):
-                return score, label
-        return 0.0, "NOT_EQUIVALENT"
+                return score, label, text
+        return 0.0, "NOT_EQUIVALENT", text
     except Exception as e:
         print(f"[warn] LLM-Judge API error: {e}", flush=True)
-        return -1.0, "ERROR"
+        return -1.0, "ERROR", str(e)
 
 
 # =========================
@@ -460,7 +460,7 @@ def load_model(model_key, task):
 @torch.no_grad()
 def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_client):
     device = next(model.parameters()).device
-    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels = 0, [], [], [], [], [], []
+    em_hits, f1s, cras, bems, pa_bems, llm_scores, lj_labels, lj_reasonings = 0, [], [], [], [], [], [], [], []
 
     for i, ex in enumerate(examples, 1):
         prompt = build_chat_prompt(tokenizer, ex["prompt"])
@@ -483,7 +483,7 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, question)
         pa = semsim_pa_bem(bem, cra, pred, gold)
-        lj_score, lj_label = llm_judge(oai_client, pred, gold, question)
+        lj_score, lj_label, lj_reasoning = llm_judge(oai_client, pred, gold, question)
 
         em_hits += em
         f1s.append(f1)
@@ -492,6 +492,7 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         pa_bems.append(pa)
         llm_scores.append(lj_score)
         lj_labels.append(lj_label)
+        lj_reasonings.append(lj_reasoning)
 
         if i <= 5 or i % 50 == 0 or i == len(examples):
             log(f"  [{i}/{len(examples)}] EM={em} F1={f1:.3f} CrA={cra:.3f} BEM={bem:.3f} PA={pa:.3f} LJ={lj_score:.2f}({lj_label})")
@@ -521,6 +522,7 @@ def evaluate(model, tokenizer, examples, cross_model, bem_tok, bem_mdl, oai_clie
         "llm_judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
         "llm_judge_n": len(valid_lj),
         "llm_judge_dist": lj_dist,
+        "lj_reasonings": lj_reasonings,
     }
 
 
@@ -603,6 +605,12 @@ def main():
         f.write(f"llm_judge_PARTIAL = {dist['PARTIAL']:.4f}\n")
         f.write(f"llm_judge_NOT_EQUIVALENT = {dist['NOT_EQUIVALENT']:.4f}\n")
     log(f"Saved: {out_file}")
+
+    reasoning_file = f"openqa_eval_{args.task}_{args.model}_llm_judge.jsonl"
+    with open(reasoning_file, "w", encoding="utf-8") as f:
+        for i, r in enumerate(metrics.get("lj_reasonings", [])):
+            f.write(json.dumps({"idx": i, "reasoning": r}, ensure_ascii=False) + "\n")
+    log(f"Saved LLM-Judge reasoning: {reasoning_file}")
 
 
 if __name__ == "__main__":

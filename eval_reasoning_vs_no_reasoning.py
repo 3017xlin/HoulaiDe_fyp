@@ -146,10 +146,10 @@ LABEL_TO_SCORE = {"EQUIVALENT": 1.0, "PARTIAL": 0.5, "NOT_EQUIVALENT": 0.0}
 
 def llm_judge(client, pred: str, gold: str, question: str) -> float:
     if client is None:
-        return -1.0, "SKIPPED"
+        return -1.0, "SKIPPED", ""
     pred, gold = str(pred).strip(), str(gold).strip()
     if not pred:
-        return 0.0, "NOT_EQUIVALENT"
+        return 0.0, "NOT_EQUIVALENT", "empty candidate"
     prompt = LLM_JUDGE_PROMPT.format(question=question, gold=gold, pred=pred)
     try:
         resp = client.chat.completions.create(
@@ -160,11 +160,11 @@ def llm_judge(client, pred: str, gold: str, question: str) -> float:
         text = resp.choices[0].message.content.strip()
         for label, score in LABEL_TO_SCORE.items():
             if f"Label: {label}" in text or text.endswith(label):
-                return score, label
-        return 0.0, "NOT_EQUIVALENT"
+                return score, label, text
+        return 0.0, "NOT_EQUIVALENT", text
     except Exception as e:
         print(f"[warn] LLM-Judge API error: {e}", flush=True)
-        return -1.0, "ERROR"
+        return -1.0, "ERROR", str(e)
 
 
 def try_json_loads(s: str):
@@ -586,7 +586,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
     builder = prompt_reasoning if mode == "reasoning" else prompt_no_reasoning
 
     em = 0
-    f1s, cras, bems, pa_bems, ljs, lj_labels = [], [], [], [], [], []
+    f1s, cras, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
@@ -613,12 +613,13 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         cra = semsim_cra(cross_model, pred, gold)
         bem = semsim_bem(bem_tok, bem_mdl, pred, gold, ex["question"])
         pa = semsim_pa_bem(bem, cra, pred, gold)
-        lj_score, lj_label = llm_judge(oai_client, pred, gold, ex["question"])
+        lj_score, lj_label, lj_reasoning = llm_judge(oai_client, pred, gold, ex["question"])
         cras.append(cra)
         bems.append(bem)
         pa_bems.append(pa)
         ljs.append(lj_score)
         lj_labels.append(lj_label)
+        lj_reasonings.append(lj_reasoning)
 
         if (i + 1) % 20 == 0 or (i + 1) == len(data):
             log(f"{mode}: {i+1}/{len(data)}")
@@ -641,6 +642,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
         "PA_BEM": sum(pa_bems) / n,
         "LLM_Judge": sum(valid_lj) / len(valid_lj) if valid_lj else 0.0,
         "LLM_Judge_dist": lj_dist,
+        "lj_reasonings": lj_reasonings,
     }
 
 
@@ -680,10 +682,20 @@ def main():
 
     with open("reasoning_vs_no_reasoning_results.txt", "w", encoding="utf-8") as f:
         f.write("====== FINAL RESULTS ======\n\n")
-        f.write("[WITH REASONING]\n")
-        f.write(json.dumps(res_reasoning, ensure_ascii=False, indent=2))
-        f.write("\n\n[NO REASONING]\n")
-        f.write(json.dumps(res_no_reasoning, ensure_ascii=False, indent=2))
+        for label, res in [("WITH REASONING", res_reasoning), ("NO REASONING", res_no_reasoning)]:
+            f.write(f"[{label}]\n")
+            for k, v in res.items():
+                if k == "lj_reasonings":
+                    continue
+                f.write(f"  {k} = {v}\n")
+            f.write("\n")
+
+    for mode, res in [("reasoning", res_reasoning), ("no_reasoning", res_no_reasoning)]:
+        rfile = f"reasoning_{mode}_llm_judge.jsonl"
+        with open(rfile, "w", encoding="utf-8") as f:
+            for i, r in enumerate(res.get("lj_reasonings", [])):
+                f.write(json.dumps({"idx": i, "mode": mode, "reasoning": r}, ensure_ascii=False) + "\n")
+        log(f"Saved: {rfile}")
 
 
 if __name__ == "__main__":
