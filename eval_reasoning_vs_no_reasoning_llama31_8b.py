@@ -41,7 +41,7 @@ MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
 CKPT_DIR = "sft_llama3p1_8b_qlora_safe_resume2"
 DATA_PATH = "combined_QA_generation2.json"
 
-MAX_NEW_TOKENS = 64
+MAX_NEW_TOKENS = 256
 EVAL_RATIO = 0.2
 SPLIT_SEED = 42
 USE_CHAT_TEMPLATE = True
@@ -115,6 +115,8 @@ NOT_EQUIVALENT — Candidate fails on at least one of:
   - Opposite or contradictory direction (e.g., positive vs. negative)
   - Format-collapsed output (e.g., a single letter "A", empty string, \
     multiple-choice option, off-task content)
+  - Truncated or incomplete answer that never states a clear position
+  - Generic scenario restatement without an actual answer
   - Substantively different meaning despite surface similarity
 
 ## What to ignore

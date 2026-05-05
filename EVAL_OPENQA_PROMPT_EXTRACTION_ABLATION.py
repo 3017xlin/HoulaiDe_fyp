@@ -24,7 +24,7 @@ OUTPUT_DIR = "sft_qwen2p5_1p5b_openqa_qlora"
 
 EVAL_RATIO = 0.2
 SPLIT_SEED = 42
-MAX_NEW_TOKENS = 32
+MAX_NEW_TOKENS = 256
 USE_CHAT_TEMPLATE = True
 
 
@@ -185,6 +185,8 @@ NOT_EQUIVALENT — Candidate fails on at least one of:
   - Opposite or contradictory direction (e.g., positive vs. negative)
   - Format-collapsed output (e.g., a single letter "A", empty string, \
     multiple-choice option, off-task content)
+  - Truncated or incomplete answer that never states a clear position
+  - Generic scenario restatement without an actual answer
   - Substantively different meaning despite surface similarity
 
 ## What to ignore
