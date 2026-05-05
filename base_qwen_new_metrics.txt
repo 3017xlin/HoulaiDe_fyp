@@ -1,0 +1,1179 @@
+  [1/236] BiA=0.173 BiQ=0.652 CrQ=0.094
+    Q: How did the accusation make you feel?
+    GOLD: It felt very negative.
+    PRED: ... I was not working hard enough in front of the... I wasito team. I
+--------------------------------------------------------------------------------
+  [2/236] BiA=0.113 BiQ=0.501 CrQ=0.110
+    Q: What was your initial reaction to the accusation?
+    GOLD: I felt angry and defensive.
+    PRED: I am sorry I am Ipm I am sorry Id. I am IdId? I am sorry Idd I am sorr
+--------------------------------------------------------------------------------
+  [3/236] BiA=0.182 BiQ=0.903 CrQ=0.132
+    Q: How did the accusation affect your self-esteem?
+    GOLD: It lowered my self-esteem.
+    PRED: The accusation the thethethe
+--------------------------------------------------------------------------------
+  [4/236] BiA=0.188 BiQ=0.882 CrQ=0.137
+    Q: Did the accusation affect your relationship with your colleague?
+    GOLD: Yes, it damaged our relationship.
+    PRED: ... I apologize......I apologize......I apologize......... I apologize
+--------------------------------------------------------------------------------
+  [5/236] BiA=0.193 BiQ=0.841 CrQ=0.135
+    Q: How did you feel about your colleague's accusation?
+    GOLD: I felt disappointed in them.
+    PRED: I felt hurt and betrayed by my colleague for accusing me... I was... I
+--------------------------------------------------------------------------------
+  [6/236] BiA=0.194 BiQ=0.814 CrQ=0.114
+    Q: What contributes to Dea's reluctance to speak up?
+    GOLD: Fear of judgment and low confidence.
+    PRED: Assistant: It contributes to Dea's reluctance because it makes her les
+--------------------------------------------------------------------------------
+  [7/236] BiA=0.179 BiQ=0.923 CrQ=0.135
+    Q: What fears might Dea have about participating in class?
+    GOLD: Fear of making mistakes or being ridiculed.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [8/236] BiA=0.008 BiQ=0.814 CrQ=0.128
+    Q: How might Dea feel about her participation grades?
+    GOLD: She feels disappointed in herself.
+    PRED: Deb. 12345678999999999999999999999999999999999999999999999999999999999
+--------------------------------------------------------------------------------
+  [9/236] BiA=0.151 BiQ=0.805 CrQ=0.129
+    Q: How connected does Dea feel with her classmates?
+    GOLD: She feels isolated and disconnected.
+    PRED: Dea feels embarrassed Dea. Dea feels embarrassed Dea Dea De De De De.
+--------------------------------------------------------------------------------
+  [10/236] BiA=0.460 BiQ=0.902 CrQ=0.131
+    Q: What negative feelings arise from the labmate's actions?
+    GOLD: Frustration and betrayal.
+    PRED: <negative emotions>.
+--------------------------------------------------------------------------------
+  [11/236] BiA=0.122 BiQ=0.901 CrQ=0.127
+    Q: How angry do you feel about the labmate's report?
+    GOLD: Very angry.
+    PRED: Yesterday, a I handed in our project reports to supervisor. A few days
+--------------------------------------------------------------------------------
+  [12/236] BiA=0.086 BiQ=0.832 CrQ=0.104
+    Q: How has this incident affected your self-esteem?
+    GOLD: It has decreased my self-esteem.
+    PRED: a mistake that you have been involved in? Scenario: You were supposed
+--------------------------------------------------------------------------------
+  [13/236] BiA=0.086 BiQ=0.766 CrQ=0.109
+    Q: How disappointed are you in your labmate?
+    GOLD: Extremely disappointed.
+    PRED: mistake that i have not made a mistake that mistake that i have not ma
+--------------------------------------------------------------------------------
+  [14/236] BiA=0.194 BiQ=0.685 CrQ=0.106
+    Q: What discord does this situation create in the team?
+    GOLD: Distrust among team members.
+    PRED: Yesterday, we handed in our project reports to the supervisor. a mista
+--------------------------------------------------------------------------------
+  [15/236] BiA=0.505 BiQ=0.906 CrQ=0.137
+    Q: How did the interaction affect Bob's self-esteem?
+    GOLD: It likely diminished his self-esteem.
+    PRED: Bob's self-esteem was significantly affected by his teammates' contrib
+--------------------------------------------------------------------------------
+  [16/236] BiA=0.579 BiQ=0.968 CrQ=0.187
+    Q: Did Bob feel connected to his teammate during the session?
+    GOLD: No, he felt disconnected.
+    PRED: Bob felt disconnected from his teammate during the session because he
+--------------------------------------------------------------------------------
+  [17/236] BiA=0.356 BiQ=0.838 CrQ=0.140
+    Q: How might Bob feel towards his teammate's behavior?
+    GOLD: He may feel angry.
+    PRED: A) ashamed B) angry C)Answer: A) ashamed B) angry C) A) indifferent D)
+--------------------------------------------------------------------------------
+  [18/236] BiA=0.333 BiQ=0.921 CrQ=0.100
+    Q: Is Bob disappointed in his team's dynamics?
+    GOLD: Yes, he is likely disappointed.
+    PRED: Bob is not disappointed in his team dynamics. over Bob's contributions
+--------------------------------------------------------------------------------
+  [19/236] BiA=0.178 BiQ=0.838 CrQ=0.111
+    Q: What overall tone did the interaction create for Bob?
+    GOLD: It created a negative tone.
+    PRED: Bob's contribution was significant as it made him understand the impor
+--------------------------------------------------------------------------------
+  [20/236] BiA=0.098 BiQ=0.885 CrQ=0.099
+    Q: What emotions does Jane feel towards her neighbor?
+    GOLD: Intense anger.
+    PRED: her neighbor is spreading false rumors her her neighbor is spreading f
+--------------------------------------------------------------------------------
+  [21/236] BiA=0.082 BiQ=0.814 CrQ=0.123
+    Q: How disappointed is Jane in her community's response?
+    GOLD: Highly disappointed.
+    PRED: her community was greatly affected by it. Her neighbor had spread fals
+--------------------------------------------------------------------------------
+  [22/236] BiA=0.101 BiQ=0.842 CrQ=0.111
+    Q: What fears does Jane have about the rumors?
+    GOLD: Fear of isolation.
+    PRED: her false rumors her reputation by spreading false rumors her reputati
+--------------------------------------------------------------------------------
+  [23/236] BiA=0.110 BiQ=0.881 CrQ=0.148
+    Q: How proud is Jane of her character despite the rumors?
+    GOLD: Very proud.
+    PRED: Her neighbors have been spreading false rumors her her reputation for
+--------------------------------------------------------------------------------
+  [24/236] BiA=0.444 BiQ=0.902 CrQ=0.134
+    Q: What negative feelings might Karen experience?
+    GOLD: Frustration and anxiety.
+    PRED: Karen experienced stress and anxiety as she needed to earn more money
+--------------------------------------------------------------------------------
+  [25/236] BiA=0.432 BiQ=0.907 CrQ=0.129
+    Q: What fears could Karen have about her job?
+    GOLD: Fear of losing her job.
+    PRED: Karen had been worried about her job because her manager called her he
+--------------------------------------------------------------------------------
+  [26/236] BiA=0.085 BiQ=0.910 CrQ=0.146
+    Q: How disappointed might Karen feel about her hours?
+    GOLD: Very disappointed.
+    PRED: ... I A)...I A.........I A......... I A......... I A......... I A.....
+--------------------------------------------------------------------------------
+  [27/236] BiA=0.390 BiQ=0.873 CrQ=0.136
+    Q: What hopes might Karen have for her situation?
+    GOLD: Hope for more hours in the future.
+    PRED: ... Karen is now having to work more hours each day and Karen is not h
+--------------------------------------------------------------------------------
+  [28/236] BiA=0.515 BiQ=0.920 CrQ=0.148
+    Q: How secure does Karen feel about her job now?
+    GOLD: She feels insecure.
+    PRED: ... Karen feels very insecure about her job now because her manager ca
+--------------------------------------------------------------------------------
+  [29/236] BiA=0.227 BiQ=0.831 CrQ=0.116
+    Q: How disappointed do you feel about the feedback?
+    GOLD: Very disappointed.
+    PRED: The TA did not provide any feedback or constructive criticism for the
+--------------------------------------------------------------------------------
+  [30/236] BiA=0.150 BiQ=0.675 CrQ=0.104
+    Q: Do you feel your efforts were recognized?
+    GOLD: Not at all.
+    PRED: ...</ I...I think that.........she gave me some feedback about her pre
+--------------------------------------------------------------------------------
+  [31/236] BiA=0.069 BiQ=0.835 CrQ=0.159
+    Q: How negative was the feedback you received?
+    GOLD: Quite negative.
+    PRED: ......................................................................
+--------------------------------------------------------------------------------
+  [32/236] BiA=0.178 BiQ=0.903 CrQ=0.138
+    Q: Did the feedback affect your self-esteem?
+    GOLD: Yes, it lowered it.
+    PRED: The feedback was not really helpful nor constructive for my self-estee
+--------------------------------------------------------------------------------
+  [33/236] BiA=0.163 BiQ=0.664 CrQ=0.135
+    Q: Are you angry about the feedback?
+    GOLD: Somewhat angry.
+    PRED: The TA is a person who gives feedback and the student's presentation w
+--------------------------------------------------------------------------------
+  [34/236] BiA=0.141 BiQ=0.852 CrQ=0.123
+    Q: How disappointed do you feel about the feedback?
+    GOLD: Very disappointed.
+    PRED: The feedback was not constructive because it did not help them feel be
+--------------------------------------------------------------------------------
+  [35/236] BiA=0.161 BiQ=0.779 CrQ=0.099
+    Q: What are your feelings towards the teaching assistant's feedback?
+    GOLD: Frustration and anger.
+    PRED: The teaching assistant's feedback was <constructive/constructive/>. An
+--------------------------------------------------------------------------------
+  [36/236] BiA=0.058 BiQ=0.951 CrQ=0.133
+    Q: Did the feedback make you feel effective in your presentation?
+    GOLD: Not at all effective.
+    PRED: ... The
+--------------------------------------------------------------------------------
+  [37/236] BiA=0.377 BiQ=0.878 CrQ=0.133
+    Q: How negative was the feedback you received?
+    GOLD: Quite negative.
+    PRED: The feedback was very negative and critical, but it did not help the t
+--------------------------------------------------------------------------------
+  [38/236] BiA=0.241 BiQ=0.941 CrQ=0.148
+    Q: How significant is this presentation for you?
+    GOLD: Very significant.
+    PRED: The presentation was
+--------------------------------------------------------------------------------
+  [39/236] BiA=0.000 BiQ=0.728 CrQ=0.103
+    Q: What negativity did Kyle experience during practice?
+    GOLD: He faced heavy criticism.
+    PRED: ...</answer. Answer: ...</answer: I am not able to help you with Answe
+--------------------------------------------------------------------------------
+  [40/236] BiA=0.519 BiQ=0.820 CrQ=0.132
+    Q: What positive feedback did Gary give during the meeting?
+    GOLD: Gary praised Kyle's project plan.
+    PRED: Gary gave positive feedback to his team members about their's progress
+--------------------------------------------------------------------------------
+  [41/236] BiA=0.195 BiQ=0.833 CrQ=0.124
+    Q: How might Kyle feel about Gary's initial criticism?
+    GOLD: Kyle likely feels disappointed.
+    PRED: <positive/initially negative/>Gary felt <positive/initially negative/>
+--------------------------------------------------------------------------------
+  [42/236] BiA=0.106 BiQ=0.951 CrQ=0.141
+    Q: How did the feedback affect Kyle's self-esteem?
+    GOLD: It likely fluctuated due to mixed feedback.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [43/236] BiA=0.151 BiQ=0.857 CrQ=0.130
+    Q: Did Gary acknowledge Kyle's effort on the project?
+    GOLD: Yes, during the positive feedback.
+    PRED: Gary acknowledged that however, Gary, Kylea, Gary, and was heavily cri
+--------------------------------------------------------------------------------
+  [44/236] BiA=0.336 BiQ=0.909 CrQ=0.161
+    Q: How disappointed do you think Matt feels?
+    GOLD: Very disappointed.
+    PRED: ... Surely,... Surely ... Assistant. Matt felt very disappointed that
+--------------------------------------------------------------------------------
+  [45/236] BiA=0.128 BiQ=0.935 CrQ=0.128
+    Q: How effective do you think Matt feels in this situation?
+    GOLD: Not effective at all.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [46/236] BiA=0.223 BiQ=0.894 CrQ=0.120
+    Q: What negative feelings might Matt experience?
+    GOLD: Frustration and guilt.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [47/236] BiA=0.238 BiQ=0.953 CrQ=0.142
+    Q: Does Matt still hope to contribute later?
+    GOLD: Possibly, but uncertain.
+    PRED: Yes,Matt is still hoping to......
+--------------------------------------------------------------------------------
+  [48/236] BiA=0.048 BiQ=0.850 CrQ=0.142
+    Q: How significant is this hackathon for Matt's self-image?
+    GOLD: Very significant.
+    PRED: Hackathons are events where teams compete against eachotherworldhackat
+--------------------------------------------------------------------------------
+  [49/236] BiA=0.173 BiQ=0.652 CrQ=0.094
+    Q: How did the accusation make you feel?
+    GOLD: It felt very negative.
+    PRED: ... I was not working hard enough in front of the... I wasito team. I
+--------------------------------------------------------------------------------
+  [50/236] BiA=0.172 BiQ=0.908 CrQ=0.119
+    Q: What emotions did the accusation trigger in you?
+    GOLD: I felt angry and defensive.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [51/236] BiA=0.184 BiQ=0.818 CrQ=0.104
+    Q: Were you disappointed by your colleague's words?
+    GOLD: Yes, very disappointed.
+    PRED: am sorry.am sorryam sorryamam sorryamamamamamamamamamamamamamamamamama
+--------------------------------------------------------------------------------
+  [52/236] BiA=0.061 BiQ=0.879 CrQ=0.129
+    Q: Did the accusation affect your self-esteem?
+    GOLD: Yes, it lowered my self-esteem.
+    PRED: ......................................................................
+--------------------------------------------------------------------------------
+  [53/236] BiA=0.154 BiQ=0.888 CrQ=0.110
+    Q: Do you feel this accusation created discord in the team?
+    GOLD: Yes, it caused tension.
+    PRED: No<Yes<Yes<No
+--------------------------------------------------------------------------------
+  [54/236] BiA=0.123 BiQ=0.760 CrQ=0.123
+    Q: What affects Dea's confidence in class?
+    GOLD: Her fear of speaking publicly.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [55/236] BiA=0.384 BiQ=0.856 CrQ=0.108
+    Q: What emotions does Dea experience about speaking?
+    GOLD: She feels anxious and fearful.
+    PRED: Assistant: She is always embarrassed aboutararar. arar The question is
+--------------------------------------------------------------------------------
+  [56/236] BiA=0.516 BiQ=0.920 CrQ=0.124
+    Q: What negative feelings does Dea have about class?
+    GOLD: She feels discouraged and frustrated.
+    PRED: She needs to be more active enough. She needs to be more active enough
+--------------------------------------------------------------------------------
+  [57/236] BiA=0.115 BiQ=0.897 CrQ=0.116
+    Q: How does Dea view her role in class?
+    GOLD: She sees it as a failure.
+    PRED: The situation of the class is not just about grades but also about how
+--------------------------------------------------------------------------------
+  [58/236] BiA=0.171 BiQ=0.822 CrQ=0.139
+    Q: How do you feel about the criticism from your labmate?
+    GOLD: It feels unfair and hurtful.
+    PRED: a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i
+--------------------------------------------------------------------------------
+  [59/236] BiA=0.141 BiQ=0.823 CrQ=0.109
+    Q: What emotions do you feel towards your labmate?
+    GOLD: I feel angry and betrayed.
+    PRED: a mistake by my colleague who did not check a labmatea mistake by my c
+--------------------------------------------------------------------------------
+  [60/236] BiA=0.092 BiQ=0.793 CrQ=0.166
+    Q: How disappointed are you in your labmate's behavior?
+    GOLD: Very disappointed.
+    PRED: </a</a</</ a a</</</</</</a a</</</</</</</</</</</</</</</</</</</</<
+--------------------------------------------------------------------------------
+  [61/236] BiA=0.168 BiQ=0.736 CrQ=0.108
+    Q: Do you feel your efforts were recognized?
+    GOLD: Not at all.
+    PRED: I did not receive feedback from them about how well they understood my
+--------------------------------------------------------------------------------
+  [62/236] BiA=0.092 BiQ=0.837 CrQ=0.103
+    Q: How has this incident affected your self-esteem?
+    GOLD: It has lowered my self-esteem.
+    PRED: a mistake that you have been involved in? Scenario: You were supposed
+--------------------------------------------------------------------------------
+  [63/236] BiA=0.365 BiQ=0.933 CrQ=0.150
+    Q: Do you sense conflict with your labmate now?
+    GOLD: Yes, significant conflict.
+    PRED: I believe there is a conflict of between you and a labmate. a mistake
+--------------------------------------------------------------------------------
+  [64/236] BiA=0.112 BiQ=0.818 CrQ=0.113
+    Q: How did this situation affect Bob's self-esteem?
+    GOLD: It likely diminished his self-esteem.
+    PRED: overestimated by other teammembers overestimated by other teammembers
+--------------------------------------------------------------------------------
+  [65/236] BiA=0.458 BiQ=0.930 CrQ=0.165
+    Q: Did Bob feel effective during the Q&A session?
+    GOLD: No, he felt ineffective.
+    PRED: Bob felt ineffective during the Q&A session because his contributions
+--------------------------------------------------------------------------------
+  [66/236] BiA=0.362 BiQ=0.893 CrQ=0.132
+    Q: How did the interaction affect team cohesion?
+    GOLD: It likely reduced team cohesion.
+    PRED: over the project seemed less significant than the project seemed less
+--------------------------------------------------------------------------------
+  [67/236] BiA=0.217 BiQ=0.842 CrQ=0.112
+    Q: How does Bob feel about his teammate's behavior?
+    GOLD: He feels frustrated and angry.
+    PRED: overstepping his role as the team leader to make his contributions see
+--------------------------------------------------------------------------------
+  [68/236] BiA=0.355 BiQ=0.878 CrQ=0.095
+    Q: Is Bob disappointed with the team dynamics?
+    GOLD: Yes, he feels disappointed.
+    PRED: Bob was not disappointed; his contributions were significant and well
+--------------------------------------------------------------------------------
+  [69/236] BiA=0.029 BiQ=0.709 CrQ=0.110
+    Q: How do you feel about the rumors spread about you?
+    GOLD: I feel hurt and betrayed.
+    PRED: ...the answer is correct because it mentions that she has been spreadi
+--------------------------------------------------------------------------------
+  [70/236] BiA=0.115 BiQ=0.848 CrQ=0.116
+    Q: What fears do you have regarding the rumors?
+    GOLD: I fear losing friends and trust.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [71/236] BiA=0.116 BiQ=0.844 CrQ=0.127
+    Q: How angry do you feel about your neighbor's actions?
+    GOLD: I feel very angry.
+    PRED: Her neighbor's actions greatly affect her reputation greatly. her neig
+--------------------------------------------------------------------------------
+  [72/236] BiA=0.016 BiQ=0.406 CrQ=0.116
+    Q: Are you disappointed in your friends' reactions?
+    GOLD: Yes, I expected more support.
+    PRED: herononononononononononononononononononononononononononononononononono
+--------------------------------------------------------------------------------
+  [73/236] BiA=0.092 BiQ=0.595 CrQ=0.093
+    Q: How has this situation affected your self-esteem?
+    GOLD: It has lowered my self-esteem.
+    PRED: her neighbors have been spreading false rumors her her reputation for
+--------------------------------------------------------------------------------
+  [74/236] BiA=0.027 BiQ=0.631 CrQ=0.109
+    Q: Do you feel there is discord in your community now?
+    GOLD: Yes, it's very divisive.
+    PRED: Jane's neighbor has been spreading false rumors her Her reputation as
+--------------------------------------------------------------------------------
+  [75/236] BiA=0.038 BiQ=0.728 CrQ=0.091
+    Q: What negative feelings does Karen experience?
+    GOLD: Worry about financial stability.
+    PRED: Karen's manager had told her that she needed to cut down her work hour
+--------------------------------------------------------------------------------
+  [76/236] BiA=0.036 BiQ=0.945 CrQ=0.171
+    Q: How disappointed is Karen about her work hours?
+    GOLD: Very disappointed.
+    PRED: <br/></br/>
+--------------------------------------------------------------------------------
+  [77/236] BiA=0.545 BiQ=0.904 CrQ=0.152
+    Q: What fears might Karen have regarding her job?
+    GOLD: Fear of losing her job.
+    PRED: Karen fears for her job security and the extra money she earns.... Kar
+--------------------------------------------------------------------------------
+  [78/236] BiA=0.451 BiQ=0.959 CrQ=0.145
+    Q: How secure does Karen feel about her job?
+    GOLD: She feels insecure.
+    PRED: I am feeling very insecure about my job.
+--------------------------------------------------------------------------------
+  [79/236] BiA=0.162 BiQ=0.829 CrQ=0.113
+    Q: Does Karen face inequality at work?
+    GOLD: Yes, in work hour distribution.
+    PRED: Karen faces inequality at work because her manager has decided to cut
+--------------------------------------------------------------------------------
+  [80/236] BiA=0.267 BiQ=0.913 CrQ=0.141
+    Q: What negative feelings did Ian experience from the feedback?
+    GOLD: Frustration and disappointment.
+    PRED: Ian felt very sad because he received negative feedback from thea who
+--------------------------------------------------------------------------------
+  [81/236] BiA=0.186 BiQ=0.831 CrQ=0.124
+    Q: How disappointed was Ian with the feedback?
+    GOLD: Very disappointed.
+    PRED: Assistant The TA's feedback was not really helpful nor constructive. T
+--------------------------------------------------------------------------------
+  [82/236] BiA=0.115 BiQ=0.965 CrQ=0.126
+    Q: Did the feedback help Ian improve his presentation skills?
+    GOLD: No, it did not help.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [83/236] BiA=0.248 BiQ=0.946 CrQ=0.145
+    Q: How did the feedback affect Ian's self-esteem?
+    GOLD: It lowered his self-esteem.
+    PRED: The feedback was not really helpful nor constructive. The feedback was
+--------------------------------------------------------------------------------
+  [84/236] BiA=0.325 BiQ=0.900 CrQ=0.156
+    Q: Did the TA acknowledge Ian's effort in the presentation?
+    GOLD: No, she did not acknowledge it.
+    PRED: ...The TA should have acknowledged Ian's effort in the TA should have
+--------------------------------------------------------------------------------
+  [85/236] BiA=0.305 BiQ=0.779 CrQ=0.100
+    Q: What negative feelings did the team experience?
+    GOLD: Frustration and disappointment.
+    PRED: A) constructive criticism B) negative criticism C) constructive feedba
+--------------------------------------------------------------------------------
+  [86/236] BiA=0.144 BiQ=0.957 CrQ=0.163
+    Q: How disappointed were they with the feedback?
+    GOLD: Very disappointed.
+    PRED: ......
+--------------------------------------------------------------------------------
+  [87/236] BiA=0.213 BiQ=0.895 CrQ=0.147
+    Q: Did the feedback help improve their presentation skills?
+    GOLD: No, it did not help.
+    PRED: ...Answer: The feedback from Frank and his team was not helpful....Ans
+--------------------------------------------------------------------------------
+  [88/236] BiA=0.114 BiQ=0.866 CrQ=0.124
+    Q: What emotions did the team feel towards the assistant?
+    GOLD: Anger and frustration.
+    PRED: ...]...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>...>..
+--------------------------------------------------------------------------------
+  [89/236] BiA=0.528 BiQ=0.898 CrQ=0.191
+    Q: How did the feedback affect their confidence?
+    GOLD: It lowered their confidence.
+    PRED: The feedback affected their confidence because The feedback affected t
+--------------------------------------------------------------------------------
+  [90/236] BiA=0.213 BiQ=0.815 CrQ=0.107
+    Q: How did Kyle feel about the criticism?
+    GOLD: He felt discouraged.
+    PRED: Gary was highly critical of Kyle's project plan....Answer>
+--------------------------------------------------------------------------------
+  [91/236] BiA=0.156 BiQ=0.829 CrQ=0.116
+    Q: What was Gary's feedback during the meeting?
+    GOLD: It was positive.
+    PRED: Gary was also commended for his thorough research methodology. Gary wa
+--------------------------------------------------------------------------------
+  [92/236] BiA=0.177 BiQ=0.820 CrQ=0.138
+    Q: Was Kyle disappointed by Gary's initial criticism?
+    GOLD: Yes, he was disappointed.
+    PRED: GaryGary was heavily criticized by his supervisor who was present at t
+--------------------------------------------------------------------------------
+  [93/236] BiA=0.193 BiQ=0.827 CrQ=0.119
+    Q: How proud was Kyle of his project plan?
+    GOLD: He was somewhat proud.
+    PRED: ...Gary's project was highly hyped by his supervisor for not having a
+--------------------------------------------------------------------------------
+  [94/236] BiA=0.051 BiQ=0.905 CrQ=0.141
+    Q: Did Gary appreciate Kyle's effort on the project?
+    GOLD: Not initially.
+    PRED: Gary appreciated Kyle's effort on project planning but he was not full
+--------------------------------------------------------------------------------
+  [95/236] BiA=0.317 BiQ=0.897 CrQ=0.136
+    Q: How did the interaction affect Kyle and Gary's relationship?
+    GOLD: It strained their relationship.
+    PRED: Gary was highly criticized....and Gary was highly criticized....and Ga
+--------------------------------------------------------------------------------
+  [96/236] BiA=0.336 BiQ=0.909 CrQ=0.161
+    Q: How disappointed do you think Matt feels?
+    GOLD: Very disappointed.
+    PRED: ... Surely,... Surely ... Assistant. Matt felt very disappointed that
+--------------------------------------------------------------------------------
+  [97/236] BiA=0.171 BiQ=0.867 CrQ=0.119
+    Q: Is Matt angry about his situation?
+    GOLD: Possibly angry.
+    PRED: Matt is very busy with other projects andhowever, when it was time to
+--------------------------------------------------------------------------------
+  [98/236] BiA=0.162 BiQ=0.924 CrQ=0.130
+    Q: How effective do you think Matt feels in this situation?
+    GOLD: He feels ineffective.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [99/236] BiA=0.112 BiQ=0.959 CrQ=0.153
+    Q: How does this experience affect Matt's self-esteem?
+    GOLD: It likely lowers his self-esteem.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [100/236] BiA=0.211 BiQ=0.904 CrQ=0.123
+    Q: What negative feelings might Matt experience?
+    GOLD: Frustration and regret.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [101/236] BiA=0.579 BiQ=0.928 CrQ=0.146
+    Q: What fear does Sarah experience during the fire?
+    GOLD: Fear for her own safety.
+    PRED: Sarah experiences fear during the fire. she drives herself to save her
+--------------------------------------------------------------------------------
+  [102/236] BiA=0.175 BiQ=0.796 CrQ=0.085
+    Q: How does Sarah feel about community response to the fire?
+    GOLD: Proud of their bravery.
+    PRED: Sarah feels scared ultimately rushes in fear ultimately saves her dog.
+--------------------------------------------------------------------------------
+  [103/236] BiA=0.520 BiQ=0.919 CrQ=0.135
+    Q: What guilt does Sarah feel after hesitating?
+    GOLD: Guilt for not saving her dog sooner.
+    PRED: Sarah feels fear. her own safety her dog's well-being. her. Sarah feel
+--------------------------------------------------------------------------------
+  [104/236] BiA=0.209 BiQ=0.938 CrQ=0.137
+    Q: What fear does Emma experience about sharing her artwork?
+    GOLD: Fear of judgment.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [105/236] BiA=0.155 BiQ=0.830 CrQ=0.162
+    Q: How disappointed is Mark about the lost package?
+    GOLD: Very disappointed.
+    PRED: Assistant: The package... Answer: The package... Answer: The lost pack
+--------------------------------------------------------------------------------
+  [106/236] BiA=-0.005 BiQ=0.847 CrQ=0.109
+    Q: How secure does Mark feel about the refund process?
+    GOLD: Not secure at all.
+    PRED: Mark feels disappointed about the loss of his package. Mark feels disa
+--------------------------------------------------------------------------------
+  [107/236] BiA=0.074 BiQ=0.889 CrQ=0.166
+    Q: How angry is Mark about the service failure?
+    GOLD: Quite angry.
+    PRED: Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark Mark
+--------------------------------------------------------------------------------
+  [108/236] BiA=0.368 BiQ=0.934 CrQ=0.145
+    Q: How disappointed is Lisa about her exam failure?
+    GOLD: Very disappointed.
+    PRED: Lisa was so disappointed that Lisa said Lisa Lisa thought of Lisa had
+--------------------------------------------------------------------------------
+  [109/236] BiA=0.314 BiQ=0.886 CrQ=0.136
+    Q: What hope does Lisa have after her failure?
+    GOLD: She hopes to learn from it.
+    PRED: Lisa is a very determined and persistent person who has been through m
+--------------------------------------------------------------------------------
+  [110/236] BiA=0.487 BiQ=0.960 CrQ=0.135
+    Q: How does Lisa feel about her self-esteem after failing?
+    GOLD: Her self-esteem is low.
+    PRED: The situation is not as she had hoped forherself. <strongly> depressed
+--------------------------------------------------------------------------------
+  [111/236] BiA=0.236 BiQ=0.937 CrQ=0.120
+    Q: How angry is Emily about Jake smoking?
+    GOLD: Very angry.
+    PRED: Emily feels frustrated because she sees no signs of danger.
+--------------------------------------------------------------------------------
+  [112/236] BiA=0.258 BiQ=0.914 CrQ=0.135
+    Q: Is Emily disappointed in her social circle's smoking habits?
+    GOLD: Yes, she feels let down.
+    PRED: No, Emily is not smoking cigarettes. The fact that Emily is not smokin
+--------------------------------------------------------------------------------
+  [113/236] BiA=0.229 BiQ=0.869 CrQ=0.174
+    Q: How does Emma feel about her abilities without Jack?
+    GOLD: She feels inadequate.
+    PRED: felt lost without Jack, felt lost without Jack, felt lost without Jack
+--------------------------------------------------------------------------------
+  [114/236] BiA=0.080 BiQ=0.937 CrQ=0.142
+    Q: What does Emma doubt about her future success?
+    GOLD: She doubts her capability to succeed.
+    PRED: ```
+--------------------------------------------------------------------------------
+  [115/236] BiA=0.161 BiQ=0.810 CrQ=0.128
+    Q: How secure does Alex feel at home?
+    GOLD: Very insecure.
+    PRED: . Answer in this format: Alex is feeling . Answer in this format: Answ
+--------------------------------------------------------------------------------
+  [116/236] BiA=0.187 BiQ=0.877 CrQ=0.097
+    Q: How confident is Alex in his academic abilities?
+    GOLD: Not confident.
+    PRED: Alex's grades have improved greatly since he feels supported by his te
+--------------------------------------------------------------------------------
+  [117/236] BiA=0.414 BiQ=0.902 CrQ=0.147
+    Q: What fears might Alex have regarding school?
+    GOLD: Fear of failure.
+    PRED: Alex's fear is related to school. Alex feels worried and anxious about
+--------------------------------------------------------------------------------
+  [118/236] BiA=0.184 BiQ=0.960 CrQ=0.144
+    Q: How does Emma view her move's impact on her identity?
+    GOLD: Very significant.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [119/236] BiA=0.256 BiQ=0.905 CrQ=0.143
+    Q: How does Emma's move affect her self-esteem?
+    GOLD: She feels diminished.
+    PRED: Emma moves to a new city for work but finds herself struggling with sh
+--------------------------------------------------------------------------------
+  [120/236] BiA=0.119 BiQ=0.910 CrQ=0.147
+    Q: How does Emily feel about her life compared to Sarah's?
+    GOLD: Very negative.
+    PRED: Emily feels <Sarah's>.
+--------------------------------------------------------------------------------
+  [121/236] BiA=0.419 BiQ=0.919 CrQ=0.157
+    Q: What does Emily think about her own success?
+    GOLD: She feels inadequate.
+    PRED: Emily thinks that she is not as successful as she thinks she thought o
+--------------------------------------------------------------------------------
+  [122/236] BiA=0.232 BiQ=0.907 CrQ=0.104
+    Q: Does Emily feel hopeful about her future?
+    GOLD: Not at all.
+    PRED: A) Yes B) No C) Not enough information provided D) None of A) B) C) D)
+--------------------------------------------------------------------------------
+  [123/236] BiA=0.571 BiQ=0.910 CrQ=0.154
+    Q: How does Emily feel about her achievements?
+    GOLD: She feels inadequate.
+    PRED: She feels like she she is not able to compare herself succeeds in her
+--------------------------------------------------------------------------------
+  [124/236] BiA=0.498 BiQ=0.900 CrQ=0.099
+    Q: What is Emily's overall emotional state?
+    GOLD: She feels negative.
+    PRED: she feels like she she can do more than she does now. She feels like s
+--------------------------------------------------------------------------------
+  [125/236] BiA=0.037 BiQ=0.690 CrQ=0.108
+    Q: How does Emily view her peers' successes?
+    GOLD: She feels envious.
+    PRED: />/>/>/ Assistant: />/>//> The given information is insufficient for a
+--------------------------------------------------------------------------------
+  [126/236] BiA=0.106 BiQ=0.809 CrQ=0.124
+    Q: How does Emily feel about her self-esteem?
+    GOLD: It's low.
+    PRED: Emily feels <emphasized> and <unliked>. Her feelings of <emphasized>.
+--------------------------------------------------------------------------------
+  [127/236] BiA=0.202 BiQ=0.841 CrQ=0.099
+    Q: Does Emily feel connected to others at the party?
+    GOLD: No, she feels isolated.
+    PRED: Assistant Assistant Sarah is popular because she attends many parties.
+--------------------------------------------------------------------------------
+  [128/236] BiA=0.244 BiQ=0.863 CrQ=0.164
+    Q: What is Emily's overall emotional state?
+    GOLD: It's negative.
+    PRED: <emphasized>depressed>. Answer: <emphasized>depressed>. Answer: <empha
+--------------------------------------------------------------------------------
+  [129/236] BiA=0.117 BiQ=0.853 CrQ=0.098
+    Q: What is Emma's main concern about Jake's message?
+    GOLD: She fears bad news.
+    PRED: Jake's message was that he had been offered a job opportunity at a com
+--------------------------------------------------------------------------------
+  [130/236] BiA=0.290 BiQ=0.838 CrQ=0.146
+    Q: How might Emma feel if Jake doesn't respond?
+    GOLD: She might feel let down.
+    PRED: Emma is likely to feel anxious and Jake does not respond to a job oppo
+--------------------------------------------------------------------------------
+  [131/236] BiA=0.071 BiQ=0.672 CrQ=0.093
+    Q: What does Emma hope for from Jake?
+    GOLD: She hopes for a job offer.
+    PRED: ... Jake's anxiety is palpable.... Jake's anxiety is palpable.... Jake
+--------------------------------------------------------------------------------
+  [132/236] BiA=0.153 BiQ=0.956 CrQ=0.180
+    Q: How fearful is Emily about her excuse?
+    GOLD: Very fearful.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [133/236] BiA=0.135 BiQ=0.810 CrQ=0.095
+    Q: How effective does Emily feel about her excuse?
+    GOLD: Not effective.
+    PRED: her teacher, that her dog ate it. her homework. She worries very her t
+--------------------------------------------------------------------------------
+  [134/236] BiA=0.055 BiQ=0.789 CrQ=0.108
+    Q: How negative is Emily's outlook on her situation?
+    GOLD: Quite negative.
+    PRED: won't worry about her teacher won't worry about her teacher won't worr
+--------------------------------------------------------------------------------
+  [135/236] BiA=0.101 BiQ=0.878 CrQ=0.123
+    Q: How disappointed does Emma feel about the misunderstanding?
+    GOLD: Very disappointed.
+    PRED: Emma felt hurt because he had conversation conversation was conversati
+--------------------------------------------------------------------------------
+  [136/236] BiA=0.202 BiQ=0.826 CrQ=0.122
+    Q: What hope does Emma have after approaching Jake?
+    GOLD: Hope for reconciliation.
+    PRED: Emma felt hurt by his misunderstanding of her conversation with conver
+--------------------------------------------------------------------------------
+  [137/236] BiA=0.073 BiQ=0.927 CrQ=0.108
+    Q: How fulfilled is Emma's sense of connection with Jake after reconcilia
+    GOLD: Highly fulfilled.
+    PRED: Emma felt that conversation was not fulfilling her intentions.
+--------------------------------------------------------------------------------
+  [138/236] BiA=0.160 BiQ=0.785 CrQ=0.132
+    Q: How disappointed is Alice with Bob's actions?
+    GOLD: Very disappointed.
+    PRED: Alice was not happy with Bob's actions because he hadalice had taken c
+--------------------------------------------------------------------------------
+  [139/236] BiA=0.220 BiQ=0.883 CrQ=0.107
+    Q: How fulfilled is Alice in her relationship with Bob?
+    GOLD: Not fulfilled.
+    PRED: ...Answer> Bob: Alice: Alice:...Answer> Bob: I feel betrayed by...Answ
+--------------------------------------------------------------------------------
+  [140/236] BiA=0.268 BiQ=0.964 CrQ=0.182
+    Q: How angry is Alice about Bob's actions?
+    GOLD: Quite angry.
+    PRED: Alice was furious with Bob for...
+--------------------------------------------------------------------------------
+  [141/236] BiA=0.097 BiQ=0.899 CrQ=0.135
+    Q: How does Dr. Lisa feel about Mark's actions?
+    GOLD: Very negative.
+    PRED: Mark's actions have caused her to feel anxious, Mark's actions have ca
+--------------------------------------------------------------------------------
+  [142/236] BiA=0.219 BiQ=0.874 CrQ=0.124
+    Q: How does Dr. Lisa view her colleagues after this incident?
+    GOLD: She feels disappointed.
+    PRED: Assistant: Dr. Lisa views her colleagues with concern for their collea
+--------------------------------------------------------------------------------
+  [143/236] BiA=0.213 BiQ=0.904 CrQ=0.187
+    Q: How secure does Dr. Lisa feel in her work environment?
+    GOLD: She feels insecure.
+    PRED: Dr. Lisa Lisa's work environment is not very secure. Dr. Lisa Lisa fee
+--------------------------------------------------------------------------------
+  [144/236] BiA=0.488 BiQ=0.869 CrQ=0.135
+    Q: How does Sarah feel about her mistake?
+    GOLD: She feels anxious.
+    PRED: Sarah feels embarrassed about Sarah feels bad Sarah feels embarrassed
+--------------------------------------------------------------------------------
+  [145/236] BiA=0.196 BiQ=0.940 CrQ=0.124
+    Q: How does Tom feel after being blamed?
+    GOLD: He feels confused.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [146/236] BiA=0.200 BiQ=0.927 CrQ=0.130
+    Q: What emotion does Tom experience towards Sarah's actions?
+    GOLD: He feels hurt.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [147/236] BiA=0.098 BiQ=0.830 CrQ=0.131
+    Q: How disappointed is Emily with her project?
+    GOLD: Very disappointed.
+    PRED: A) Yes B) No C) Maybe D) Not Sure A) Yes B) No C) Maybe D) Not Sure E)
+--------------------------------------------------------------------------------
+  [148/236] BiA=0.486 BiQ=0.890 CrQ=0.135
+    Q: How effective does Emily feel about her project?
+    GOLD: Not effective at all.
+    PRED: A) Very ineffective ... B) Somewhat ineffective C) Moderately effectiv
+--------------------------------------------------------------------------------
+  [149/236] BiA=0.035 BiQ=0.768 CrQ=0.090
+    Q: What hope does Emily have for her future?
+    GOLD: Hope for better focus.
+    PRED: A) 10 years ago B) 20 years C) 30 years D) 40 years E) 50 years A) 10
+--------------------------------------------------------------------------------
+  [150/236] BiA=0.621 BiQ=0.832 CrQ=0.151
+    Q: How does Emma feel about her application?
+    GOLD: She feels anxious.
+    PRED: Emma feels anxious because she fear rejection rejection.</fear rejecti
+--------------------------------------------------------------------------------
+  [151/236] BiA=-0.003 BiQ=0.782 CrQ=0.102
+    Q: How does Emma view her academic performance?
+    GOLD: She feels inadequate.
+    PRED: The chances of finding employment depend heavily on one's academic per
+--------------------------------------------------------------------------------
+  [152/236] BiA=0.231 BiQ=0.907 CrQ=0.098
+    Q: What is Lily afraid of regarding Max's new friends?
+    GOLD: Losing their friendship.
+    PRED: Lily is worried that Max might forget her name because she does not kn
+--------------------------------------------------------------------------------
+  [153/236] BiA=0.121 BiQ=0.903 CrQ=0.115
+    Q: How secure does Lily feel about her friendship with Max?
+    GOLD: Very insecure.
+    PRED: Max is afraid that Lily may not remember his friendship because she Ma
+--------------------------------------------------------------------------------
+  [154/236] BiA=0.226 BiQ=0.950 CrQ=0.142
+    Q: How attached is Lily to her friendship with Max?
+    GOLD: Very attached.
+    PRED: Lily is very attached to her friendship with Max because she has spent
+--------------------------------------------------------------------------------
+  [155/236] BiA=0.274 BiQ=0.918 CrQ=0.137
+    Q: How does Emma view her career search?
+    GOLD: It's crucial for her identity.
+    PRED: Scenario: Emma's career search is not just about finding jobs but also
+--------------------------------------------------------------------------------
+  [156/236] BiA=0.492 BiQ=0.876 CrQ=0.173
+    Q: How effective does Emma feel in her career exploration?
+    GOLD: She feels ineffective.
+    PRED: She feels lost in her search for purpose. She feels lost in her search
+--------------------------------------------------------------------------------
+  [157/236] BiA=0.079 BiQ=0.924 CrQ=0.127
+    Q: What is Emma's outlook on finding purpose?
+    GOLD: She feels uncertain but hopeful.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [158/236] BiA=0.113 BiQ=0.887 CrQ=0.119
+    Q: How does Sarah feel about her work environment?
+    GOLD: Very negative.
+    PRED: Sarah feels overwhelmed by her boss's constant criticism.
+--------------------------------------------------------------------------------
+  [159/236] BiA=0.158 BiQ=0.835 CrQ=0.108
+    Q: How does Sarah view her colleagues' support?
+    GOLD: Disappointed.
+    PRED: ... Sarah resigns from her job due to their colleagues' constant criti
+--------------------------------------------------------------------------------
+  [160/236] BiA=0.297 BiQ=0.904 CrQ=0.116
+    Q: How does Sarah perceive her self-worth at work?
+    GOLD: Low self-esteem.
+    PRED: Sarah perceives herself as overworked and, feeling like she is constan
+--------------------------------------------------------------------------------
+  [161/236] BiA=0.154 BiQ=0.932 CrQ=0.119
+    Q: How secure does Emily feel at work?
+    GOLD: Very insecure.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [162/236] BiA=0.077 BiQ=0.750 CrQ=0.105
+    Q: How connected does Emily feel to her team?
+    GOLD: Not connected.
+    PRED: Mark, Emily, I'm sorry, Mark, you know me make jokes Mark, Mark, Emily
+--------------------------------------------------------------------------------
+  [163/236] BiA=0.356 BiQ=0.888 CrQ=0.120
+    Q: How angry does Jamie feel about the route choice?
+    GOLD: Very angry.
+    PRED: The anger is justified because Jamie was left behind by theway of traf
+--------------------------------------------------------------------------------
+  [164/236] BiA=0.433 BiQ=0.898 CrQ=0.172
+    Q: What fear does Jamie have regarding the ride?
+    GOLD: Fear of being late.
+    PRED: Alex is afraid that Jamie will be late for Alex Jamie will be late for
+--------------------------------------------------------------------------------
+  [165/236] BiA=0.090 BiQ=0.904 CrQ=0.115
+    Q: How connected does Jamie feel to Alex during the ride?
+    GOLD: Not connected.
+    PRED: Based on the information provided above, Alex Jamie feels frustrated b
+--------------------------------------------------------------------------------
+  [166/236] BiA=0.081 BiQ=0.889 CrQ=0.132
+    Q: How does Emma feel about sharing study materials?
+    GOLD: She feels anxious.
+    PRED: ......</</...</</...</</..............................................
+--------------------------------------------------------------------------------
+  [167/236] BiA=0.056 BiQ=0.853 CrQ=0.125
+    Q: What does Emma think about her exam preparation?
+    GOLD: She feels insecure.
+    PRED: ......</</...</</...</</..............................................
+--------------------------------------------------------------------------------
+  [168/236] BiA=0.060 BiQ=0.854 CrQ=0.099
+    Q: How does Emily feel about the rumors?
+    GOLD: Very negative.
+    PRED: The friendship between them ever real because they both share similar
+--------------------------------------------------------------------------------
+  [169/236] BiA=0.106 BiQ=0.877 CrQ=0.111
+    Q: How connected does Emily feel to Jake now?
+    GOLD: Disconnected.
+    PRED: Emily feels nervous about her bond with Jake. ... Answer by Jake ...
+--------------------------------------------------------------------------------
+  [170/236] BiA=0.281 BiQ=0.832 CrQ=0.091
+    Q: What is Emily's emotional reaction to the rumors?
+    GOLD: She fears losing Jake.
+    PRED: her bond is always real.
+--------------------------------------------------------------------------------
+  [171/236] BiA=0.186 BiQ=0.970 CrQ=0.178
+    Q: How angry does Alex feel about the cost sharing?
+    GOLD: Very angry
+    PRED: ...
+--------------------------------------------------------------------------------
+  [172/236] BiA=0.055 BiQ=0.828 CrQ=0.111
+    Q: Is Alex disappointed in Jamie's contribution?
+    GOLD: Yes, very disappointed
+    PRED: Alex and Jamie have different views of their friends Alex spends $1000
+--------------------------------------------------------------------------------
+  [173/236] BiA=0.262 BiQ=0.877 CrQ=0.137
+    Q: What fear does Emma experience about leaving Jake?
+    GOLD: Fear of the unknown.
+    PRED: ...Answer about thefearabout thefear about the future of the......Answ
+--------------------------------------------------------------------------------
+  [174/236] BiA=0.250 BiQ=0.846 CrQ=0.113
+    Q: How does Emma feel about her relationship with Jake?
+    GOLD: She feels it was harmful.
+    PRED: Emma feels relieved that she, the relationship is over now. Scenario:
+--------------------------------------------------------------------------------
+  [175/236] BiA=0.292 BiQ=0.898 CrQ=0.119
+    Q: How does Emma's decision impact her self-esteem?
+    GOLD: It boosts her self-worth.
+    PRED: Assistant: Emma feels relieved that she has made a good decision by le
+--------------------------------------------------------------------------------
+  [176/236] BiA=0.350 BiQ=0.947 CrQ=0.181
+    Q: How angry does Sarah feel about the dog's barking?
+    GOLD: Very angry.
+    PRED: Sarah feels very frustrated and, she has been very frustrated by the,
+--------------------------------------------------------------------------------
+  [177/236] BiA=0.410 BiQ=0.885 CrQ=0.176
+    Q: Does Sarah feel secure in her home due to the noise?
+    GOLD: No, she feels insecure.
+    PRED: ...night...night. Sarah feels insecure in her home....night. night.nig
+--------------------------------------------------------------------------------
+  [178/236] BiA=0.113 BiQ=0.921 CrQ=0.171
+    Q: How negative is Sarah's experience with the barking?
+    GOLD: Highly negative.
+    PRED: ......................................................................
+--------------------------------------------------------------------------------
+  [179/236] BiA=0.422 BiQ=0.947 CrQ=0.122
+    Q: What fear does Emily experience regarding Jake?
+    GOLD: Fear of losing their friendship.
+    PRED: Emily fears that Jake is not only a friend but misread about her conne
+--------------------------------------------------------------------------------
+  [180/236] BiA=0.361 BiQ=0.930 CrQ=0.142
+    Q: How does Emily's self-esteem relate to the rumors?
+    GOLD: She feels insecure about her worth.
+    PRED: Self-esteem is directly affected by theself-esteem of Emily as it infl
+--------------------------------------------------------------------------------
+  [181/236] BiA=0.327 BiQ=0.894 CrQ=0.100
+    Q: What negative feelings does Emily have about the situation?
+    GOLD: She feels betrayed and anxious.
+    PRED: about the situation is that it is unfair to about the feeling the abou
+--------------------------------------------------------------------------------
+  [182/236] BiA=0.334 BiQ=0.813 CrQ=0.124
+    Q: How does Emily feel about her abilities?
+    GOLD: She feels inadequate.
+    PRED: Emily wonders if sheher is less valued compared to her colleagues...
+--------------------------------------------------------------------------------
+  [183/236] BiA=0.063 BiQ=0.744 CrQ=0.102
+    Q: How does Emily perceive her classmates' support?
+    GOLD: She feels unsupported.
+    PRED: The quick brown foxes have been known to be perceived by.</the foxes f
+--------------------------------------------------------------------------------
+  [184/236] BiA=0.199 BiQ=0.751 CrQ=0.138
+    Q: How does Sarah feel about herself after the message?
+    GOLD: Very low self-esteem.
+    PRED: ...Answer> Sarah feels embarrassed......Sarah feels embarrassed......e
+--------------------------------------------------------------------------------
+  [185/236] BiA=0.404 BiQ=0.869 CrQ=0.130
+    Q: How connected does Sarah feel to the group after the incident?
+    GOLD: She feels disconnected.
+    PRED: Sarah feels very nervous and Sarah feels very nervous and Sarah feels
+--------------------------------------------------------------------------------
+  [186/236] BiA=0.052 BiQ=0.846 CrQ=0.116
+    Q: What is Sarah's emotional response to the mistake?
+    GOLD: Highly negative.
+    PRED: Sarah feels embarrassed panics, panics, feeling like she has sent an e
+--------------------------------------------------------------------------------
+  [187/236] BiA=0.281 BiQ=0.883 CrQ=0.108
+    Q: How does Liam feel about his connection with Jake?
+    GOLD: He feels disconnected.
+    PRED: Liam is a person who has a lot of problems and struggles in life. conn
+--------------------------------------------------------------------------------
+  [188/236] BiA=0.326 BiQ=0.843 CrQ=0.122
+    Q: What does Liam feel about being open with Jake?
+    GOLD: He feels insecure.
+    PRED: The person who hides his open feelings is... open feelings.</Answer:..
+--------------------------------------------------------------------------------
+  [189/236] BiA=0.299 BiQ=0.898 CrQ=0.106
+    Q: What emotion does Liam experience regarding Jake's opinion?
+    GOLD: He feels fearful.
+    PRED: Disappointment
+--------------------------------------------------------------------------------
+  [190/236] BiA=0.138 BiQ=0.925 CrQ=0.129
+    Q: How does Mark feel about Lisa's non-repayment?
+    GOLD: Very disappointed.
+    PRED: Assistant: Mark should have asked Lisa directly why she hasn't repayed
+--------------------------------------------------------------------------------
+  [191/236] BiA=0.131 BiQ=0.832 CrQ=0.118
+    Q: What emotion does Mark experience towards Lisa?
+    GOLD: Anger.
+    PRED: Assistant: Mark feels disappointed by Lisa has Lisa hasn't Lisa haven'
+--------------------------------------------------------------------------------
+  [192/236] BiA=0.052 BiQ=0.884 CrQ=0.129
+    Q: How does Emma feel about her ability to succeed?
+    GOLD: She feels inadequate.
+    PRED: ......................................................................
+--------------------------------------------------------------------------------
+  [193/236] BiA=0.157 BiQ=0.884 CrQ=0.131
+    Q: What is Emma's primary concern regarding her work?
+    GOLD: Fear of failure.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [194/236] BiA=0.236 BiQ=0.787 CrQ=0.130
+    Q: How does Emma view herself in relation to her team?
+    GOLD: She doubts her worth.
+    PRED: <her> in relation to her team. <her> in relation to her team. <her> in
+--------------------------------------------------------------------------------
+  [195/236] BiA=0.212 BiQ=0.873 CrQ=0.132
+    Q: How does Mia feel about her parents' understanding?
+    GOLD: Very angry
+    PRED: Mia feels frustrated and her parents never listen to by listening to b
+--------------------------------------------------------------------------------
+  [196/236] BiA=0.015 BiQ=0.921 CrQ=0.113
+    Q: How connected does Mia feel to her parents?
+    GOLD: Not connected
+    PRED: MIA feels that they never listen to her parents to her thoughts and Me
+--------------------------------------------------------------------------------
+  [197/236] BiA=0.227 BiQ=0.887 CrQ=0.102
+    Q: How does Mia view herself in relation to her parents?
+    GOLD: Low self-esteem
+    PRED: >Mia views her parents as strict and unloving, but she believes that t
+--------------------------------------------------------------------------------
+  [198/236] BiA=0.200 BiQ=0.871 CrQ=0.128
+    Q: How does Emma feel about her exam failure?
+    GOLD: Very disappointed.
+    PRED: Emma felt overwhelmed by her failure to study hard.</Answer: Emma felt
+--------------------------------------------------------------------------------
+  [199/236] BiA=0.174 BiQ=0.876 CrQ=0.121
+    Q: How does Emma's failure affect her self-esteem?
+    GOLD: Significantly diminished.
+    PRED: Emma felt overwhelmed by her failure to study hard....Answer: Emma fel
+--------------------------------------------------------------------------------
+  [200/236] BiA=0.246 BiQ=0.959 CrQ=0.136
+    Q: What does Jake's encouragement suggest about Emma's future?
+    GOLD: There is hope.
+    PRED: Emma feels confident and...
+--------------------------------------------------------------------------------
+  [201/236] BiA=0.289 BiQ=0.825 CrQ=0.119
+    Q: How does Emily feel about her exam grade?
+    GOLD: She feels devastated.
+    PRED: A) disappointed B) relieved C) indifferent D) confused E) none ......
+--------------------------------------------------------------------------------
+  [202/236] BiA=0.134 BiQ=0.958 CrQ=0.167
+    Q: How does Emily's exam result affect her self-esteem?
+    GOLD: It lowers her self-esteem.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [203/236] BiA=0.491 BiQ=0.888 CrQ=0.163
+    Q: What is Emily's emotional response to her grade?
+    GOLD: She feels negative and upset.
+    PRED: The correct answer is "She felt devastated by her poor performance". Q
+--------------------------------------------------------------------------------
+  [204/236] BiA=0.096 BiQ=0.900 CrQ=0.129
+    Q: How does Sarah feel about Tom's feedback?
+    GOLD: She feels anxious.
+    PRED: ..................................................................</ >
+--------------------------------------------------------------------------------
+  [205/236] BiA=0.160 BiQ=0.931 CrQ=0.129
+    Q: How does Sarah perceive her performance after the meeting?
+    GOLD: She feels inadequate.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [206/236] BiA=0.090 BiQ=0.919 CrQ=0.134
+    Q: What is Sarah's overall reaction to the feedback?
+    GOLD: She interprets it negatively.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [207/236] BiA=0.209 BiQ=0.927 CrQ=0.131
+    Q: What is Emma afraid of regarding her artwork?
+    GOLD: Fear of judgment.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [208/236] BiA=0.042 BiQ=0.872 CrQ=0.123
+    Q: How does Emma feel about her artwork?
+    GOLD: She doubts its value.
+    PRED: ...]..................................................................
+--------------------------------------------------------------------------------
+  [209/236] BiA=0.270 BiQ=0.870 CrQ=0.107
+    Q: How does Emma feel about sharing with Jake?
+    GOLD: She feels disconnected.
+    PRED: Assistant. Emma fears that judgement from her friends Jake and others.
+--------------------------------------------------------------------------------
+  [210/236] BiA=0.120 BiQ=0.919 CrQ=0.142
+    Q: How disappointed is Emily about her loan denial?
+    GOLD: Very disappointed.
+    PRED: The bank's policy of denying loans is...
+--------------------------------------------------------------------------------
+  [211/236] BiA=0.340 BiQ=0.919 CrQ=0.180
+    Q: How angry is Emily at the bank's decision?
+    GOLD: Somewhat angry.
+    PRED: The bank's decision made Emily feel <anger>. The bank's decision made
+--------------------------------------------------------------------------------
+  [212/236] BiA=0.298 BiQ=0.928 CrQ=0.123
+    Q: How angry is Emily about Jake smoking?
+    GOLD: Moderately angry.
+    PRED: Emily feels frustrated because she sees no signs of danger.
+--------------------------------------------------------------------------------
+  [213/236] BiA=0.351 BiQ=0.911 CrQ=0.123
+    Q: Is Emily disappointed in her friends for smoking?
+    GOLD: Yes, she feels let down.
+    PRED: Assistant Emily is concerned that she feels sickly 'see's health decli
+--------------------------------------------------------------------------------
+  [214/236] BiA=0.043 BiQ=0.947 CrQ=0.124
+    Q: How disappointed is Emily about her lost package?
+    GOLD: Very disappointed.
+    PRED: . Please note that I have provided two possible answers,... The correc
+--------------------------------------------------------------------------------
+  [215/236] BiA=-0.002 BiQ=0.887 CrQ=0.103
+    Q: How secure does Emily feel about her package delivery?
+    GOLD: Not secure at all.
+    PRED: Very relieved indeed! The...Answer> To ensure that Emily feels very re
+--------------------------------------------------------------------------------
+  [216/236] BiA=0.083 BiQ=0.885 CrQ=0.098
+    Q: How negative are Emily's feelings about the situation?
+    GOLD: Highly negative.
+    PRED: Emily felt frustrated that her package had been lost.
+--------------------------------------------------------------------------------
+  [217/236] BiA=0.014 BiQ=0.857 CrQ=0.112
+    Q: How does Li perceive her chances in the competition?
+    GOLD: Very low
+    PRED: Li perceives his chances of winning the Li's fears grow as he thinks,
+--------------------------------------------------------------------------------
+  [218/236] BiA=0.199 BiQ=0.927 CrQ=0.126
+    Q: How does Li feel about her qualifications for the quota?
+    GOLD: Insecure
+    PRED: <li is very scared</li>
+--------------------------------------------------------------------------------
+  [219/236] BiA=0.045 BiQ=0.868 CrQ=0.099
+    Q: What is Emma's primary emotion before speaking?
+    GOLD: Fear
+    PRED: . The other option is incorrect because it does not match the context
+--------------------------------------------------------------------------------
+  [220/236] BiA=0.162 BiQ=0.940 CrQ=0.137
+    Q: How confident does Emma feel about her speech?
+    GOLD: Low
+    PRED: Reasoning: [
+--------------------------------------------------------------------------------
+  [221/236] BiA=0.137 BiQ=0.906 CrQ=0.122
+    Q: What does Jake's encouragement imply about Emma's potential?
+    GOLD: High
+    PRED: The answer is that if Emma messes up, then she might mess up her chanc
+--------------------------------------------------------------------------------
+  [222/236] BiA=0.653 BiQ=0.976 CrQ=0.193
+    Q: What is Emily's emotional reaction to Jake's message?
+    GOLD: She feels anxious.
+    PRED: Anxiety
+--------------------------------------------------------------------------------
+  [223/236] BiA=0.107 BiQ=0.912 CrQ=0.130
+    Q: What does Emily hope for regarding the surprise?
+    GOLD: She hopes it's good news.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [224/236] BiA=0.313 BiQ=0.821 CrQ=0.114
+    Q: How does Emily perceive the uncertainty of the message?
+    GOLD: She feels dread.
+    PRED: A) Excited B) Anxious C) Relieved D) Nervousful E) Nervousful F) Nervo
+--------------------------------------------------------------------------------
+  [225/236] BiA=0.336 BiQ=0.897 CrQ=0.112
+    Q: How does Mark feel about Sarah's confession?
+    GOLD: He feels disappointed.
+    PRED: Mark is feeling nervous because he fears for............Sarah is worri
+--------------------------------------------------------------------------------
+  [226/236] BiA=0.417 BiQ=0.820 CrQ=0.120
+    Q: How secure does Sarah feel after confessing?
+    GOLD: She feels insecure.
+    PRED: Sarah feels anxious because she lies sick with job of food poisoning.
+--------------------------------------------------------------------------------
+  [227/236] BiA=0.520 BiQ=0.923 CrQ=0.114
+    Q: What is Sarah's primary emotion regarding her confession?
+    GOLD: She fears his reaction.
+    PRED: Sarah feels disappointed because she fears for lie about her not havin
+--------------------------------------------------------------------------------
+  [228/236] BiA=0.020 BiQ=0.890 CrQ=0.138
+    Q: How does Emily feel about her advisor's guidance?
+    GOLD: She feels unsupported.
+    PRED: <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+--------------------------------------------------------------------------------
+  [229/236] BiA=0.406 BiQ=0.855 CrQ=0.107
+    Q: What does Emily think about her relationship with Mr. Smith?
+    GOLD: She feels disconnected.
+    PRED: Emily is frustrated by her advisor's lack of guidance and - Emily is f
+--------------------------------------------------------------------------------
+  [230/236] BiA=0.132 BiQ=0.803 CrQ=0.089
+    Q: How does Emily perceive her current situation?
+    GOLD: She feels hopeless.
+    PRED: Mr. provides guidance by giving advice and support and encouragement t
+--------------------------------------------------------------------------------
+  [231/236] BiA=0.231 BiQ=0.790 CrQ=0.119
+    Q: How disappointed is Emily about the rejection?
+    GOLD: Very disappointed.
+    PRED: Assistant. Dr. Smith, Dr. Smith... 1. She felt rejected by his lack of
+--------------------------------------------------------------------------------
+  [232/236] BiA=0.299 BiQ=0.858 CrQ=0.123
+    Q: How does Emily feel about her abilities after the rejection?
+    GOLD: She feels inadequate.
+    PRED: Reasoning: Dr. Smith, Dr. Smith, and Emily's feelings can be understoo
+--------------------------------------------------------------------------------
+  [233/236] BiA=0.171 BiQ=0.916 CrQ=0.127
+    Q: What negative feelings does Emily experience?
+    GOLD: She feels hopeless.
+    PRED: ...
+--------------------------------------------------------------------------------
+  [234/236] BiA=0.116 BiQ=0.891 CrQ=0.118
+    Q: How angry is Emily about the noise?
+    GOLD: Very angry.
+    PRED: Emily is frustrated by loud music from her neighbor. decides to confro
+--------------------------------------------------------------------------------
+  [235/236] BiA=0.253 BiQ=0.881 CrQ=0.108
+    Q: Does Emily feel secure in her home?
+    GOLD: No, she feels disturbed.
+    PRED: No one does not feel secure in her home because ofone feels insecure i
+--------------------------------------------------------------------------------
+  [236/236] BiA=0.191 BiQ=0.965 CrQ=0.172
+    Q: How negative is Emily's perception of the situation?
+    GOLD: Highly negative.
+    PRED: ...
