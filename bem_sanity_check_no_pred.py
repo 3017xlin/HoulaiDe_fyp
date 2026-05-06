@@ -1,18 +1,10 @@
 """
-BEM Sanity Check for merged CSV files WITHOUT a PRED column.
-Uses only Q and GOLD columns. Generates synthetic pairs for testing.
-
-Test 1 — Shuffled Gold: pair each Q with a WRONG gold from another Q,
-  compute BEM(wrong_gold_as_pred, correct_gold, question).
-  If BEM is still high, it proves topic-driven scoring.
-
-Test 2 — Discrimination:
-  Positive: BEM(correct_gold, correct_gold, question) — perfect match baseline
-  Negative: BEM(wrong_gold, correct_gold, question) — mismatched answer
-  AUC near 0.5 = BEM cannot distinguish correct from incorrect.
+BEM Sanity Check — works with CSV files that may lack Q/GOLD/PRED columns.
+If the target CSV has no Q/GOLD, reads them from a reference CSV (e.g. llama31).
 
 Usage:
-  python bem_sanity_check_llama32.py merged_base_llama32.csv
+  python bem_sanity_check_no_pred.py merged_base_llama32.csv merged_base_llama31.csv
+  python bem_sanity_check_no_pred.py merged_base_llama31.csv
 """
 
 import csv
@@ -60,21 +52,49 @@ def compute_auc(pos_scores, neg_scores):
     return auc / (total_pos * total_neg)
 
 
+def find_col(row, candidates):
+    for c in candidates:
+        if c in row:
+            return c
+    return None
+
+
 def main():
-    csv_file = sys.argv[1] if len(sys.argv) > 1 else "merged_base_llama32.csv"
+    target_file = sys.argv[1] if len(sys.argv) > 1 else "merged_base_llama32.csv"
+    ref_file = sys.argv[2] if len(sys.argv) > 2 else None
     seed = 42
 
-    log(f"Loading data from {csv_file}")
-    with open(csv_file, "r", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    n = len(rows)
-    log(f"Loaded {n} samples")
+    log(f"Loading target: {target_file}")
+    with open(target_file, "r", encoding="utf-8") as f:
+        target_rows = list(csv.DictReader(f))
+    n = len(target_rows)
+    log(f"  {n} rows, cols: {list(target_rows[0].keys())}")
 
-    # Detect column names
-    cols = list(rows[0].keys())
-    q_col = "Q" if "Q" in cols else "question"
-    gold_col = "GOLD" if "GOLD" in cols else "gold"
-    log(f"Using columns: question='{q_col}', gold='{gold_col}'")
+    # Try to find Q/GOLD in target file
+    q_col = find_col(target_rows[0], ["Q", "question", "q"])
+    gold_col = find_col(target_rows[0], ["GOLD", "gold", "gold_answer"])
+
+    if q_col and gold_col:
+        log(f"  Found Q='{q_col}', GOLD='{gold_col}' in target file")
+        questions = [r[q_col] for r in target_rows]
+        golds = [r[gold_col] for r in target_rows]
+    elif ref_file:
+        log(f"  Q/GOLD not in target file. Loading from reference: {ref_file}")
+        with open(ref_file, "r", encoding="utf-8") as f:
+            ref_rows = list(csv.DictReader(f))
+        assert len(ref_rows) == n, f"Row count mismatch: target={n}, ref={len(ref_rows)}"
+        rq = find_col(ref_rows[0], ["Q", "question", "q"])
+        rg = find_col(ref_rows[0], ["GOLD", "gold", "gold_answer"])
+        assert rq and rg, f"Reference file also missing Q/GOLD. Cols: {list(ref_rows[0].keys())}"
+        questions = [r[rq] for r in ref_rows]
+        golds = [r[rg] for r in ref_rows]
+        log(f"  Got Q='{rq}', GOLD='{rg}' from reference ({n} rows)")
+    else:
+        print(f"ERROR: target file has no Q/GOLD columns and no reference file provided.")
+        print(f"Usage: python {sys.argv[0]} target.csv reference_with_Q_GOLD.csv")
+        sys.exit(1)
+
+    original_bems = [float(target_rows[i].get("BEM", target_rows[i].get("bem", 0))) for i in range(n)]
 
     log("Loading BEM model...")
     bem_tok = AutoTokenizer.from_pretrained("kortukov/answer-equivalence-bem")
@@ -82,17 +102,12 @@ def main():
     bem_mdl.eval()
     log("BEM loaded")
 
-    questions = [r[q_col] for r in rows]
-    golds = [r[gold_col] for r in rows]
-    original_bems = [float(r.get("BEM", 0)) for r in rows]
-
     # ==========================================
     # TEST 1: Shuffled Gold Pairs
     # ==========================================
     log("=" * 70)
     log("TEST 1: Shuffled Gold Pairs")
     log("BEM(wrong_gold_as_candidate, correct_gold, question)")
-    log("If BEM is high, scoring is driven by topic, not answer content.")
     log("=" * 70)
 
     rng = random.Random(seed)
@@ -129,8 +144,8 @@ def main():
     # ==========================================
     log("=" * 70)
     log("TEST 2: Discrimination Test")
-    log("Positive: BEM(correct_gold, correct_gold, question) — identity baseline")
-    log("Negative: BEM(wrong_gold, correct_gold, question) — mismatched answer")
+    log("Positive: BEM(correct_gold, correct_gold, question)")
+    log("Negative: BEM(wrong_gold, correct_gold, question)")
     log("=" * 70)
 
     pos_scores = []
@@ -144,9 +159,6 @@ def main():
 
         if (i + 1) <= 3 or (i + 1) % 50 == 0 or (i + 1) == n:
             log(f"  [{i+1}/{n}] pos={pos:.4f} neg={neg:.4f} gap={pos-neg:.4f}")
-            log(f"    Q: {questions[i][:70]}")
-            log(f"    GOLD: {golds[i][:50]}")
-            log(f"    WRONG: {wrong_gold[:50]}")
 
     auc = compute_auc(pos_scores, neg_scores)
     mean_pos = sum(pos_scores) / n
@@ -158,39 +170,21 @@ def main():
     log(f"  Mean BEM (negative / wrong gold):  {mean_neg:.4f}")
     log(f"  Mean gap:                          {mean_pos - mean_neg:.4f}")
     log(f"  AUC:                               {auc:.4f}")
-    log(f"  AUC interpretation:")
-    log(f"    1.0  = perfect discrimination")
-    log(f"    0.5  = random (no discrimination)")
-    log(f"    <0.6 = BEM effectively useless for this task")
     log("")
 
     # ==========================================
-    # Save results
+    # Save
     # ==========================================
-    out_file = csv_file.replace(".csv", "_bem_sanity.txt")
+    out_file = target_file.replace(".csv", "_bem_sanity.txt")
     with open(out_file, "w", encoding="utf-8") as f:
-        f.write("BEM SANITY CHECK RESULTS (no PRED column version)\n")
-        f.write(f"Source: {csv_file}\n")
-        f.write(f"N = {n}\n\n")
-
-        f.write("=== TEST 1: Shuffled Gold Pairs ===\n")
-        f.write(f"BEM original (model predictions): {avg_original:.6f}\n")
-        f.write(f"BEM shuffled (wrong gold):        {avg_shuffled:.6f}\n")
-        f.write(f"Gap: {avg_original - avg_shuffled:.6f}\n\n")
-
-        f.write("=== TEST 2: Discrimination (AUC) ===\n")
-        f.write(f"Mean BEM positive (gold=gold): {mean_pos:.6f}\n")
-        f.write(f"Mean BEM negative (wrong gold): {mean_neg:.6f}\n")
-        f.write(f"Mean gap: {mean_pos - mean_neg:.6f}\n")
-        f.write(f"AUC: {auc:.6f}\n\n")
-
-        f.write("=== Per-sample scores ===\n")
+        f.write(f"BEM SANITY CHECK\nSource: {target_file}\nN = {n}\n\n")
+        f.write(f"=== TEST 1: Shuffled Gold ===\n")
+        f.write(f"BEM original: {avg_original:.6f}\nBEM shuffled: {avg_shuffled:.6f}\nGap: {avg_original - avg_shuffled:.6f}\n\n")
+        f.write(f"=== TEST 2: Discrimination ===\n")
+        f.write(f"Mean pos: {mean_pos:.6f}\nMean neg: {mean_neg:.6f}\nGap: {mean_pos - mean_neg:.6f}\nAUC: {auc:.6f}\n\n")
+        f.write(f"=== Per-sample ===\n")
         for i in range(n):
-            f.write(f"[{i+1}] BEM_orig={original_bems[i]:.4f} "
-                    f"BEM_shuffled={shuffled_scores[i]:.4f} "
-                    f"BEM_pos={pos_scores[i]:.4f} "
-                    f"BEM_neg={neg_scores[i]:.4f}\n")
-
+            f.write(f"[{i+1}] BEM_orig={original_bems[i]:.4f} shuf={shuffled_scores[i]:.4f} pos={pos_scores[i]:.4f} neg={neg_scores[i]:.4f}\n")
     log(f"Saved: {out_file}")
 
 
