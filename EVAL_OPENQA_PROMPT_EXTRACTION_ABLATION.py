@@ -628,7 +628,7 @@ def run_eval(model, tokenizer, examples: List[Dict], max_new_tokens: int,
 
     em_hits = 0
     records = []
-    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], [], []
+    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], []
 
     for idx, ex in enumerate(examples):
         prompt = build_chat_prompt(tokenizer, prompt_builder(ex))
