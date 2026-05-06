@@ -633,7 +633,7 @@ def evaluate(model, tokenizer, data: List[dict], mode: str,
 
     em = 0
     records = []
-    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], [], []
+    f1s, bias, biqs, cras, crqs, bems, pa_bems, ljs, lj_labels, lj_reasonings = [], [], [], [], [], [], [], [], [], []
 
     for i, ex in enumerate(data):
         prompt = wrap_chat(tokenizer, builder(ex))
