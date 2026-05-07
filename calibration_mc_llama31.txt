@@ -1,0 +1,11 @@
+Calibration Analysis
+Model: meta-llama/Llama-3.1-8B-Instruct
+Task: MC-finetuned→OpenQA
+K: 5
+N: 247
+
+mean_consistency = 0.812641
+mean_correctness = 0.700405
+pearson_r = 0.342970
+spearman_rho = 0.385621
+ece = 0.127215

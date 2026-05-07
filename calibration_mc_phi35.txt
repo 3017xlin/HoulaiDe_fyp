@@ -1,0 +1,11 @@
+Calibration Analysis
+Model: microsoft/Phi-3.5-mini-instruct
+Task: MC-finetuned→OpenQA
+K: 5
+N: 247
+
+mean_consistency = 0.781579
+mean_correctness = 0.694332
+pearson_r = 0.364436
+spearman_rho = 0.361188
+ece = 0.116802

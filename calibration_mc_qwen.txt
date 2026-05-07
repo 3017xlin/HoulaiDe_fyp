@@ -1,0 +1,11 @@
+Calibration Analysis
+Model: Qwen/Qwen2.5-1.5B-Instruct
+Task: MC-finetuned→OpenQA
+K: 5
+N: 247
+
+mean_consistency = 0.384008
+mean_correctness = 0.329960
+pearson_r = 0.115065
+spearman_rho = 0.218701
+ece = 0.143522
